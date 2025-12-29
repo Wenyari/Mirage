@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.app.tsbuildinfo", // Good practice for caching
+    
+    "noEmit": false,                // Must be false so references can read outputs
+    "emitDeclarationOnly": true,    // Only emit .d.ts files, let Vite handle the JS
+    "declaration": true
+  },
+  "include": ["vite.config.ts"]
+}
