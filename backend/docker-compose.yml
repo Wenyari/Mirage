@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: sora_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: sora_platform
+      MYSQL_USER: sora_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sora_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化 SQL (可选)
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存/队列
+  redis:
+    image: redis:7-alpine
+    container_name: sora_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flask API 服务
+  api:
+    build: .
+    container_name: sora_api
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: gunicorn -w 4 -b 0.0.0.0:5000 run:app
+    volumes:
+      - .:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # RQ Worker (异步任务处理)
+  worker:
+    build: .
+    container_name: sora_worker
+    restart: always
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python worker.py
+    volumes:
+      - .:/app
+
+volumes:
+  mysql_data:
+  redis_data:
