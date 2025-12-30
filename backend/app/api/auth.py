@@ -92,9 +92,12 @@ def login():
 
         # 临时简单的验证逻辑 (仅用于测试)
         if email == "admin@example.com" and password == "admin123":
-            # 使用 flask_jwt_extended 生成与 @jwt_required 兼容的 access token
+            # 尝试从数据库查找用户ID，确保 identity 存为字符串以兼容JWT子字段类型
+            from app.models import User
+            user = User.query.filter_by(email=email).first()
+            identity_value = str(user.id) if user else '1'
             additional_claims = {"email": email}
-            access_token = create_access_token(identity=1, additional_claims=additional_claims)
+            access_token = create_access_token(identity=identity_value, additional_claims=additional_claims)
 
             return jsonify({
                 "code": 200,

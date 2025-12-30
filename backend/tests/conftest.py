@@ -19,6 +19,8 @@ class TestConfig(Config):
     # 使用内存数据库 (SQLite)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # SQLite in-memory 不支持某些 create_engine 参数，测试时使用空的 engine options
+    SQLALCHEMY_ENGINE_OPTIONS = {}
 
     # 使用独立的 Redis 数据库
     REDIS_URL = 'redis://localhost:6379/15'
