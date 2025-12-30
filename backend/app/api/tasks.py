@@ -30,23 +30,18 @@ def create_task():
         params = data.get('params', {})
         input_file_url = data.get('input_file_url')
 
-        if not model:
-            return jsonify({"code": 400, "msg": "Model is required", "data": None}), 400
+        if not model or not prompt:
+            return jsonify({"code": 400, "msg": "Model and prompt are required", "data": None}), 400
 
-        # TODO: 调用 task_service.submit_task(user_id, task_data)
-        # from app.services.task_service import submit_task
-        # task_id = submit_task(user_id, {
-        #     'model': model,
-        #     'prompt': prompt,
-        #     'params': params,
-        #     'input_file_url': input_file_url
-        # })
+        # 生成模拟的task_id (临时实现)
+        import uuid
+        task_id = str(uuid.uuid4())
 
         return jsonify({
             "code": 200,
             "msg": "Task submitted successfully",
             "data": {
-                "task_id": "uuid-here",  # TODO: 返回实际 task_id
+                "task_id": task_id,
                 "status": "pending"
             }
         }), 200
@@ -68,22 +63,42 @@ def get_task_status(task_id):
     try:
         user_id = get_jwt_identity()
 
-        # TODO: 从数据库查询任务
-        # from app.models import Task
-        # task = Task.query.filter_by(id=task_id, user_id=user_id).first()
-        # if not task:
-        #     return jsonify({"code": 404, "msg": "Task not found", "data": None}), 404
+        # 临时模拟任务状态 (实际应该从数据库查询)
+        import random
+        import datetime
+
+        # 模拟不同的状态 (用于测试)
+        statuses = ["pending", "processing", "success", "failed"]
+        status = random.choice(statuses)
+
+        # 根据状态生成相应的数据
+        if status == "success":
+            result_url = "https://cdn.example.com/videos/generated-video.mp4"
+            progress = 100
+            fail_reason = None
+        elif status == "failed":
+            result_url = None
+            progress = 0
+            fail_reason = "Content violation: NSFW content detected"
+        elif status == "processing":
+            result_url = None
+            progress = random.randint(10, 90)
+            fail_reason = None
+        else:  # pending
+            result_url = None
+            progress = 0
+            fail_reason = None
 
         return jsonify({
             "code": 200,
             "msg": "Success",
             "data": {
                 "id": task_id,
-                "status": "processing",  # pending/processing/success/failed
-                "progress": 50,  # 进度百分比 (可选)
-                "result_url": None,  # 成功后返回结果链接
-                "fail_reason": None,
-                "created_at": "2024-01-01T00:00:00"
+                "status": status,
+                "progress": progress,
+                "result_url": result_url,
+                "fail_reason": fail_reason,
+                "created_at": datetime.datetime.now().isoformat()
             }
         }), 200
 

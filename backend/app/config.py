@@ -20,7 +20,7 @@ class Config:
 
     # 数据库配置 (MySQL)
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI',
-                                        'mysql+pymysql://root:password@localhost:3306/sora_platform?charset=utf8mb4')
+                                        'mysql+pymysql://root:admin@localhost:3306/sora_platform?charset=utf8mb4')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = DEBUG  # 开发环境打印 SQL 语句
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -47,9 +47,10 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', 'noreply@example.com')
 
-    # OpenAI/Sora API 配置
+    # 第三方 Sora API 配置
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-    SORA_API_ENDPOINT = os.getenv('SORA_API_ENDPOINT', 'https://api.openai.com/v1')
+    SORA_API_BASE_URL = os.getenv('SORA_API_BASE_URL', 'https://ai.t8star.cn')
+    SORA_API_ENDPOINT = os.getenv('SORA_API_ENDPOINT', 'https://api.openai.com/v1')  # 兼容旧配置
 
     # 限流配置
     RATE_LIMIT_PER_HOUR = int(os.getenv('RATE_LIMIT_PER_HOUR', 100))

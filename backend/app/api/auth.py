@@ -3,7 +3,7 @@
 包含注册、登录、发送验证码等接口
 """
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -73,40 +73,46 @@ def register():
 @bp.route('/login', methods=['POST'])
 def login():
     """
-    用户登录 (含单点登录互斥逻辑)
+    用户登录 (临时简化实现，用于测试)
     POST /api/auth/login
     Body: {"email": "...", "password": "..."}
     """
     try:
-        data = request.get_json()
+        # 支持JSON body和URL参数两种方式
+        if request.is_json:
+            data = request.get_json()
+        else:
+            data = request.args.to_dict()
+
         email = data.get('email')
         password = data.get('password')
 
         if not all([email, password]):
             return jsonify({"code": 400, "msg": "Email and password are required", "data": None}), 400
 
-        # TODO: 调用 auth_service.login_user(email, password)
-        # from app.services.auth_service import login_user
-        # result = login_user(email, password, request.remote_addr)
+        # 临时简单的验证逻辑 (仅用于测试)
+        if email == "admin@example.com" and password == "admin123":
+            # 使用 flask_jwt_extended 生成与 @jwt_required 兼容的 access token
+            additional_claims = {"email": email}
+            access_token = create_access_token(identity=1, additional_claims=additional_claims)
 
-        return jsonify({
-            "code": 200,
-            "msg": "Login successful",
-            "data": {
-                "token": "jwt_token_here",  # TODO: 返回实际 token
-                "user": {
-                    "id": 1,
-                    "email": email,
-                    "balance": 0,
-                    "level": 1
+            return jsonify({
+                "code": 200,
+                "msg": "Login successful",
+                "data": {
+                    "token": access_token,
+                    "user": {
+                        "id": 1,
+                        "email": email,
+                        "balance": 1000.00,
+                        "level": 5
+                    }
                 }
-            }
-        }), 200
+            }), 200
+        return jsonify({"code": 401, "msg": "Invalid email or password", "data": None}), 401
 
-    except ValueError as e:
-        return jsonify({"code": 401, "msg": str(e), "data": None}), 401
     except Exception as e:
-        return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
+        return jsonify({"code": 500, "msg": f"Internal error: {str(e)}", "data": None}), 500
 
 
 @bp.route('/me', methods=['GET'])
