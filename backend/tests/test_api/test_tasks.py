@@ -273,3 +273,145 @@ class TestSoraThirdPartyAPI:
         # result = gateway.call_model('sora-2', 'A simple test prompt')
         # assert 'job_id' in result
         # assert result['status'] == 'pending'
+
+
+@pytest.mark.api
+class TestJWTAuthenticationIntegration:
+    """JWT认证集成测试类"""
+
+    def test_login_and_use_token_for_tasks(self, client, db_session, redis_db):
+        """
+        测试完整的JWT认证流程：
+        1. 使用 admin@example.com / admin123 登录
+        2. 获取JWT token
+        3. 使用token调用tasks接口
+        """
+        # Step 1: 登录获取token
+        login_response = client.post(
+            '/api/auth/login',
+            data=json.dumps({
+                'email': 'admin@example.com',
+                'password': 'admin123'
+            }),
+            content_type='application/json'
+        )
+
+        # 验证登录成功
+        assert login_response.status_code == 200
+        login_data = json.loads(login_response.data)
+        assert login_data['code'] == 200
+        assert 'token' in login_data['data']
+        assert 'user' in login_data['data']
+
+        # 提取token
+        token = login_data['data']['token']
+        assert token is not None
+        assert len(token) > 0
+
+        # 验证用户信息
+        user_data = login_data['data']['user']
+        assert user_data['email'] == 'admin@example.com'
+        assert user_data['id'] == 1
+
+        # Step 2: 使用token调用tasks创建接口
+        auth_headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+
+        create_task_response = client.post(
+            '/api/tasks',
+            data=json.dumps({
+                'model': 'sora-v2',
+                'prompt': 'A beautiful sunset over the ocean',
+                'params': {'duration': 5}
+            }),
+            headers=auth_headers
+        )
+
+        # 验证任务创建成功
+        assert create_task_response.status_code == 200
+        task_data = json.loads(create_task_response.data)
+        assert task_data['code'] == 200
+        assert 'task_id' in task_data['data']
+        assert task_data['data']['status'] == 'pending'
+
+        # Step 3: 使用token查询任务状态
+        task_id = task_data['data']['task_id']
+        get_task_response = client.get(
+            f'/api/tasks/{task_id}',
+            headers=auth_headers
+        )
+
+        # 验证查询成功
+        assert get_task_response.status_code == 200
+        status_data = json.loads(get_task_response.data)
+        assert status_data['code'] == 200
+        assert 'id' in status_data['data']
+        assert 'status' in status_data['data']
+
+        # Step 4: 使用token获取任务历史
+        history_response = client.get(
+            '/api/tasks?page=1&size=20',
+            headers=auth_headers
+        )
+
+        # 验证历史查询成功
+        assert history_response.status_code == 200
+        history_data = json.loads(history_response.data)
+        assert history_data['code'] == 200
+        assert 'list' in history_data['data']
+        assert 'total' in history_data['data']
+
+    def test_tasks_without_token_fails(self, client, db_session):
+        """测试不带token访问tasks接口会失败"""
+        # 尝试创建任务但不提供token
+        response = client.post(
+            '/api/tasks',
+            data=json.dumps({
+                'model': 'sora-v2',
+                'prompt': 'Test'
+            }),
+            content_type='application/json'
+        )
+
+        # 应该返回401未授权
+        assert response.status_code == 401
+
+    def test_tasks_with_invalid_token_fails(self, client, db_session):
+        """测试使用无效token访问tasks接口会失败"""
+        # 使用无效的token
+        invalid_headers = {
+            'Authorization': 'Bearer invalid-token-12345',
+            'Content-Type': 'application/json'
+        }
+
+        response = client.post(
+            '/api/tasks',
+            data=json.dumps({
+                'model': 'sora-v2',
+                'prompt': 'Test'
+            }),
+            headers=invalid_headers
+        )
+
+        # 应该返回401未授权或422(无效token格式)
+        assert response.status_code in [401, 422]
+
+    def test_login_with_wrong_credentials_fails(self, client, db_session):
+        """测试使用错误的凭证登录会失败"""
+        # 尝试使用错误的密码登录
+        response = client.post(
+            '/api/auth/login',
+            data=json.dumps({
+                'email': 'admin@example.com',
+                'password': 'wrongpassword'
+            }),
+            content_type='application/json'
+        )
+
+        # 应该返回401未授权
+        assert response.status_code == 401
+        data = json.loads(response.data)
+        assert data['code'] == 401
+        assert 'token' not in data.get('data', {})

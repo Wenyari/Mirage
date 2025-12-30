@@ -1,13 +1,14 @@
-import { NavLink } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 import {
-  LayoutDashboard,
-  Users,
-  Ticket,
   Key,
-  Settings,
+  LayoutDashboard,
   Microscope,
+  Settings,
+  Ticket,
+  Users,
 } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+
+import { cn } from '@/lib/utils';
 
 const menuItems = [
   {
@@ -66,7 +67,7 @@ export function AdminSidebar() {
                 )
               }
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className="size-5" />
               {item.label}
             </NavLink>
           ))}

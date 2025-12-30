@@ -1,6 +1,6 @@
-import * as React from "react";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 import { type VariantProps } from "class-variance-authority";
+import * as React from "react";
 declare const ToastProvider: React.FC<ToastPrimitives.ToastProviderProps>;
 declare const ToastViewport: React.ForwardRefExoticComponent<Omit<ToastPrimitives.ToastViewportProps & React.RefAttributes<HTMLOListElement>, "ref"> & React.RefAttributes<HTMLOListElement>>;
 declare const Toast: React.ForwardRefExoticComponent<Omit<ToastPrimitives.ToastProps & React.RefAttributes<HTMLLIElement>, "ref"> & VariantProps<(props?: ({
@@ -12,4 +12,4 @@ declare const ToastTitle: React.ForwardRefExoticComponent<Omit<ToastPrimitives.T
 declare const ToastDescription: React.ForwardRefExoticComponent<Omit<ToastPrimitives.ToastDescriptionProps & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
 type ToastActionElement = React.ReactElement<typeof ToastAction>;
-export { type ToastProps, type ToastActionElement, ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose, ToastAction, };
+export { Toast, ToastAction,type ToastActionElement, ToastClose, ToastDescription, type ToastProps, ToastProvider, ToastTitle, ToastViewport,  };

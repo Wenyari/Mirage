@@ -1,5 +1,5 @@
-import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
+import * as React from "react";
 import { type ControllerProps, type FieldPath, type FieldValues } from "react-hook-form";
 declare const Form: <TFieldValues extends FieldValues, TContext = any, TTransformedValues = TFieldValues>(props: import("react-hook-form").FormProviderProps<TFieldValues, TContext, TTransformedValues>) => React.JSX.Element;
 declare const FormField: <TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>>({ ...props }: ControllerProps<TFieldValues, TName>) => import("react/jsx-runtime").JSX.Element;
@@ -20,4 +20,4 @@ declare const FormLabel: React.ForwardRefExoticComponent<Omit<LabelPrimitive.Lab
 declare const FormControl: React.ForwardRefExoticComponent<Omit<import("@radix-ui/react-slot").SlotProps & React.RefAttributes<HTMLElement>, "ref"> & React.RefAttributes<HTMLElement>>;
 declare const FormDescription: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>>;
 declare const FormMessage: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>>;
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField, };
+export { Form, FormControl, FormDescription, FormField,FormItem, FormLabel, FormMessage, useFormField,  };

@@ -1,13 +1,14 @@
+import { Activity, AlertCircle,DollarSign, Users, Zap } from 'lucide-react';
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useDashboardOverview, useChartData } from '@/hooks/useDashboard';
-import { UserGrowthChart } from '@/components/charts/UserGrowthChart';
+
 import { TokenUsageChart } from '@/components/charts/TokenUsageChart';
-import { formatNumber, formatCurrency } from '@/utils/format';
-import { Users, Activity, DollarSign, Zap, AlertCircle } from 'lucide-react';
+import { UserGrowthChart } from '@/components/charts/UserGrowthChart';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useChartData,useDashboardOverview } from '@/hooks/useDashboard';
+import { formatCurrency,formatNumber } from '@/utils/format';
 
 export default function Dashboard() {
   const [chartDays, setChartDays] = useState<'7' | '30'>('7');
@@ -24,7 +25,7 @@ export default function Dashboard() {
           <p className="text-muted-foreground">查看系统核心指标和趋势</p>
         </div>
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>加载失败</AlertTitle>
           <AlertDescription>
             无法加载仪表盘数据，请稍后重试。
@@ -49,7 +50,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="size-4 rounded-full" />
             </CardHeader>
             <CardContent>
               <Skeleton className="h-8 w-16" />
@@ -60,7 +61,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">今日新增用户</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Users className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{overview?.today_new_users || 0}</div>
@@ -74,7 +75,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="size-4 rounded-full" />
             </CardHeader>
             <CardContent>
               <Skeleton className="h-8 w-16" />
@@ -85,7 +86,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">今日 Token 消耗</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+              <Activity className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -101,7 +102,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="size-4 rounded-full" />
             </CardHeader>
             <CardContent>
               <Skeleton className="h-8 w-16" />
@@ -112,7 +113,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">今日估算收入</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <DollarSign className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -128,7 +129,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="size-4 rounded-full" />
             </CardHeader>
             <CardContent>
               <Skeleton className="h-8 w-16" />
@@ -139,7 +140,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">活跃任务数</CardTitle>
-              <Zap className="h-4 w-4 text-muted-foreground" />
+              <Zap className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{overview?.active_tasks || 0}</div>

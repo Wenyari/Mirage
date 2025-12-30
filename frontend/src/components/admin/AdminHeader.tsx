@@ -1,4 +1,7 @@
+import { Moon, Sun } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,8 +11,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 const routeNames: Record<string, string> = {
   '/wadminw/dashboard': '仪表盘',
@@ -71,9 +72,9 @@ export function AdminHeader() {
           aria-label="Toggle theme"
         >
           {theme === 'light' ? (
-            <Moon className="h-5 w-5" />
+            <Moon className="size-5" />
           ) : (
-            <Sun className="h-5 w-5" />
+            <Sun className="size-5" />
           )}
         </Button>
       </div>

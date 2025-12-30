@@ -1,9 +1,10 @@
-import { RouterProvider } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { router } from './config/routes';
-import { queryClient } from './config/queryClient';
+import { RouterProvider } from 'react-router-dom';
+
 import { Toaster } from './components/ui/toaster';
+import { queryClient } from './config/queryClient';
+import { router } from './config/routes';
 
 function App() {
   return (

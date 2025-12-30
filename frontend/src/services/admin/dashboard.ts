@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import type { ApiResponse, DashboardOverview, ChartDataPoint } from '@/types';
+import type { ApiResponse, ChartDataPoint,DashboardOverview } from '@/types';
 
 // 获取仪表盘总览数据
 export async function getDashboardOverview(): Promise<DashboardOverview> {

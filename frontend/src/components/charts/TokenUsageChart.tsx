@@ -1,5 +1,6 @@
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer,Tooltip, XAxis, YAxis } from 'recharts';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { ChartDataPoint } from '@/types';
 
 interface TokenUsageChartProps {

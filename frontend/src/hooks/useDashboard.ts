@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getDashboardOverview, getChartData } from '@/services/admin/dashboard';
+
+import { getChartData,getDashboardOverview } from '@/services/admin/dashboard';
 
 // 获取仪表盘总览数据
 export function useDashboardOverview() {

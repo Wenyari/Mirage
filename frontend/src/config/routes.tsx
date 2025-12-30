@@ -1,11 +1,12 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+
 import AdminLayout from '@/layouts/AdminLayout';
-import Dashboard from '@/pages/admin/Dashboard';
-import UserManager from '@/pages/admin/UserManager';
 import CDKManager from '@/pages/admin/CDKManager';
+import Dashboard from '@/pages/admin/Dashboard';
 import KeyPool from '@/pages/admin/KeyPool';
 import ModelManager from '@/pages/admin/ModelManager';
 import Playground from '@/pages/admin/Playground';
+import UserManager from '@/pages/admin/UserManager';
 
 export const router = createBrowserRouter([
   {
