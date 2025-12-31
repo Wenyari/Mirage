@@ -444,7 +444,66 @@
 > - **MySQL**：存储密钥配置（platform, key_secret, max_concurrency, weight, status）
 > - **Redis**：维护实时状态（并发计数、熔断标记、统计缓冲）
 
-### 4.1 获取密钥列表
+> **⚠️ 重要变更**：平台配置已改为动态管理，不再硬编码
+> - 新增 `GET /api/admin/platforms` 接口获取可用平台列表
+> - 支持动态添加新的 AI 模型平台，无需修改前端代码
+> - Platform 字段类型从 `enum` 改为 `string`
+
+### 4.1 获取平台配置列表
+
+**接口路径**：`GET /api/admin/platforms`
+
+**说明**：获取系统支持的所有平台配置，前端通过此接口动态渲染平台选择器。
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "key": "openai",
+      "name": "OpenAI",
+      "enabled": true,
+      "description": "OpenAI GPT 系列模型",
+      "color": "bg-green-500",
+      "max_concurrency_limit": 20
+    },
+    {
+      "key": "sora",
+      "name": "Sora",
+      "enabled": true,
+      "description": "OpenAI Sora 视频生成模型",
+      "color": "bg-blue-500",
+      "max_concurrency_limit": 10
+    },
+    {
+      "key": "stability",
+      "name": "Stability AI",
+      "enabled": false,
+      "description": "Stable Diffusion 系列模型",
+      "color": "bg-indigo-500",
+      "max_concurrency_limit": 10
+    }
+  ]
+}
+```
+
+**字段说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| key | string | ✅ | 平台标识符（用于数据库存储） |
+| name | string | ✅ | 平台显示名称 |
+| enabled | boolean | ✅ | 是否启用（false 表示禁用，不在前端显示） |
+| description | string | ❌ | 平台描述信息 |
+| color | string | ❌ | Tailwind CSS 颜色类（用于 UI 展示） |
+| max_concurrency_limit | number | ❌ | 该平台建议的最大并发限制 |
+
+---
+
+### 4.2 获取密钥列表
 
 **接口路径**：`GET /api/admin/keys`
 
