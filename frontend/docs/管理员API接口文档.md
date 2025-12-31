@@ -440,11 +440,19 @@
 
 ## 四、密钥池管理 (Key Pool Management)
 
+> **架构说明**：密钥池采用 MySQL + Redis 双层架构
+> - **MySQL**：存储密钥配置（platform, key_secret, max_concurrency, weight, status）
+> - **Redis**：维护实时状态（并发计数、熔断标记、统计缓冲）
+
 ### 4.1 获取密钥列表
 
 **接口路径**：`GET /api/admin/keys`
 
-**请求参数**：无（返回所有密钥）
+**请求参数**：
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| platform | string | 否 | - | 平台筛选（openai、sora、midjourney 等） |
 
 **响应示例**：
 
@@ -455,27 +463,63 @@
   "data": [
     {
       "id": 1,
-      "platform": "openai",           // 平台：openai、anthropic、google 等
-      "key": "sk-proj-abc...xyz",     // API 密钥（后端应只返回前 10 位 + ****）
-      "weight": 10,                   // 权重（用于负载均衡）
-      "status": "active",             // 状态：active、error、rate_limit
-      "last_used": "2024-03-20T15:30:00Z",   // 最后使用时间
-      "error_message": null,          // 错误信息（status=error 时才有）
+      "platform": "openai",                 // 平台标识
+      "key_secret": "sk-proj-abc****xyz",   // 密钥（脱敏：前8位 + **** + 后4位）
+      "max_concurrency": 3,                 // 最大并发限制
+      "weight": 10,                         // 权重（用于负载均衡，1-100）
+      "status": 1,                          // 状态：1=启用，0=手动停用
+
+      // 统计字段（MySQL 存储，定时从 Redis 同步）
+      "total_calls": 15420,                 // 总调用次数
+      "total_errors": 23,                   // 总失败次数
+
+      // 实时状态（从 Redis 读取）
+      "current_usage": 2,                   // 当前并发数（0-max_concurrency）
+      "is_cooling": false,                  // 是否在冷却期（熔断中）
+      "cooling_until": null,                // 冷却结束时间（ISO 8601，冷却中才有值）
+
+      "last_used_at": "2024-03-20T15:30:00Z",  // 最后使用时间
       "created_at": "2024-03-01T10:00:00Z"
     },
     {
       "id": 2,
       "platform": "openai",
-      "key": "sk-proj-def...uvw",
-      "weight": 5,
-      "status": "rate_limit",
-      "last_used": "2024-03-20T16:00:00Z",
-      "error_message": "Rate limit exceeded",
+      "key_secret": "sk-proj-def****uvw",
+      "max_concurrency": 5,
+      "weight": 20,
+      "status": 1,
+      "total_calls": 8930,
+      "total_errors": 156,
+      "current_usage": 5,                   // 并发已满
+      "is_cooling": false,
+      "cooling_until": null,
+      "last_used_at": "2024-03-20T16:00:00Z",
       "created_at": "2024-03-05T14:00:00Z"
+    },
+    {
+      "id": 3,
+      "platform": "sora",
+      "key_secret": "sk-sora-xyz****abc",
+      "max_concurrency": 2,
+      "weight": 5,
+      "status": 1,
+      "total_calls": 234,
+      "total_errors": 45,
+      "current_usage": 0,
+      "is_cooling": true,                   // 正在冷却（触发了熔断）
+      "cooling_until": "2024-03-20T16:10:00Z",  // 预计恢复时间
+      "last_used_at": "2024-03-20T16:05:00Z",
+      "created_at": "2024-03-15T09:00:00Z"
     }
   ]
 }
 ```
+
+**字段说明**：
+- `max_concurrency`：核心配置，控制该 Key 同时运行的任务数上限
+- `weight`：权重越高，被选中的概率越大（用于"大号优先"策略）
+- `current_usage`：从 Redis `pool:usage:{key_id}` 实时读取
+- `is_cooling` / `cooling_until`：从 Redis `pool:cooldown:{key_id}` 读取（TTL 300s）
 
 ---
 
@@ -487,9 +531,10 @@
 
 ```json
 {
-  "platform": "openai",        // 平台
-  "key": "sk-proj-abc123...",  // API 密钥
-  "weight": 10                 // 权重（可选，默认 10）
+  "platform": "openai",              // 平台标识（必填）
+  "key_secret": "sk-proj-abc123...", // API 密钥完整串（必填）
+  "max_concurrency": 3,              // 最大并发数（可选，默认 3）
+  "weight": 10                       // 权重（可选，默认 10）
 }
 ```
 
@@ -500,11 +545,12 @@
   "code": 0,
   "message": "Key added successfully",
   "data": {
-    "id": 3,
+    "id": 4,
     "platform": "openai",
-    "key": "sk-proj-ab****",   // 返回时已脱敏
+    "key_secret": "sk-proj-ab****",    // 返回时已脱敏
+    "max_concurrency": 3,
     "weight": 10,
-    "status": "active",
+    "status": 1,
     "created_at": "2024-03-20T17:00:00Z"
   }
 }
@@ -512,7 +558,74 @@
 
 ---
 
-### 4.3 删除密钥
+### 4.3 批量添加密钥
+
+**接口路径**：`POST /api/admin/keys/batch`
+
+**请求 Body**：
+
+```json
+{
+  "platform": "openai",              // 平台（必填）
+  "keys": [                          // 密钥数组（必填，最多 100 个）
+    "sk-proj-abc123...",
+    "sk-proj-def456...",
+    "sk-proj-ghi789..."
+  ],
+  "max_concurrency": 3,              // 统一的最大并发（可选，默认 3）
+  "weight": 10                       // 统一的权重（可选，默认 10）
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Batch import completed",
+  "data": {
+    "success_count": 3,              // 成功导入数量
+    "failed_count": 0,               // 失败数量
+    "failed_keys": []                // 失败的密钥列表（脱敏）
+  }
+}
+```
+
+---
+
+### 4.4 更新密钥配置
+
+**接口路径**：`PATCH /api/admin/keys/{id}`
+
+**路径参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 密钥 ID |
+
+**请求 Body**：
+
+```json
+{
+  "max_concurrency": 5,   // 最大并发数（可选）
+  "weight": 20,           // 权重（可选）
+  "status": 1             // 状态：1=启用，0=停用（可选）
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Key updated successfully",
+  "data": null
+}
+```
+
+---
+
+### 4.5 删除密钥
 
 **接口路径**：`DELETE /api/admin/keys/{id}`
 
@@ -532,18 +645,57 @@
 }
 ```
 
+**注意**：删除密钥时，如果该密钥正在被使用（current_usage > 0），后端应返回 400 错误，提示先等待任务完成或手动停用。
+
 ---
 
-### 4.4 触发健康检测
+### 4.6 手动触发熔断/解除熔断
 
-**接口路径**：`POST /api/admin/keys/check`
+**接口路径**：`POST /api/admin/keys/{id}/cooldown`
 
-**请求参数**：无
+**路径参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 密钥 ID |
+
+**请求 Body**：
+
+```json
+{
+  "action": "trigger",   // 操作：trigger（触发熔断）、release（解除熔断）
+  "duration": 300        // 冷却时长（秒，仅 trigger 时需要，默认 300）
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Cooldown triggered successfully",
+  "data": {
+    "cooling_until": "2024-03-20T16:15:00Z"
+  }
+}
+```
+
+---
+
+### 4.7 触发健康检测
+
+**接口路径**：`POST /api/admin/keys/health-check`
+
+**请求参数**：
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| platform | string | 否 | 指定平台检测（不填则检测所有） |
 
 **说明**：
-- 触发后端异步检测所有密钥的连通性
-- 建议返回一个任务 ID，前端可轮询查询检测进度
-- 或者直接等待检测完成后返回结果（适用于密钥数量较少的情况）
+- 后端调用各平台 API 验证密钥有效性
+- 检测结果会更新密钥状态和错误计数
+- 建议异步执行，返回任务 ID 供前端轮询
 
 **响应示例**（同步方式）：
 
@@ -552,10 +704,26 @@
   "code": 0,
   "message": "Health check completed",
   "data": {
-    "total": 10,       // 总密钥数
-    "active": 8,       // 正常数量
-    "error": 1,        // 错误数量
-    "rate_limit": 1    // 限流数量
+    "total": 10,           // 总密钥数
+    "active": 7,           // 正常可用
+    "cooling": 2,          // 冷却中
+    "disabled": 1,         // 手动停用
+    "details": [           // 详细结果
+      {
+        "id": 1,
+        "platform": "openai",
+        "status": 1,
+        "is_cooling": false,
+        "check_result": "ok"
+      },
+      {
+        "id": 3,
+        "platform": "sora",
+        "status": 1,
+        "is_cooling": true,
+        "check_result": "rate_limit"
+      }
+    ]
   }
 }
 ```
@@ -567,7 +735,48 @@
   "code": 0,
   "message": "Health check started",
   "data": {
-    "task_id": "health_check_12345"   // 任务 ID，前端可用于轮询查询
+    "task_id": "health_check_12345",   // 任务 ID
+    "estimated_time": 30                // 预计耗时（秒）
+  }
+}
+```
+
+---
+
+### 4.8 获取密钥统计信息
+
+**接口路径**：`GET /api/admin/keys/stats`
+
+**请求参数**：无
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Success",
+  "data": {
+    "by_platform": [
+      {
+        "platform": "openai",
+        "total_keys": 5,
+        "active_keys": 4,
+        "cooling_keys": 1,
+        "total_concurrency": 15,        // 所有 Key 的并发数总和
+        "current_usage": 8              // 当前实际使用的并发数
+      },
+      {
+        "platform": "sora",
+        "total_keys": 3,
+        "active_keys": 2,
+        "cooling_keys": 1,
+        "total_concurrency": 6,
+        "current_usage": 2
+      }
+    ],
+    "total_calls_today": 3420,          // 今日总调用次数
+    "total_errors_today": 45,           // 今日总失败次数
+    "error_rate": 1.32                  // 错误率（%）
   }
 }
 ```

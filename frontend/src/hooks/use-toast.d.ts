@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 type ToasterToast = ToastProps & {
     id: string;
@@ -42,4 +41,4 @@ declare function useToast(): {
     dismiss: (toastId?: string) => void;
     toasts: ToasterToast[];
 };
-export { toast,useToast };
+export { toast, useToast };
