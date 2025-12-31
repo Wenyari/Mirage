@@ -16,4 +16,4 @@ declare const BreadcrumbEllipsis: {
     ({ className, ...props }: React.ComponentProps<"span">): import("react/jsx-runtime").JSX.Element;
     displayName: string;
 };
-export { Breadcrumb, BreadcrumbEllipsis,BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,  };
+export { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, };

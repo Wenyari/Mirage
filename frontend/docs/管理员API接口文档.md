@@ -440,11 +440,218 @@
 
 ## 四、密钥池管理 (Key Pool Management)
 
-### 4.1 获取密钥列表
+> **架构说明**：密钥池采用 MySQL + Redis 双层架构
+> - **MySQL**：存储密钥配置（platform, key_secret, max_concurrency, weight, status）
+> - **Redis**：维护实时状态（并发计数、熔断标记、统计缓冲）
+
+> **⚠️ 重要变更**：平台配置已改为动态管理，不再硬编码
+> - 新增 `GET /api/admin/platforms` 接口获取可用平台列表
+> - 支持动态添加新的 AI 模型平台，无需修改前端代码
+> - Platform 字段类型从 `enum` 改为 `string`
+
+### 4.1 获取平台配置列表
+
+**接口路径**：`GET /api/admin/platforms`
+
+**说明**：获取系统支持的所有平台配置，前端通过此接口动态渲染平台选择器。
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "key": "openai",
+      "name": "OpenAI",
+      "enabled": true,
+      "description": "OpenAI GPT 系列模型",
+      "color": "bg-green-500",
+      "max_concurrency_limit": 20
+    },
+    {
+      "key": "sora",
+      "name": "Sora",
+      "enabled": true,
+      "description": "OpenAI Sora 视频生成模型",
+      "color": "bg-blue-500",
+      "max_concurrency_limit": 10
+    },
+    {
+      "key": "stability",
+      "name": "Stability AI",
+      "enabled": false,
+      "description": "Stable Diffusion 系列模型",
+      "color": "bg-indigo-500",
+      "max_concurrency_limit": 10
+    }
+  ]
+}
+```
+
+**字段说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| key | string | ✅ | 平台标识符（用于数据库存储） |
+| name | string | ✅ | 平台显示名称 |
+| enabled | boolean | ✅ | 是否启用（false 表示禁用，不在前端显示） |
+| description | string | ❌ | 平台描述信息 |
+| color | string | ❌ | Tailwind CSS 颜色类（用于 UI 展示） |
+| max_concurrency_limit | number | ❌ | 该平台建议的最大并发限制 |
+
+---
+
+### 4.2 创建平台
+
+**接口路径**：`POST /api/admin/platforms`
+
+**说明**：创建新的AI平台配置。
+
+**请求体**：
+
+```json
+{
+  "key": "claude",                      // 平台唯一标识
+  "name": "Claude",                     // 显示名称
+  "enabled": true,                      // 是否启用
+  "description": "Anthropic Claude 系列模型",  // 描述（可选）
+  "color": "bg-purple-500",             // Tailwind颜色类（可选）
+  "icon_url": "https://example.com/icon.png",  // 图标URL（可选）
+  "max_concurrency_limit": 15           // 建议最大并发（可选）
+}
+```
+
+**字段说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| key | string | ✅ | 平台唯一标识（仅支持小写字母、数字、下划线）|
+| name | string | ✅ | 平台显示名称 |
+| enabled | boolean | ✅ | 是否启用 |
+| description | string | ❌ | 平台描述信息 |
+| color | string | ❌ | Tailwind CSS 颜色类 |
+| icon_url | string | ❌ | 平台图标URL |
+| max_concurrency_limit | number | ❌ | 建议的最大并发限制 |
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform created successfully",
+  "data": {
+    "key": "claude",
+    "name": "Claude",
+    "enabled": true,
+    "description": "Anthropic Claude 系列模型",
+    "color": "bg-purple-500",
+    "icon_url": "https://example.com/icon.png",
+    "max_concurrency_limit": 15,
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+**错误响应**：
+
+```json
+{
+  "code": 400,
+  "message": "Platform key already exists",
+  "data": null
+}
+```
+
+---
+
+### 4.3 更新平台
+
+**接口路径**：`PATCH /api/admin/platforms/:key`
+
+**说明**：更新平台配置信息（平台key不可修改）。
+
+**请求体**：
+
+```json
+{
+  "name": "Claude API",                 // 可选
+  "enabled": false,                     // 可选
+  "description": "Updated description", // 可选
+  "color": "bg-indigo-500",            // 可选
+  "icon_url": "https://new-icon.png",  // 可选
+  "max_concurrency_limit": 20          // 可选
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform updated successfully",
+  "data": {
+    "key": "claude",
+    "name": "Claude API",
+    "enabled": false,
+    "description": "Updated description",
+    "color": "bg-indigo-500",
+    "icon_url": "https://new-icon.png",
+    "max_concurrency_limit": 20,
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-16T14:20:00Z"
+  }
+}
+```
+
+---
+
+### 4.4 删除平台
+
+**接口路径**：`DELETE /api/admin/platforms/:key`
+
+**说明**：删除平台配置。
+
+**注意事项**：
+- 只有当该平台没有关联的密钥和任务时才能删除
+- 如果有关联数据，应先禁用平台（enabled: false）而非删除
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform deleted successfully",
+  "data": null
+}
+```
+
+**错误响应（有关联数据）**：
+
+```json
+{
+  "code": 400,
+  "message": "Cannot delete platform with existing keys or tasks",
+  "data": {
+    "key_count": 5,
+    "task_count": 120
+  }
+}
+```
+
+---
+
+### 4.5 获取密钥列表
 
 **接口路径**：`GET /api/admin/keys`
 
-**请求参数**：无（返回所有密钥）
+**请求参数**：
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| platform | string | 否 | - | 平台筛选（openai、sora、midjourney 等） |
 
 **响应示例**：
 
@@ -455,31 +662,67 @@
   "data": [
     {
       "id": 1,
-      "platform": "openai",           // 平台：openai、anthropic、google 等
-      "key": "sk-proj-abc...xyz",     // API 密钥（后端应只返回前 10 位 + ****）
-      "weight": 10,                   // 权重（用于负载均衡）
-      "status": "active",             // 状态：active、error、rate_limit
-      "last_used": "2024-03-20T15:30:00Z",   // 最后使用时间
-      "error_message": null,          // 错误信息（status=error 时才有）
+      "platform": "openai",                 // 平台标识
+      "key_secret": "sk-proj-abc****xyz",   // 密钥（脱敏：前8位 + **** + 后4位）
+      "max_concurrency": 3,                 // 最大并发限制
+      "weight": 10,                         // 权重（用于负载均衡，1-100）
+      "status": 1,                          // 状态：1=启用，0=手动停用
+
+      // 统计字段（MySQL 存储，定时从 Redis 同步）
+      "total_calls": 15420,                 // 总调用次数
+      "total_errors": 23,                   // 总失败次数
+
+      // 实时状态（从 Redis 读取）
+      "current_usage": 2,                   // 当前并发数（0-max_concurrency）
+      "is_cooling": false,                  // 是否在冷却期（熔断中）
+      "cooling_until": null,                // 冷却结束时间（ISO 8601，冷却中才有值）
+
+      "last_used_at": "2024-03-20T15:30:00Z",  // 最后使用时间
       "created_at": "2024-03-01T10:00:00Z"
     },
     {
       "id": 2,
       "platform": "openai",
-      "key": "sk-proj-def...uvw",
-      "weight": 5,
-      "status": "rate_limit",
-      "last_used": "2024-03-20T16:00:00Z",
-      "error_message": "Rate limit exceeded",
+      "key_secret": "sk-proj-def****uvw",
+      "max_concurrency": 5,
+      "weight": 20,
+      "status": 1,
+      "total_calls": 8930,
+      "total_errors": 156,
+      "current_usage": 5,                   // 并发已满
+      "is_cooling": false,
+      "cooling_until": null,
+      "last_used_at": "2024-03-20T16:00:00Z",
       "created_at": "2024-03-05T14:00:00Z"
+    },
+    {
+      "id": 3,
+      "platform": "sora",
+      "key_secret": "sk-sora-xyz****abc",
+      "max_concurrency": 2,
+      "weight": 5,
+      "status": 1,
+      "total_calls": 234,
+      "total_errors": 45,
+      "current_usage": 0,
+      "is_cooling": true,                   // 正在冷却（触发了熔断）
+      "cooling_until": "2024-03-20T16:10:00Z",  // 预计恢复时间
+      "last_used_at": "2024-03-20T16:05:00Z",
+      "created_at": "2024-03-15T09:00:00Z"
     }
   ]
 }
 ```
 
+**字段说明**：
+- `max_concurrency`：核心配置，控制该 Key 同时运行的任务数上限
+- `weight`：权重越高，被选中的概率越大（用于"大号优先"策略）
+- `current_usage`：从 Redis `pool:usage:{key_id}` 实时读取
+- `is_cooling` / `cooling_until`：从 Redis `pool:cooldown:{key_id}` 读取（TTL 300s）
+
 ---
 
-### 4.2 添加密钥
+### 4.6 添加密钥
 
 **接口路径**：`POST /api/admin/keys`
 
@@ -487,9 +730,10 @@
 
 ```json
 {
-  "platform": "openai",        // 平台
-  "key": "sk-proj-abc123...",  // API 密钥
-  "weight": 10                 // 权重（可选，默认 10）
+  "platform": "openai",              // 平台标识（必填）
+  "key_secret": "sk-proj-abc123...", // API 密钥完整串（必填）
+  "max_concurrency": 3,              // 最大并发数（可选，默认 3）
+  "weight": 10                       // 权重（可选，默认 10）
 }
 ```
 
@@ -500,11 +744,12 @@
   "code": 0,
   "message": "Key added successfully",
   "data": {
-    "id": 3,
+    "id": 4,
     "platform": "openai",
-    "key": "sk-proj-ab****",   // 返回时已脱敏
+    "key_secret": "sk-proj-ab****",    // 返回时已脱敏
+    "max_concurrency": 3,
     "weight": 10,
-    "status": "active",
+    "status": 1,
     "created_at": "2024-03-20T17:00:00Z"
   }
 }
@@ -512,7 +757,74 @@
 
 ---
 
-### 4.3 删除密钥
+### 4.7 批量添加密钥
+
+**接口路径**：`POST /api/admin/keys/batch`
+
+**请求 Body**：
+
+```json
+{
+  "platform": "openai",              // 平台（必填）
+  "keys": [                          // 密钥数组（必填，最多 100 个）
+    "sk-proj-abc123...",
+    "sk-proj-def456...",
+    "sk-proj-ghi789..."
+  ],
+  "max_concurrency": 3,              // 统一的最大并发（可选，默认 3）
+  "weight": 10                       // 统一的权重（可选，默认 10）
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Batch import completed",
+  "data": {
+    "success_count": 3,              // 成功导入数量
+    "failed_count": 0,               // 失败数量
+    "failed_keys": []                // 失败的密钥列表（脱敏）
+  }
+}
+```
+
+---
+
+### 4.8 更新密钥配置
+
+**接口路径**：`PATCH /api/admin/keys/{id}`
+
+**路径参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 密钥 ID |
+
+**请求 Body**：
+
+```json
+{
+  "max_concurrency": 5,   // 最大并发数（可选）
+  "weight": 20,           // 权重（可选）
+  "status": 1             // 状态：1=启用，0=停用（可选）
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Key updated successfully",
+  "data": null
+}
+```
+
+---
+
+### 4.9 删除密钥
 
 **接口路径**：`DELETE /api/admin/keys/{id}`
 
@@ -532,18 +844,57 @@
 }
 ```
 
+**注意**：删除密钥时，如果该密钥正在被使用（current_usage > 0），后端应返回 400 错误，提示先等待任务完成或手动停用。
+
 ---
 
-### 4.4 触发健康检测
+### 4.10 手动触发熔断/解除熔断
 
-**接口路径**：`POST /api/admin/keys/check`
+**接口路径**：`POST /api/admin/keys/{id}/cooldown`
 
-**请求参数**：无
+**路径参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 密钥 ID |
+
+**请求 Body**：
+
+```json
+{
+  "action": "trigger",   // 操作：trigger（触发熔断）、release（解除熔断）
+  "duration": 300        // 冷却时长（秒，仅 trigger 时需要，默认 300）
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Cooldown triggered successfully",
+  "data": {
+    "cooling_until": "2024-03-20T16:15:00Z"
+  }
+}
+```
+
+---
+
+### 4.11 触发健康检测
+
+**接口路径**：`POST /api/admin/keys/health-check`
+
+**请求参数**：
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| platform | string | 否 | 指定平台检测（不填则检测所有） |
 
 **说明**：
-- 触发后端异步检测所有密钥的连通性
-- 建议返回一个任务 ID，前端可轮询查询检测进度
-- 或者直接等待检测完成后返回结果（适用于密钥数量较少的情况）
+- 后端调用各平台 API 验证密钥有效性
+- 检测结果会更新密钥状态和错误计数
+- 建议异步执行，返回任务 ID 供前端轮询
 
 **响应示例**（同步方式）：
 
@@ -552,10 +903,26 @@
   "code": 0,
   "message": "Health check completed",
   "data": {
-    "total": 10,       // 总密钥数
-    "active": 8,       // 正常数量
-    "error": 1,        // 错误数量
-    "rate_limit": 1    // 限流数量
+    "total": 10,           // 总密钥数
+    "active": 7,           // 正常可用
+    "cooling": 2,          // 冷却中
+    "disabled": 1,         // 手动停用
+    "details": [           // 详细结果
+      {
+        "id": 1,
+        "platform": "openai",
+        "status": 1,
+        "is_cooling": false,
+        "check_result": "ok"
+      },
+      {
+        "id": 3,
+        "platform": "sora",
+        "status": 1,
+        "is_cooling": true,
+        "check_result": "rate_limit"
+      }
+    ]
   }
 }
 ```
@@ -567,18 +934,64 @@
   "code": 0,
   "message": "Health check started",
   "data": {
-    "task_id": "health_check_12345"   // 任务 ID，前端可用于轮询查询
+    "task_id": "health_check_12345",   // 任务 ID
+    "estimated_time": 30                // 预计耗时（秒）
   }
 }
 ```
 
 ---
 
-## 五、模型与配置管理 (Models & Config)
+### 4.12 获取密钥统计信息
 
-### 5.1 获取模型配置列表
+**接口路径**：`GET /api/admin/keys/stats`
 
-**接口路径**：`GET /api/admin/models`
+**请求参数**：无
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Success",
+  "data": {
+    "by_platform": [
+      {
+        "platform": "openai",
+        "total_keys": 5,
+        "active_keys": 4,
+        "cooling_keys": 1,
+        "total_concurrency": 15,        // 所有 Key 的并发数总和
+        "current_usage": 8              // 当前实际使用的并发数
+      },
+      {
+        "platform": "sora",
+        "total_keys": 3,
+        "active_keys": 2,
+        "cooling_keys": 1,
+        "total_concurrency": 6,
+        "current_usage": 2
+      }
+    ],
+    "total_calls_today": 3420,          // 今日总调用次数
+    "total_errors_today": 45,           // 今日总失败次数
+    "error_rate": 1.32                  // 错误率（%）
+  }
+}
+```
+
+---
+
+## 五、平台配置管理 (Platform Configuration)
+
+> **设计变更说明**：平台配置管理直接基于密钥池中的 platform
+> - 后端从 `api_keys` 表中获取所有不重复的 `platform` 作为可配置的平台列表
+> - 管理员可为每个 platform 配置：等级权限、积分计费、Token 费率
+> - 平台配置存储在独立的 `platform_configs` 表中
+
+### 5.1 获取平台配置列表
+
+**接口路径**：`GET /api/admin/platform-configs`
 
 **请求参数**：无
 
@@ -591,25 +1004,108 @@
   "data": [
     {
       "id": 1,
-      "model_id": "gpt-4",              // 模型 ID
-      "name": "GPT-4",                  // 模型名称
-      "base_cost": 50,                  // 基础成本（每千 token）
-      "price_multiplier": 1.5,          // 价格倍率
-      "is_active": true,                // 是否启用
-      "vip_limit": 2,                   // VIP 等级限制（0=无限制，1-5=T1-T5）
-      "max_tokens": 8192,               // 最大 token 数
-      "description": "GPT-4 模型"
+      "platform": "openai",              // 平台标识（来自密钥池）
+      "platform_name": "OpenAI",         // 平台显示名称（来自 platforms 表）
+      "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],  // 允许使用的等级
+      "cost_per_call": 10,               // 每次调用扣除积分（固定计费）
+      "token_cost_config": {
+        "enabled": true,                 // 是否启用 Token 计费
+        "input_cost": 0.03,              // 输入 Token 费率（每千 token，积分）
+        "output_cost": 0.06              // 输出 Token 费率（每千 token，积分）
+      },
+      "is_active": true,                 // 是否启用该平台
+      "description": "OpenAI GPT 系列模型",
+      "created_at": "2024-03-01T10:00:00Z",
+      "updated_at": "2024-03-20T15:30:00Z"
     },
     {
       "id": 2,
-      "model_id": "gpt-3.5-turbo",
-      "name": "GPT-3.5 Turbo",
-      "base_cost": 10,
-      "price_multiplier": 1.0,
+      "platform": "sora",
+      "platform_name": "Sora",
+      "allowed_tiers": ["T3", "T4", "T5"],  // 仅高级会员可用
+      "cost_per_call": 100,
+      "token_cost_config": {
+        "enabled": false                 // 不使用 Token 计费，仅固定计费
+      },
       "is_active": true,
-      "vip_limit": 0,
-      "max_tokens": 4096,
-      "description": "GPT-3.5 Turbo 模型"
+      "description": "OpenAI Sora 视频生成模型",
+      "created_at": "2024-03-10T12:00:00Z",
+      "updated_at": "2024-03-20T16:00:00Z"
+    },
+    {
+      "id": 3,
+      "platform": "midjourney",
+      "platform_name": "Midjourney",
+      "allowed_tiers": ["T2", "T3", "T4", "T5"],
+      "cost_per_call": 50,
+      "token_cost_config": {
+        "enabled": false
+      },
+      "is_active": true,
+      "description": "Midjourney 图像生成",
+      "created_at": "2024-03-05T09:00:00Z",
+      "updated_at": "2024-03-18T14:00:00Z"
+    }
+  ]
+}
+```
+
+**字段说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| id | integer | ✅ | 配置 ID |
+| platform | string | ✅ | 平台标识（来自密钥池） |
+| platform_name | string | ✅ | 平台显示名称 |
+| allowed_tiers | string[] | ✅ | 允许使用的等级数组（T1-T5） |
+| cost_per_call | number | ✅ | 每次调用扣除积分（固定计费） |
+| token_cost_config | object | ✅ | Token 计费配置 |
+| token_cost_config.enabled | boolean | ✅ | 是否启用 Token 计费 |
+| token_cost_config.input_cost | number | ❌ | 输入 Token 费率（每千 token，积分） |
+| token_cost_config.output_cost | number | ❌ | 输出 Token 费率（每千 token，积分） |
+| is_active | boolean | ✅ | 是否启用该平台 |
+| description | string | ❌ | 平台描述 |
+
+**计费逻辑说明**：
+- **固定计费**：每次调用扣除 `cost_per_call` 积分
+- **Token 计费**：如果 `token_cost_config.enabled = true`，则额外按 Token 消耗计费
+  - 总扣除积分 = `cost_per_call` + (input_tokens / 1000 * input_cost) + (output_tokens / 1000 * output_cost)
+- 如果 `token_cost_config.enabled = false`，则仅使用固定计费
+
+---
+
+### 5.2 获取可配置的平台列表
+
+**接口路径**：`GET /api/admin/platform-configs/available-platforms`
+
+**请求参数**：无
+
+**说明**：获取密钥池中所有不重复的 platform，用于新建配置时选择。
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Success",
+  "data": [
+    {
+      "platform": "openai",
+      "platform_name": "OpenAI",
+      "has_config": true,           // 是否已有配置
+      "key_count": 5                // 该平台的密钥数量
+    },
+    {
+      "platform": "sora",
+      "platform_name": "Sora",
+      "has_config": true,
+      "key_count": 3
+    },
+    {
+      "platform": "anthropic",
+      "platform_name": "Anthropic",
+      "has_config": false,          // 尚未配置
+      "key_count": 2
     }
   ]
 }
@@ -617,24 +1113,24 @@
 
 ---
 
-### 5.2 修改模型配置
+### 5.3 创建平台配置
 
-**接口路径**：`PATCH /api/admin/models/{model_id}`
-
-**路径参数**：
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| model_id | integer | 模型配置 ID（注意：不是 model_id 字段） |
+**接口路径**：`POST /api/admin/platform-configs`
 
 **请求 Body**：
 
 ```json
 {
-  "base_cost": 50,           // 基础成本（可选）
-  "price_multiplier": 1.5,   // 价格倍率（可选）
-  "is_active": true,         // 是否启用（可选）
-  "vip_limit": 2             // VIP 等级限制（可选）
+  "platform": "anthropic",
+  "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],
+  "cost_per_call": 20,
+  "token_cost_config": {
+    "enabled": true,
+    "input_cost": 0.04,
+    "output_cost": 0.08
+  },
+  "is_active": true,
+  "description": "Anthropic Claude 系列模型"
 }
 ```
 
@@ -643,14 +1139,89 @@
 ```json
 {
   "code": 0,
-  "message": "Model updated successfully",
+  "message": "Platform config created successfully",
+  "data": {
+    "id": 4,
+    "platform": "anthropic",
+    "platform_name": "Anthropic",
+    "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],
+    "cost_per_call": 20,
+    "token_cost_config": {
+      "enabled": true,
+      "input_cost": 0.04,
+      "output_cost": 0.08
+    },
+    "is_active": true,
+    "description": "Anthropic Claude 系列模型",
+    "created_at": "2024-03-21T10:00:00Z",
+    "updated_at": "2024-03-21T10:00:00Z"
+  }
+}
+```
+
+---
+
+### 5.4 更新平台配置
+
+**接口路径**：`PATCH /api/admin/platform-configs/{id}`
+
+**路径参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 平台配置 ID |
+
+**请求 Body**（所有字段可选）：
+
+```json
+{
+  "allowed_tiers": ["T2", "T3", "T4", "T5"],
+  "cost_per_call": 15,
+  "token_cost_config": {
+    "enabled": true,
+    "input_cost": 0.035,
+    "output_cost": 0.07
+  },
+  "is_active": true,
+  "description": "更新后的描述"
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform config updated successfully",
   "data": null
 }
 ```
 
 ---
 
-### 5.3 获取会员等级配置
+### 5.5 删除平台配置
+
+**接口路径**：`DELETE /api/admin/platform-configs/{id}`
+
+**路径参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 平台配置 ID |
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform config deleted successfully",
+  "data": null
+}
+```
+
+---
+
+### 5.6 获取会员等级配置
 
 **接口路径**：`GET /api/admin/config/membership`
 
@@ -709,7 +1280,7 @@
 
 ---
 
-### 5.4 更新会员等级配置
+### 5.7 更新会员等级配置
 
 **接口路径**：`PUT /api/admin/config/membership`
 

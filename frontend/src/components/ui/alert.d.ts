@@ -5,4 +5,4 @@ declare const Alert: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLDi
 } & import("class-variance-authority/types").ClassProp) | undefined) => string> & React.RefAttributes<HTMLDivElement>>;
 declare const AlertTitle: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLHeadingElement> & React.RefAttributes<HTMLParagraphElement>>;
 declare const AlertDescription: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>>;
-export { Alert, AlertDescription,AlertTitle };
+export { Alert, AlertDescription, AlertTitle };

@@ -59,4 +59,4 @@ declare const ChartLegendContent: React.ForwardRefExoticComponent<Omit<React.Cla
     hideIcon?: boolean;
     nameKey?: string;
 }, "ref"> & React.RefAttributes<HTMLDivElement>>;
-export { ChartContainer, ChartLegend, ChartLegendContent, ChartStyle,ChartTooltip, ChartTooltipContent,  };
+export { ChartContainer, ChartLegend, ChartLegendContent, ChartStyle, ChartTooltip, ChartTooltipContent, };

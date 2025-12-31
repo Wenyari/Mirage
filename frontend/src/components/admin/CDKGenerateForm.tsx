@@ -1,0 +1,227 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { toast } from 'sonner';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { useGenerateCDK } from '@/hooks/useCDK';
+import { exportCDKCodesToExcel } from '@/utils/export';
+
+// 表单验证 Schema
+const formSchema = z.object({
+  points: z.coerce.number().min(1, '积分面额必须大于0').max(1000000, '积分面额不能超过1000000'),
+  type: z.enum(['once', 'universal'], {
+    required_error: '请选择CDK类型',
+  }),
+  count: z.coerce.number().min(1, '生成数量必须大于0').max(1000, '单次最多生成1000个'),
+  batch_no: z.string().optional(),
+  expire_at: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+export function CDKGenerateForm() {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const generateMutation = useGenerateCDK();
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      points: 100,
+      type: 'once',
+      count: 10,
+      batch_no: '',
+      expire_at: '',
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
+    setIsGenerating(true);
+    try {
+      const result = await generateMutation.mutateAsync(values);
+
+      if (result.success) {
+        toast.success(`成功生成 ${values.count} 个CDK兑换码`);
+
+        // 自动下载 Excel
+        exportCDKCodesToExcel(
+          result.data.codes,
+          result.data.batch_no,
+          values.points,
+          `cdk-${result.data.batch_no}`
+        );
+
+        // 重置表单
+        form.reset({
+          points: values.points,
+          type: values.type,
+          count: 10,
+          batch_no: '',
+          expire_at: '',
+        });
+      }
+    } catch (error: any) {
+      toast.error(error.message || '生成CDK失败');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>生成 CDK 兑换码</CardTitle>
+        <CardDescription>
+          批量生成兑换码，生成后自动下载 Excel 文件
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 积分面额 */}
+              <FormField
+                control={form.control}
+                name="points"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>积分面额 *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="请输入积分面额"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>单个CDK的积分价值</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* CDK 类型 */}
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CDK 类型 *</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="选择CDK类型" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="once">一次性</SelectItem>
+                        <SelectItem value="universal">通用码</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      一次性：单个用户只能使用一次；通用码：多个用户可使用
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 生成数量 */}
+              <FormField
+                control={form.control}
+                name="count"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>生成数量 *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="请输入生成数量"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>单次最多生成 1000 个</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 批次号（可选） */}
+              <FormField
+                control={form.control}
+                name="batch_no"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>批次号（可选）</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="留空自动生成"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>用于批量管理，留空自动生成</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 过期时间（可选） */}
+              <FormField
+                control={form.control}
+                name="expire_at"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>过期时间（可选）</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="datetime-local"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>留空表示永不过期</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isGenerating}
+              className="w-full md:w-auto"
+            >
+              {isGenerating ? '生成中...' : '生成 CDK'}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+}

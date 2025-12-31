@@ -20,4 +20,4 @@ declare const FormLabel: React.ForwardRefExoticComponent<Omit<LabelPrimitive.Lab
 declare const FormControl: React.ForwardRefExoticComponent<Omit<import("@radix-ui/react-slot").SlotProps & React.RefAttributes<HTMLElement>, "ref"> & React.RefAttributes<HTMLElement>>;
 declare const FormDescription: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>>;
 declare const FormMessage: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>>;
-export { Form, FormControl, FormDescription, FormField,FormItem, FormLabel, FormMessage, useFormField,  };
+export { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, useFormField, };

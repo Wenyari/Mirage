@@ -2,6 +2,9 @@ import { http, HttpResponse } from 'msw';
 
 import { dashboardHandlers } from './dashboard';
 import { usersHandlers } from './users';
+import { cdkHandlers } from './cdk';
+import { keysHandlers } from './keys';
+import { platformConfigHandlers } from './platformConfigs';
 
 // 这是初始的 handlers，后续会根据需要添加更多的 handlers
 export const handlers = [
@@ -22,4 +25,13 @@ export const handlers = [
 
   // Users handlers
   ...usersHandlers,
+
+  // CDK handlers
+  ...cdkHandlers,
+
+  // Keys handlers
+  ...keysHandlers,
+
+  // Platform Config handlers
+  ...platformConfigHandlers,
 ];
