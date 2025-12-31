@@ -12,6 +12,8 @@ import type {
   Platform,
   PlatformConfig,
   GetPlatformsResponse,
+  CreatePlatformRequest,
+  UpdatePlatformRequest,
 } from '@/types/key';
 
 /**
@@ -80,4 +82,30 @@ export async function healthCheck(platform?: Platform): Promise<HealthCheckRespo
  */
 export async function getKeyStats(): Promise<{ code: number; message: string; data: KeyStats }> {
   return api.get('/admin/keys/stats');
+}
+
+/**
+ * 创建平台
+ */
+export async function createPlatform(
+  data: CreatePlatformRequest
+): Promise<{ code: number; message: string; data: PlatformConfig }> {
+  return api.post('/admin/platforms', data);
+}
+
+/**
+ * 更新平台
+ */
+export async function updatePlatform(
+  key: string,
+  data: UpdatePlatformRequest
+): Promise<{ code: number; message: string; data: PlatformConfig }> {
+  return api.patch(`/admin/platforms/${key}`, data);
+}
+
+/**
+ * 删除平台
+ */
+export async function deletePlatform(key: string): Promise<{ code: number; message: string; data: null }> {
+  return api.delete(`/admin/platforms/${key}`);
 }

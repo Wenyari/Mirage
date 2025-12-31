@@ -5,6 +5,8 @@ import type {
   BatchAddKeysRequest,
   UpdateKeyRequest,
   CooldownRequest,
+  CreatePlatformRequest,
+  UpdatePlatformRequest,
 } from '@/types/key';
 import {
   getPlatforms,
@@ -16,6 +18,9 @@ import {
   triggerCooldown,
   healthCheck,
   getKeyStats,
+  createPlatform,
+  updatePlatform,
+  deletePlatform,
 } from '@/services/admin/keys';
 
 /**
@@ -135,5 +140,54 @@ export function useKeyStats() {
     queryKey: ['admin', 'keys', 'stats'],
     queryFn: getKeyStats,
     refetchInterval: 10000, // 10秒刷新一次统计数据
+  });
+}
+
+/**
+ * 创建平台
+ */
+export function useCreatePlatform() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreatePlatformRequest) => createPlatform(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
+      // 刷新可用平台列表，这样模型配置页面会看到新平台
+      queryClient.invalidateQueries({ queryKey: ['admin', 'available-platforms'] });
+    },
+  });
+}
+
+/**
+ * 更新平台
+ */
+export function useUpdatePlatform() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ key, data }: { key: string; data: UpdatePlatformRequest }) =>
+      updatePlatform(key, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
+      // 刷新可用平台列表
+      queryClient.invalidateQueries({ queryKey: ['admin', 'available-platforms'] });
+    },
+  });
+}
+
+/**
+ * 删除平台
+ */
+export function useDeletePlatform() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (key: string) => deletePlatform(key),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
+      // 刷新可用平台列表
+      queryClient.invalidateQueries({ queryKey: ['admin', 'available-platforms'] });
+    },
   });
 }

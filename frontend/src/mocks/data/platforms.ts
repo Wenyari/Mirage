@@ -84,3 +84,64 @@ export function getPlatformColor(key: string): string {
   const platform = getPlatformByKey(key);
   return platform?.color || 'bg-gray-500';
 }
+
+/**
+ * 创建新平台
+ */
+export function createMockPlatform(data: {
+  key: string;
+  name: string;
+  enabled: boolean;
+  description?: string;
+  color?: string;
+  icon_url?: string;
+  max_concurrency_limit?: number;
+}): PlatformConfig {
+  // 检查平台key是否已存在
+  if (mockPlatforms.find((p) => p.key === data.key)) {
+    throw new Error('Platform key already exists');
+  }
+
+  const newPlatform: PlatformConfig = {
+    ...data,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
+  mockPlatforms.push(newPlatform);
+  return newPlatform;
+}
+
+/**
+ * 更新平台配置
+ */
+export function updateMockPlatform(
+  key: string,
+  updates: {
+    name?: string;
+    enabled?: boolean;
+    description?: string;
+    color?: string;
+    icon_url?: string;
+    max_concurrency_limit?: number;
+  }
+): PlatformConfig | null {
+  const platform = mockPlatforms.find((p) => p.key === key);
+  if (!platform) return null;
+
+  Object.assign(platform, updates);
+  platform.updated_at = new Date().toISOString();
+
+  return platform;
+}
+
+/**
+ * 删除平台
+ */
+export function deleteMockPlatform(key: string): boolean {
+  const index = mockPlatforms.findIndex((p) => p.key === key);
+  if (index === -1) return false;
+
+  mockPlatforms.splice(index, 1);
+  return true;
+}

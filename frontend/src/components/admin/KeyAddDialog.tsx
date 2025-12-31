@@ -33,9 +33,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
+import { Separator } from '@/components/ui/separator';
 
 import type { Platform } from '@/types/key';
 import { useAddKey, useBatchAddKeys, usePlatforms } from '@/hooks/useKeys';
+import { CreatePlatformDialog } from '@/components/admin/CreatePlatformDialog';
 
 interface KeyAddDialogProps {
   open: boolean;
@@ -65,6 +67,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
   const [mode, setMode] = useState<'single' | 'batch'>('single');
   const [weightValue, setWeightValue] = useState([10]);
   const [concurrencyValue, setConcurrencyValue] = useState([3]);
+  const [showCreatePlatformDialog, setShowCreatePlatformDialog] = useState(false);
 
   const addMutation = useAddKey();
   const batchAddMutation = useBatchAddKeys();
@@ -148,6 +151,53 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
     }
   };
 
+  // 创建平台成功后的回调
+  const handlePlatformCreated = (platformKey: string) => {
+    // 自动选择新创建的平台
+    singleForm.setValue('platform', platformKey);
+    batchForm.setValue('platform', platformKey);
+  };
+
+  // 渲染平台选择器
+  const renderPlatformSelect = (field: any, form: any) => {
+    const handleValueChange = (value: string) => {
+      if (value === '__add_new__') {
+        setShowCreatePlatformDialog(true);
+      } else {
+        field.onChange(value);
+      }
+    };
+
+    return (
+      <Select onValueChange={handleValueChange} value={field.value}>
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue placeholder="选择平台" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {platformsLoading ? (
+            <SelectItem value="loading" disabled>
+              加载中...
+            </SelectItem>
+          ) : (
+            <>
+              {enabledPlatforms.map((platform) => (
+                <SelectItem key={platform.key} value={platform.key}>
+                  {platform.name}
+                </SelectItem>
+              ))}
+              <Separator className="my-1" />
+              <SelectItem value="__add_new__" className="text-primary font-medium">
+                + 添加新平台
+              </SelectItem>
+            </>
+          )}
+        </SelectContent>
+      </Select>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -174,26 +224,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>平台 *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="选择平台" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {platformsLoading ? (
-                            <SelectItem value="loading" disabled>
-                              加载中...
-                            </SelectItem>
-                          ) : (
-                            enabledPlatforms.map((platform) => (
-                              <SelectItem key={platform.key} value={platform.key}>
-                                {platform.name}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
+                      {renderPlatformSelect(field, singleForm)}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -302,26 +333,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>平台 *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="选择平台" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {platformsLoading ? (
-                            <SelectItem value="loading" disabled>
-                              加载中...
-                            </SelectItem>
-                          ) : (
-                            enabledPlatforms.map((platform) => (
-                              <SelectItem key={platform.key} value={platform.key}>
-                                {platform.name}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
+                      {renderPlatformSelect(field, batchForm)}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -391,6 +403,13 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
           </TabsContent>
         </Tabs>
       </DialogContent>
+
+      {/* 创建平台对话框 */}
+      <CreatePlatformDialog
+        open={showCreatePlatformDialog}
+        onOpenChange={setShowCreatePlatformDialog}
+        onSuccess={handlePlatformCreated}
+      />
     </Dialog>
   );
 }

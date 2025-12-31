@@ -5,6 +5,7 @@ import {
   Settings,
   Ticket,
   Users,
+  Layers,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
@@ -30,6 +31,11 @@ const menuItems = [
     path: '/wadminw/keys',
     label: '密钥池',
     icon: Key,
+  },
+  {
+    path: '/wadminw/platforms',
+    label: '平台管理',
+    icon: Layers,
   },
   {
     path: '/wadminw/models',

@@ -23,7 +23,35 @@ export interface PlatformConfig {
   description?: string;          // 平台描述
   color?: string;                // 颜色标识（用于 Badge）
   icon?: string;                 // 图标 URL（可选）
+  icon_url?: string;             // 图标 URL（与icon同义，数据库字段）
   max_concurrency_limit?: number; // 该平台建议的最大并发限制
+  created_at?: string;           // 创建时间
+  updated_at?: string;           // 更新时间
+}
+
+/**
+ * 创建平台请求参数
+ */
+export interface CreatePlatformRequest {
+  key: string;
+  name: string;
+  enabled: boolean;
+  description?: string;
+  color?: string;
+  icon_url?: string;
+  max_concurrency_limit?: number;
+}
+
+/**
+ * 更新平台请求参数
+ */
+export interface UpdatePlatformRequest {
+  name?: string;
+  enabled?: boolean;
+  description?: string;
+  color?: string;
+  icon_url?: string;
+  max_concurrency_limit?: number;
 }
 
 /**

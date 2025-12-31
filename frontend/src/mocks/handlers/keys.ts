@@ -5,6 +5,8 @@ import type {
   UpdateKeyRequest,
   CooldownRequest,
   Platform,
+  CreatePlatformRequest,
+  UpdatePlatformRequest,
 } from '@/types/key';
 import {
   mockKeys,
@@ -16,7 +18,12 @@ import {
   checkCoolingExpiry,
   simulateConcurrencyChange,
 } from '../data/keys';
-import { mockPlatforms } from '../data/platforms';
+import {
+  mockPlatforms,
+  createMockPlatform,
+  updateMockPlatform,
+  deleteMockPlatform,
+} from '../data/platforms';
 import { maskKey } from '@/types/key';
 
 /**
@@ -445,5 +452,140 @@ export const keysHandlers = [
         error_rate: parseFloat(errorRate.toFixed(2)),
       },
     });
+  }),
+
+  /**
+   * 创建平台
+   * POST /api/admin/platforms
+   */
+  http.post('/api/admin/platforms', async ({ request }) => {
+    try {
+      const body = (await request.json()) as CreatePlatformRequest;
+
+      // 参数验证
+      if (!body.key || !body.name) {
+        return HttpResponse.json(
+          {
+            code: 400,
+            message: '平台标识和名称不能为空',
+            data: null,
+          },
+          { status: 400 }
+        );
+      }
+
+      // 创建平台
+      const newPlatform = createMockPlatform(body);
+
+      return HttpResponse.json({
+        code: 0,
+        message: 'Platform created successfully',
+        data: newPlatform,
+      });
+    } catch (error: any) {
+      return HttpResponse.json(
+        {
+          code: 400,
+          message: error.message || '创建平台失败',
+          data: null,
+        },
+        { status: 400 }
+      );
+    }
+  }),
+
+  /**
+   * 更新平台
+   * PATCH /api/admin/platforms/:key
+   */
+  http.patch('/api/admin/platforms/:key', async ({ params, request }) => {
+    try {
+      const key = params.key as string;
+      const body = (await request.json()) as UpdatePlatformRequest;
+
+      // 更新平台
+      const updatedPlatform = updateMockPlatform(key, body);
+
+      if (!updatedPlatform) {
+        return HttpResponse.json(
+          {
+            code: 404,
+            message: '平台不存在',
+            data: null,
+          },
+          { status: 404 }
+        );
+      }
+
+      return HttpResponse.json({
+        code: 0,
+        message: 'Platform updated successfully',
+        data: updatedPlatform,
+      });
+    } catch (error: any) {
+      return HttpResponse.json(
+        {
+          code: 500,
+          message: error.message || '更新平台失败',
+          data: null,
+        },
+        { status: 500 }
+      );
+    }
+  }),
+
+  /**
+   * 删除平台
+   * DELETE /api/admin/platforms/:key
+   */
+  http.delete('/api/admin/platforms/:key', ({ params }) => {
+    try {
+      const key = params.key as string;
+
+      // 检查是否有关联的密钥
+      const relatedKeys = mockKeys.filter((k) => k.platform === key);
+      if (relatedKeys.length > 0) {
+        return HttpResponse.json(
+          {
+            code: 400,
+            message: 'Cannot delete platform with existing keys or tasks',
+            data: {
+              key_count: relatedKeys.length,
+              task_count: 0,
+            },
+          },
+          { status: 400 }
+        );
+      }
+
+      // 删除平台
+      const success = deleteMockPlatform(key);
+
+      if (!success) {
+        return HttpResponse.json(
+          {
+            code: 404,
+            message: '平台不存在',
+            data: null,
+          },
+          { status: 404 }
+        );
+      }
+
+      return HttpResponse.json({
+        code: 0,
+        message: 'Platform deleted successfully',
+        data: null,
+      });
+    } catch (error: any) {
+      return HttpResponse.json(
+        {
+          code: 500,
+          message: error.message || '删除平台失败',
+          data: null,
+        },
+        { status: 500 }
+      );
+    }
   }),
 ];

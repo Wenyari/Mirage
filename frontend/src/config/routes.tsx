@@ -7,6 +7,7 @@ import KeyPool from '@/pages/admin/KeyPool';
 import ModelManager from '@/pages/admin/ModelManager';
 import Playground from '@/pages/admin/Playground';
 import UserManager from '@/pages/admin/UserManager';
+import PlatformManager from '@/pages/admin/PlatformManager';
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
       {
         path: 'models',
         element: <ModelManager />,
+      },
+      {
+        path: 'platforms',
+        element: <PlatformManager />,
       },
       {
         path: 'playground',

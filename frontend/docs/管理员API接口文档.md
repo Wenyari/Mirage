@@ -503,7 +503,147 @@
 
 ---
 
-### 4.2 获取密钥列表
+### 4.2 创建平台
+
+**接口路径**：`POST /api/admin/platforms`
+
+**说明**：创建新的AI平台配置。
+
+**请求体**：
+
+```json
+{
+  "key": "claude",                      // 平台唯一标识
+  "name": "Claude",                     // 显示名称
+  "enabled": true,                      // 是否启用
+  "description": "Anthropic Claude 系列模型",  // 描述（可选）
+  "color": "bg-purple-500",             // Tailwind颜色类（可选）
+  "icon_url": "https://example.com/icon.png",  // 图标URL（可选）
+  "max_concurrency_limit": 15           // 建议最大并发（可选）
+}
+```
+
+**字段说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| key | string | ✅ | 平台唯一标识（仅支持小写字母、数字、下划线）|
+| name | string | ✅ | 平台显示名称 |
+| enabled | boolean | ✅ | 是否启用 |
+| description | string | ❌ | 平台描述信息 |
+| color | string | ❌ | Tailwind CSS 颜色类 |
+| icon_url | string | ❌ | 平台图标URL |
+| max_concurrency_limit | number | ❌ | 建议的最大并发限制 |
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform created successfully",
+  "data": {
+    "key": "claude",
+    "name": "Claude",
+    "enabled": true,
+    "description": "Anthropic Claude 系列模型",
+    "color": "bg-purple-500",
+    "icon_url": "https://example.com/icon.png",
+    "max_concurrency_limit": 15,
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+**错误响应**：
+
+```json
+{
+  "code": 400,
+  "message": "Platform key already exists",
+  "data": null
+}
+```
+
+---
+
+### 4.3 更新平台
+
+**接口路径**：`PATCH /api/admin/platforms/:key`
+
+**说明**：更新平台配置信息（平台key不可修改）。
+
+**请求体**：
+
+```json
+{
+  "name": "Claude API",                 // 可选
+  "enabled": false,                     // 可选
+  "description": "Updated description", // 可选
+  "color": "bg-indigo-500",            // 可选
+  "icon_url": "https://new-icon.png",  // 可选
+  "max_concurrency_limit": 20          // 可选
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform updated successfully",
+  "data": {
+    "key": "claude",
+    "name": "Claude API",
+    "enabled": false,
+    "description": "Updated description",
+    "color": "bg-indigo-500",
+    "icon_url": "https://new-icon.png",
+    "max_concurrency_limit": 20,
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-16T14:20:00Z"
+  }
+}
+```
+
+---
+
+### 4.4 删除平台
+
+**接口路径**：`DELETE /api/admin/platforms/:key`
+
+**说明**：删除平台配置。
+
+**注意事项**：
+- 只有当该平台没有关联的密钥和任务时才能删除
+- 如果有关联数据，应先禁用平台（enabled: false）而非删除
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform deleted successfully",
+  "data": null
+}
+```
+
+**错误响应（有关联数据）**：
+
+```json
+{
+  "code": 400,
+  "message": "Cannot delete platform with existing keys or tasks",
+  "data": {
+    "key_count": 5,
+    "task_count": 120
+  }
+}
+```
+
+---
+
+### 4.5 获取密钥列表
 
 **接口路径**：`GET /api/admin/keys`
 
@@ -582,7 +722,7 @@
 
 ---
 
-### 4.2 添加密钥
+### 4.6 添加密钥
 
 **接口路径**：`POST /api/admin/keys`
 
@@ -617,7 +757,7 @@
 
 ---
 
-### 4.3 批量添加密钥
+### 4.7 批量添加密钥
 
 **接口路径**：`POST /api/admin/keys/batch`
 
@@ -652,7 +792,7 @@
 
 ---
 
-### 4.4 更新密钥配置
+### 4.8 更新密钥配置
 
 **接口路径**：`PATCH /api/admin/keys/{id}`
 
@@ -684,7 +824,7 @@
 
 ---
 
-### 4.5 删除密钥
+### 4.9 删除密钥
 
 **接口路径**：`DELETE /api/admin/keys/{id}`
 
@@ -708,7 +848,7 @@
 
 ---
 
-### 4.6 手动触发熔断/解除熔断
+### 4.10 手动触发熔断/解除熔断
 
 **接口路径**：`POST /api/admin/keys/{id}/cooldown`
 
@@ -741,7 +881,7 @@
 
 ---
 
-### 4.7 触发健康检测
+### 4.11 触发健康检测
 
 **接口路径**：`POST /api/admin/keys/health-check`
 
@@ -802,7 +942,7 @@
 
 ---
 
-### 4.8 获取密钥统计信息
+### 4.12 获取密钥统计信息
 
 **接口路径**：`GET /api/admin/keys/stats`
 
@@ -842,11 +982,16 @@
 
 ---
 
-## 五、模型与配置管理 (Models & Config)
+## 五、平台配置管理 (Platform Configuration)
 
-### 5.1 获取模型配置列表
+> **设计变更说明**：平台配置管理直接基于密钥池中的 platform
+> - 后端从 `api_keys` 表中获取所有不重复的 `platform` 作为可配置的平台列表
+> - 管理员可为每个 platform 配置：等级权限、积分计费、Token 费率
+> - 平台配置存储在独立的 `platform_configs` 表中
 
-**接口路径**：`GET /api/admin/models`
+### 5.1 获取平台配置列表
+
+**接口路径**：`GET /api/admin/platform-configs`
 
 **请求参数**：无
 
@@ -859,25 +1004,108 @@
   "data": [
     {
       "id": 1,
-      "model_id": "gpt-4",              // 模型 ID
-      "name": "GPT-4",                  // 模型名称
-      "base_cost": 50,                  // 基础成本（每千 token）
-      "price_multiplier": 1.5,          // 价格倍率
-      "is_active": true,                // 是否启用
-      "vip_limit": 2,                   // VIP 等级限制（0=无限制，1-5=T1-T5）
-      "max_tokens": 8192,               // 最大 token 数
-      "description": "GPT-4 模型"
+      "platform": "openai",              // 平台标识（来自密钥池）
+      "platform_name": "OpenAI",         // 平台显示名称（来自 platforms 表）
+      "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],  // 允许使用的等级
+      "cost_per_call": 10,               // 每次调用扣除积分（固定计费）
+      "token_cost_config": {
+        "enabled": true,                 // 是否启用 Token 计费
+        "input_cost": 0.03,              // 输入 Token 费率（每千 token，积分）
+        "output_cost": 0.06              // 输出 Token 费率（每千 token，积分）
+      },
+      "is_active": true,                 // 是否启用该平台
+      "description": "OpenAI GPT 系列模型",
+      "created_at": "2024-03-01T10:00:00Z",
+      "updated_at": "2024-03-20T15:30:00Z"
     },
     {
       "id": 2,
-      "model_id": "gpt-3.5-turbo",
-      "name": "GPT-3.5 Turbo",
-      "base_cost": 10,
-      "price_multiplier": 1.0,
+      "platform": "sora",
+      "platform_name": "Sora",
+      "allowed_tiers": ["T3", "T4", "T5"],  // 仅高级会员可用
+      "cost_per_call": 100,
+      "token_cost_config": {
+        "enabled": false                 // 不使用 Token 计费，仅固定计费
+      },
       "is_active": true,
-      "vip_limit": 0,
-      "max_tokens": 4096,
-      "description": "GPT-3.5 Turbo 模型"
+      "description": "OpenAI Sora 视频生成模型",
+      "created_at": "2024-03-10T12:00:00Z",
+      "updated_at": "2024-03-20T16:00:00Z"
+    },
+    {
+      "id": 3,
+      "platform": "midjourney",
+      "platform_name": "Midjourney",
+      "allowed_tiers": ["T2", "T3", "T4", "T5"],
+      "cost_per_call": 50,
+      "token_cost_config": {
+        "enabled": false
+      },
+      "is_active": true,
+      "description": "Midjourney 图像生成",
+      "created_at": "2024-03-05T09:00:00Z",
+      "updated_at": "2024-03-18T14:00:00Z"
+    }
+  ]
+}
+```
+
+**字段说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| id | integer | ✅ | 配置 ID |
+| platform | string | ✅ | 平台标识（来自密钥池） |
+| platform_name | string | ✅ | 平台显示名称 |
+| allowed_tiers | string[] | ✅ | 允许使用的等级数组（T1-T5） |
+| cost_per_call | number | ✅ | 每次调用扣除积分（固定计费） |
+| token_cost_config | object | ✅ | Token 计费配置 |
+| token_cost_config.enabled | boolean | ✅ | 是否启用 Token 计费 |
+| token_cost_config.input_cost | number | ❌ | 输入 Token 费率（每千 token，积分） |
+| token_cost_config.output_cost | number | ❌ | 输出 Token 费率（每千 token，积分） |
+| is_active | boolean | ✅ | 是否启用该平台 |
+| description | string | ❌ | 平台描述 |
+
+**计费逻辑说明**：
+- **固定计费**：每次调用扣除 `cost_per_call` 积分
+- **Token 计费**：如果 `token_cost_config.enabled = true`，则额外按 Token 消耗计费
+  - 总扣除积分 = `cost_per_call` + (input_tokens / 1000 * input_cost) + (output_tokens / 1000 * output_cost)
+- 如果 `token_cost_config.enabled = false`，则仅使用固定计费
+
+---
+
+### 5.2 获取可配置的平台列表
+
+**接口路径**：`GET /api/admin/platform-configs/available-platforms`
+
+**请求参数**：无
+
+**说明**：获取密钥池中所有不重复的 platform，用于新建配置时选择。
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Success",
+  "data": [
+    {
+      "platform": "openai",
+      "platform_name": "OpenAI",
+      "has_config": true,           // 是否已有配置
+      "key_count": 5                // 该平台的密钥数量
+    },
+    {
+      "platform": "sora",
+      "platform_name": "Sora",
+      "has_config": true,
+      "key_count": 3
+    },
+    {
+      "platform": "anthropic",
+      "platform_name": "Anthropic",
+      "has_config": false,          // 尚未配置
+      "key_count": 2
     }
   ]
 }
@@ -885,24 +1113,24 @@
 
 ---
 
-### 5.2 修改模型配置
+### 5.3 创建平台配置
 
-**接口路径**：`PATCH /api/admin/models/{model_id}`
-
-**路径参数**：
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| model_id | integer | 模型配置 ID（注意：不是 model_id 字段） |
+**接口路径**：`POST /api/admin/platform-configs`
 
 **请求 Body**：
 
 ```json
 {
-  "base_cost": 50,           // 基础成本（可选）
-  "price_multiplier": 1.5,   // 价格倍率（可选）
-  "is_active": true,         // 是否启用（可选）
-  "vip_limit": 2             // VIP 等级限制（可选）
+  "platform": "anthropic",
+  "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],
+  "cost_per_call": 20,
+  "token_cost_config": {
+    "enabled": true,
+    "input_cost": 0.04,
+    "output_cost": 0.08
+  },
+  "is_active": true,
+  "description": "Anthropic Claude 系列模型"
 }
 ```
 
@@ -911,14 +1139,89 @@
 ```json
 {
   "code": 0,
-  "message": "Model updated successfully",
+  "message": "Platform config created successfully",
+  "data": {
+    "id": 4,
+    "platform": "anthropic",
+    "platform_name": "Anthropic",
+    "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],
+    "cost_per_call": 20,
+    "token_cost_config": {
+      "enabled": true,
+      "input_cost": 0.04,
+      "output_cost": 0.08
+    },
+    "is_active": true,
+    "description": "Anthropic Claude 系列模型",
+    "created_at": "2024-03-21T10:00:00Z",
+    "updated_at": "2024-03-21T10:00:00Z"
+  }
+}
+```
+
+---
+
+### 5.4 更新平台配置
+
+**接口路径**：`PATCH /api/admin/platform-configs/{id}`
+
+**路径参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 平台配置 ID |
+
+**请求 Body**（所有字段可选）：
+
+```json
+{
+  "allowed_tiers": ["T2", "T3", "T4", "T5"],
+  "cost_per_call": 15,
+  "token_cost_config": {
+    "enabled": true,
+    "input_cost": 0.035,
+    "output_cost": 0.07
+  },
+  "is_active": true,
+  "description": "更新后的描述"
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform config updated successfully",
   "data": null
 }
 ```
 
 ---
 
-### 5.3 获取会员等级配置
+### 5.5 删除平台配置
+
+**接口路径**：`DELETE /api/admin/platform-configs/{id}`
+
+**路径参数**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | integer | 平台配置 ID |
+
+**响应示例**：
+
+```json
+{
+  "code": 0,
+  "message": "Platform config deleted successfully",
+  "data": null
+}
+```
+
+---
+
+### 5.6 获取会员等级配置
 
 **接口路径**：`GET /api/admin/config/membership`
 
@@ -977,7 +1280,7 @@
 
 ---
 
-### 5.4 更新会员等级配置
+### 5.7 更新会员等级配置
 
 **接口路径**：`PUT /api/admin/config/membership`
 
