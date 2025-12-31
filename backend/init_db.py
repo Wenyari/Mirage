@@ -13,6 +13,10 @@ app = create_app()
 def init_database():
     """初始化数据库表"""
     with app.app_context():
+        print("Dropping existing database tables...")
+        db.drop_all()
+        print("✓ Existing tables dropped")
+
         print("Creating database tables...")
         db.create_all()
         print("✓ Database tables created successfully")

@@ -6,7 +6,7 @@ import json
 from flask import current_app
 from rq import Queue
 from app.extensions import db, redis_client
-from app.models import Task, User, MembershipConfig, ModelPricing
+from app.models import Task, User, MembershipConfig, PlatformConfig, Platform
 from app.services.pay_service import check_and_deduct_balance
 
 
@@ -29,35 +29,45 @@ def get_user_concurrency_limit(user_id: int) -> int:
     if not config:
         return 1  # 默认值
 
-    return config.concurrency_limit
+    return config.concurrent_limit
 
 
-def get_model_price(model_name: str) -> float:
+def get_platform_cost(platform_key: str) -> dict:
     """
-    获取模型定价
+    获取平台配置和定价
 
     Args:
-        model_name: 模型名称
+        platform_key: 平台标识 (如 'openai', 'sora')
 
     Returns:
-        float: 模型价格
+        dict: 平台配置信息 {
+            'cost_per_call': float,
+            'token_cost_config': dict,
+            'allowed_tiers': list
+        }
     """
     # 先尝试从 Redis 缓存读取
-    cache_key = f"config:pricing:{model_name}"
-    cached_price = redis_client.get(cache_key)
+    cache_key = f"config:platform:{platform_key}"
+    cached_config = redis_client.get(cache_key)
 
-    if cached_price:
-        return float(cached_price)
+    if cached_config:
+        return json.loads(cached_config)
 
     # 从数据库查询
-    pricing = ModelPricing.query.filter_by(model_key=model_name, is_active=1).first()
-    if not pricing:
-        raise ValueError(f"Model '{model_name}' not found or not active")
+    config = PlatformConfig.query.filter_by(platform=platform_key, is_active=1).first()
+    if not config:
+        raise ValueError(f"Platform '{platform_key}' not found or not active")
+
+    config_data = {
+        'cost_per_call': float(config.cost_per_call),
+        'token_cost_config': config.token_cost_config or {},
+        'allowed_tiers': config.allowed_tiers or []
+    }
 
     # 缓存到 Redis (1小时)
-    redis_client.setex(cache_key, 3600, str(pricing.base_cost))
+    redis_client.setex(cache_key, 3600, json.dumps(config_data))
 
-    return float(pricing.base_cost)
+    return config_data
 
 
 def submit_task(user_id: int, task_data: dict) -> str:
@@ -65,15 +75,16 @@ def submit_task(user_id: int, task_data: dict) -> str:
     提交任务 (核心业务逻辑)
 
     1. 【并发检查】: 检查用户当前运行中的任务数是否超过配额
-    2. 【计算费用】: 根据模型和参数计算需要扣除的积分
-    3. 【预扣费】: 调用 pay_service 预扣除积分
-    4. 【入库】: 创建 Task 记录，状态为 pending
-    5. 【入队】: 根据用户等级将任务推入不同优先级的队列
+    2. 【权限检查】: 检查用户等级是否有权使用该平台
+    3. 【计算费用】: 根据平台和参数计算需要扣除的积分
+    4. 【预扣费】: 调用 pay_service 预扣除积分
+    5. 【入库】: 创建 Task 记录，状态为 pending
+    6. 【入队】: 根据用户等级将任务推入不同优先级的队列
 
     Args:
         user_id: 用户 ID
         task_data: 任务数据 {
-            "model": "sora-v2",
+            "platform": "sora",
             "prompt": "...",
             "params": {...},
             "input_file_url": "..."
@@ -83,7 +94,7 @@ def submit_task(user_id: int, task_data: dict) -> str:
         str: 任务 ID (UUID)
 
     Raises:
-        ValueError: 并发超限、余额不足等业务错误
+        ValueError: 并发超限、权限不足、余额不足等业务错误
     """
     # 1. 【并发检查】
     user = User.query.get(user_id)
@@ -104,12 +115,23 @@ def submit_task(user_id: int, task_data: dict) -> str:
             f"Please upgrade your membership or wait for existing tasks to complete."
         )
 
-    # 2. 【计算费用】
-    model_name = task_data.get('model')
-    if not model_name:
-        raise ValueError("Model name is required")
+    # 2. 【权限检查和计算费用】
+    platform_key = task_data.get('platform')
+    if not platform_key:
+        raise ValueError("Platform is required")
 
-    base_cost = get_model_price(model_name)
+    platform_config = get_platform_cost(platform_key)
+
+    # 检查用户等级是否有权使用该平台
+    user_tier = f"T{user.level}"
+    allowed_tiers = platform_config.get('allowed_tiers', [])
+    if user_tier not in allowed_tiers:
+        raise ValueError(
+            f"Your membership tier ({user_tier}) does not have access to platform '{platform_key}'. "
+            f"Allowed tiers: {', '.join(allowed_tiers)}"
+        )
+
+    base_cost = platform_config['cost_per_call']
 
     # 根据参数调整价格 (例如根据时长)
     params = task_data.get('params', {})
@@ -120,7 +142,7 @@ def submit_task(user_id: int, task_data: dict) -> str:
     # 创建任务记录 (暂时不提交，获取 task_id 用于流水记录)
     new_task = Task(
         user_id=user_id,
-        model_name=model_name,
+        platform=platform_key,
         prompt=task_data.get('prompt'),
         input_file_url=task_data.get('input_file_url'),
         params=params,
@@ -146,7 +168,7 @@ def submit_task(user_id: int, task_data: dict) -> str:
     task_payload = {
         'task_id': new_task.id,
         'user_id': user_id,
-        'model_name': model_name,
+        'platform': platform_key,
         'prompt': task_data.get('prompt'),
         'input_file_url': task_data.get('input_file_url'),
         'params': params

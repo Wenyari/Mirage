@@ -13,7 +13,7 @@ class Task(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
-    platform = db.Column(db.String(50), nullable=False)  # 平台标识 (如 'openai', 'sora')
+    platform = db.Column(db.String(50), db.ForeignKey('platforms.key'), nullable=False)  # 平台标识 (外键关联 platforms.key)
     prompt = db.Column(db.Text, nullable=True)  # 用户提示词
     input_file_url = db.Column(db.Text, nullable=True)  # 参考图/视频
     params = db.Column(db.JSON, nullable=True)  # 动态参数 (时长、比例等)
