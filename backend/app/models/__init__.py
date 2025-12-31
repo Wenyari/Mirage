@@ -3,14 +3,17 @@
 统一导入所有模型
 """
 from app.models.user import User, MembershipConfig
-from app.models.task import Task, ModelPricing
+from app.models.task import Task
 from app.models.wallet import CDK, Transaction
+from app.models.platform import Platform, PlatformConfig, ApiKey
 
 __all__ = [
     'User',
     'MembershipConfig',
     'Task',
-    'ModelPricing',
     'CDK',
     'Transaction',
+    'Platform',
+    'PlatformConfig',
+    'ApiKey',
 ]

@@ -4,27 +4,42 @@
 USE sora_platform;
 
 -- 插入会员等级配置 (T1-T5)
-INSERT INTO membership_configs (level, name, concurrency_limit, queue_priority, remark) VALUES
-(1, 'T1', 1, 0, '基础用户 - 1个并发'),
-(2, 'T2', 2, 5, '进阶用户 - 2个并发'),
-(3, 'T3', 3, 10, '高级用户 - 3个并发'),
-(4, 'T4', 4, 15, 'VIP用户 - 4个并发 + 优先队列'),
-(5, 'T5', 5, 20, '至尊VIP - 5个并发 + 最高优先级')
+INSERT INTO membership_configs (level, name, concurrent_limit, queue_weight, price, description) VALUES
+(1, 'T1', 1, 1, 0.00, '免费用户'),
+(2, 'T2', 3, 2, 29.00, '基础会员'),
+(3, 'T3', 5, 3, 99.00, '高级会员'),
+(4, 'T4', 10, 4, 299.00, '专业会员'),
+(5, 'T5', 20, 5, 999.00, '旗舰会员')
 ON DUPLICATE KEY UPDATE
     name=VALUES(name),
-    concurrency_limit=VALUES(concurrency_limit),
-    queue_priority=VALUES(queue_priority),
-    remark=VALUES(remark);
+    concurrent_limit=VALUES(concurrent_limit),
+    queue_weight=VALUES(queue_weight),
+    price=VALUES(price),
+    description=VALUES(description);
 
--- 插入模型定价配置
-INSERT INTO model_pricing (model_key, base_cost, is_active, config) VALUES
-('sora-v2', 100.00, 1, '{"max_duration": 60, "quality_options": ["standard", "hd"]}'),
-('sora-turbo', 50.00, 1, '{"max_duration": 30, "quality_options": ["standard"]}'),
-('midjourney-v6', 80.00, 1, '{"aspect_ratios": ["1:1", "16:9", "9:16"]}')
+-- 插入平台基本信息
+INSERT INTO platforms (`key`, name, enabled, description, color, icon_url, max_concurrency_limit) VALUES
+('openai', 'OpenAI', 1, 'OpenAI GPT 系列模型', 'bg-green-500', NULL, 20),
+('sora', 'Sora', 1, 'OpenAI Sora 视频生成模型', 'bg-blue-500', NULL, 10),
+('midjourney', 'Midjourney', 1, 'Midjourney 图像生成', 'bg-purple-500', NULL, 15)
 ON DUPLICATE KEY UPDATE
-    base_cost=VALUES(base_cost),
+    name=VALUES(name),
+    enabled=VALUES(enabled),
+    description=VALUES(description),
+    color=VALUES(color),
+    max_concurrency_limit=VALUES(max_concurrency_limit);
+
+-- 插入平台配置
+INSERT INTO platform_configs (platform, allowed_tiers, cost_per_call, token_cost_config, is_active, description) VALUES
+('openai', '["T1","T2","T3","T4","T5"]', 10.00, '{"enabled":true,"input_cost":0.03,"output_cost":0.06}', 1, 'OpenAI GPT 模型配置'),
+('sora', '["T3","T4","T5"]', 100.00, '{"enabled":false}', 1, 'Sora 视频生成配置'),
+('midjourney', '["T2","T3","T4","T5"]', 50.00, '{"enabled":false}', 1, 'Midjourney 图像生成配置')
+ON DUPLICATE KEY UPDATE
+    allowed_tiers=VALUES(allowed_tiers),
+    cost_per_call=VALUES(cost_per_call),
+    token_cost_config=VALUES(token_cost_config),
     is_active=VALUES(is_active),
-    config=VALUES(config);
+    description=VALUES(description);
 
 -- 创建默认管理员账号
 -- 密码: admin123 (请在生产环境中修改)
@@ -35,7 +50,5 @@ ON DUPLICATE KEY UPDATE
     role='admin',
     level=5;
 
--- 创建测试 CDK (可选)
--- INSERT INTO cdk (code, points, type, batch_no, status, expire_at, created_at) VALUES
--- ('TEST-100-POINTS', 100, 'universal', 'TEST-BATCH', 0, DATE_ADD(NOW(), INTERVAL 30 DAY), NOW()),
--- ('TEST-500-POINTS', 500, 'universal', 'TEST-BATCH', 0, DATE_ADD(NOW(), INTERVAL 30 DAY), NOW());
+-- 注意：API 密钥需要手动添加，不在初始化 SQL 中提供
+-- 请使用管理界面或直接在数据库中添加您的 API 密钥

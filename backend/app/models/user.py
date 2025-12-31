@@ -48,9 +48,10 @@ class MembershipConfig(db.Model):
 
     level = db.Column(db.SmallInteger, primary_key=True)  # 等级 1-5
     name = db.Column(db.String(20), nullable=False)  # T1, T2, T3, T4, T5
-    concurrency_limit = db.Column(db.Integer, nullable=False)  # 并发任务数限制
-    queue_priority = db.Column(db.Integer, default=0, nullable=False)  # 队列权重
-    remark = db.Column(db.String(100), nullable=True)
+    concurrent_limit = db.Column(db.Integer, nullable=False)  # 并发任务数限制
+    queue_weight = db.Column(db.Integer, default=1, nullable=False)  # 队列权重
+    price = db.Column(db.Numeric(10, 2), default=0.00, nullable=False)  # 月费价格
+    description = db.Column(db.String(100), nullable=True)  # 等级描述
 
     def __repr__(self):
         return f'<MembershipConfig {self.name}>'
@@ -60,7 +61,8 @@ class MembershipConfig(db.Model):
         return {
             'level': self.level,
             'name': self.name,
-            'concurrency_limit': self.concurrency_limit,
-            'queue_priority': self.queue_priority,
-            'remark': self.remark,
+            'concurrent_limit': self.concurrent_limit,
+            'queue_weight': self.queue_weight,
+            'price': float(self.price),
+            'description': self.description,
         }
