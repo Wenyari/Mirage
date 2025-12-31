@@ -152,7 +152,8 @@ def login_user(email: str, password: str, login_ip: str = None) -> dict:
         raise ValueError("Account has been banned")
 
     # 4. 生成 JWT Token
-    token = create_access_token(identity=user.id)
+    # Ensure identity is a string to avoid jwt subject type validation issues
+    token = create_access_token(identity=str(user.id))
 
     # 5. 【核心】单点登录互斥：将新 Token 存入 Redis
     # 当用户请求时，检查 Redis 中的 Token 是否与请求中的一致

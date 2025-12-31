@@ -87,8 +87,13 @@ def redis_db(app):
     with app.app_context():
         yield redis_client
 
-        # 清空测试数据库
-        redis_client.flushdb()
+        # 清空测试数据库（如果 Redis 未配置则跳过）
+        try:
+            if redis_client is not None:
+                redis_client.flushdb()
+        except Exception:
+            # 忽略清理错误（测试环境可能没有 Redis）
+            pass
 
 
 def _init_test_data():

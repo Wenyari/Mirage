@@ -3,7 +3,8 @@
 包含注册、登录、发送验证码等接口
 """
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.services import send_verify_code, register_user, login_user
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -22,9 +23,8 @@ def send_verify_code():
         if not email:
             return jsonify({"code": 400, "msg": "Email is required", "data": None}), 400
 
-        # TODO: 调用 auth_service.send_verify_code(email)
-        # from app.services.auth_service import send_verify_code
-        # send_verify_code(email)
+        # 调用服务层发送验证码
+        send_verify_code(email)
 
         return jsonify({
             "code": 200,
@@ -54,14 +54,12 @@ def register():
         if not all([email, code, password]):
             return jsonify({"code": 400, "msg": "Missing required fields", "data": None}), 400
 
-        # TODO: 调用 auth_service.register_user(email, code, password)
-        # from app.services.auth_service import register_user
-        # user_id = register_user(email, code, password)
+        user_id = register_user(email, code, password)
 
         return jsonify({
             "code": 200,
             "msg": "Registration successful",
-            "data": {"user_id": 1}  # TODO: 返回实际 user_id
+            "data": {"user_id": user_id}
         }), 200
 
     except ValueError as e:
@@ -90,29 +88,14 @@ def login():
         if not all([email, password]):
             return jsonify({"code": 400, "msg": "Email and password are required", "data": None}), 400
 
-        # 临时简单的验证逻辑 (仅用于测试)
-        if email == "admin@example.com" and password == "admin123":
-            # 尝试从数据库查找用户ID，确保 identity 存为字符串以兼容JWT子字段类型
-            from app.models import User
-            user = User.query.filter_by(email=email).first()
-            identity_value = str(user.id) if user else '1'
-            additional_claims = {"email": email}
-            access_token = create_access_token(identity=identity_value, additional_claims=additional_claims)
+        # 使用服务层登录逻辑（验证数据库并生成 token）
+        result = login_user(email, password, request.remote_addr)
 
-            return jsonify({
-                "code": 200,
-                "msg": "Login successful",
-                "data": {
-                    "token": access_token,
-                    "user": {
-                        "id": 1,
-                        "email": email,
-                        "balance": 1000.00,
-                        "level": 5
-                    }
-                }
-            }), 200
-        return jsonify({"code": 401, "msg": "Invalid email or password", "data": None}), 401
+        return jsonify({
+            "code": 200,
+            "msg": "Login successful！",
+            "data": result
+        }), 200
 
     except Exception as e:
         return jsonify({"code": 500, "msg": f"Internal error: {str(e)}", "data": None}), 500
