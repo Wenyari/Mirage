@@ -24,5 +24,13 @@ def init_redis(app):
     """初始化 Redis 客户端"""
     global redis_client
     redis_url = app.config['REDIS_URL']
-    redis_client = redis.from_url(redis_url, decode_responses=True)
-    return redis_client
+    try:
+        redis_client = redis.from_url(redis_url, decode_responses=True)
+        # 测试连接
+        redis_client.ping()
+        print("Redis connected successfully")
+        return redis_client
+    except Exception as e:
+        print(f"Redis connection failed: {e}")
+        redis_client = None
+        raise  # 重新抛出异常，让应用启动失败

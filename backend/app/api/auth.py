@@ -2,9 +2,10 @@
 鉴权相关 API 路由
 包含注册、登录、发送验证码等接口
 """
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.services import send_verify_code, register_user, login_user
+# avoid name collision with route function 'send_verify_code'
+from app.services import send_verify_code as send_verify_code_service, register_user, login_user
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -17,14 +18,24 @@ def send_verify_code():
     Body: {"email": "user@example.com"}
     """
     try:
-        data = request.get_json()
-        email = data.get('email')
+        data = request.get_json(silent=True) or {}
+        # 支持 JSON body 或 query string 两种方式传参
+        email = data.get('email') or request.args.get('email')
 
         if not email:
             return jsonify({"code": 400, "msg": "Email is required", "data": None}), 400
 
-        # 调用服务层发送验证码
-        send_verify_code(email)
+        try:
+            # 调用服务层发送验证码
+            send_verify_code_service(email)
+        except ValueError as e:
+            # 业务错误（格式/限流/SMTP失败等）返回 400
+            current_app.logger.warning(f"send_verify_code failed for {email}: {e}")
+            return jsonify({"code": 400, "msg": str(e), "data": None}), 400
+        except Exception as e:
+            # 未知错误返回 500，记录日志以便排查
+            current_app.logger.exception(f"Unexpected error in send_verify_code: {e}")
+            return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
 
         return jsonify({
             "code": 200,
@@ -46,10 +57,19 @@ def register():
     Body: {"email": "...", "code": "123456", "password": "..."}
     """
     try:
-        data = request.get_json()
-        email = data.get('email')
-        code = data.get('code')
-        password = data.get('password')
+        # 支持 JSON body 或 query string 两种方式传参（与 login 保持一致）
+        if request.is_json:
+            try:
+                data = request.get_json()
+            except Exception:
+                # 如果 Content-Type 是 JSON 但 body 为空或无效，回退到 query string
+                data = request.args.to_dict()
+        else:
+            data = request.args.to_dict()
+
+        email = (data or {}).get('email')
+        code = (data or {}).get('code')
+        password = (data or {}).get('password')
 
         if not all([email, code, password]):
             return jsonify({"code": 400, "msg": "Missing required fields", "data": None}), 400
@@ -65,6 +85,7 @@ def register():
     except ValueError as e:
         return jsonify({"code": 400, "msg": str(e), "data": None}), 400
     except Exception as e:
+        current_app.logger.exception(f"Unexpected error in register: {e}")
         return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
 
 

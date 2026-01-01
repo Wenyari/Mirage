@@ -8,7 +8,7 @@ from datetime import datetime
 from flask import current_app
 from flask_jwt_extended import create_access_token
 from flask_mail import Message
-from app.extensions import db, redis_client, mail
+from app.extensions import db, mail
 from app.models import User
 
 
@@ -41,6 +41,9 @@ def send_verify_code(email: str):
     code = str(random.randint(100000, 999999))
 
     # 4. 存入 Redis (5分钟过期)
+    from app.extensions import redis_client
+    if redis_client is None:
+        raise ValueError("Redis service unavailable")
     verify_key = f"verify:email:{email}"
     redis_client.setex(verify_key, 300, code)
 
@@ -81,6 +84,10 @@ def register_user(email: str, code: str, password: str) -> int:
         ValueError: 验证码错误、用户已存在等
     """
     # 1. 验证码校验
+    from app.extensions import redis_client
+    if redis_client is None:
+        raise ValueError("Redis service unavailable - redis_client is None. Check if init_redis() was called during app initialization.")
+
     verify_key = f"verify:email:{email}"
     stored_code = redis_client.get(verify_key)
 
@@ -112,7 +119,9 @@ def register_user(email: str, code: str, password: str) -> int:
     db.session.commit()
 
     # 删除验证码
-    redis_client.delete(verify_key)
+    from app.extensions import redis_client
+    if redis_client is not None:
+        redis_client.delete(verify_key)
 
     return new_user.id
 
@@ -157,6 +166,9 @@ def login_user(email: str, password: str, login_ip: str = None) -> dict:
 
     # 5. 【核心】单点登录互斥：将新 Token 存入 Redis
     # 当用户请求时，检查 Redis 中的 Token 是否与请求中的一致
+    from app.extensions import redis_client
+    if redis_client is None:
+        raise ValueError("Redis service unavailable")
     auth_token_key = f"auth:token:{user.id}"
     redis_client.setex(auth_token_key, 604800, token)  # 7天过期
 
@@ -184,6 +196,10 @@ def check_token_validity(user_id: int, current_token: str) -> bool:
     Returns:
         bool: Token 是否有效
     """
+    from app.extensions import redis_client
+    if redis_client is None:
+        return False
+
     auth_token_key = f"auth:token:{user_id}"
     stored_token = redis_client.get(auth_token_key)
 
