@@ -90,7 +90,7 @@ def redis_db(app):
         # 清空测试数据库（如果 Redis 未配置则跳过）
         try:
             if redis_client is not None:
-                redis_client.flushdb()
+        redis_client.flushdb()
         except Exception:
             # 忽略清理错误（测试环境可能没有 Redis）
             pass

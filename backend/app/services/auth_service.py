@@ -3,6 +3,7 @@
 包含注册、登录、验证码发送等核心业务逻辑
 """
 import random
+import re
 import bcrypt
 from datetime import datetime
 from flask import current_app
@@ -28,14 +29,15 @@ def send_verify_code(email: str):
     Raises:
         ValueError: 邮箱格式错误、发送频繁等
     """
-    # TODO: 1. 校验邮箱格式
-    if '@' not in email or '.' not in email:
+    # 1. 校验邮箱格式 (使用正则表达式进行更完善的验证)
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_pattern, email):
         raise ValueError("Invalid email format")
 
-    # TODO: 2. 检查限流 (rate:limit:email:{email})
-    # rate_key = f"rate:limit:email:{email}"
-    # if redis_client.get(rate_key):
-    #     raise ValueError("Verification code sent too frequently, please try again later")
+    # 2. 检查限流 (60秒内不能重复发送)
+    rate_key = f"rate:limit:email:{email}"
+    if redis_client.get(rate_key):
+        raise ValueError("Verification code sent too frequently, please try again later")
 
     # 3. 生成 6 位随机验证码
     code = str(random.randint(100000, 999999))
@@ -47,7 +49,7 @@ def send_verify_code(email: str):
     verify_key = f"verify:email:{email}"
     redis_client.setex(verify_key, 300, code)
 
-    # TODO: 5. 发送邮件
+    # 5. 发送邮件
     try:
         msg = Message(
             subject="Your Verification Code",
@@ -60,7 +62,7 @@ def send_verify_code(email: str):
         raise ValueError("Failed to send verification code")
 
     # 设置限流 (60秒内不能重复发送)
-    # redis_client.setex(rate_key, 60, "1")
+    redis_client.setex(rate_key, 60, "1")
 
 
 def register_user(email: str, code: str, password: str) -> int:
