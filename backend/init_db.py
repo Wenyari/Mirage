@@ -207,6 +207,21 @@ def create_admin_user(email='admin@example.com', password='admin123'):
         db.session.add(admin)
         db.session.commit()
 
+        # 创建测试普通用户
+        password_hash = bcrypt.hashpw('***REMOVED***'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+        normal = User(
+            email="demo@example.com",
+            password_hash=password_hash,
+            balance=10000.00,
+            level=1,
+            role='user',
+            status=1
+        )
+
+        db.session.add(normal)  
+        db.session.commit()
+
         print(f"✓ Admin user created")
         print(f"  Email: {email}")
         print(f"  Password: {password}")
