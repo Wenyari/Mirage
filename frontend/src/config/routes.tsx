@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
+import AdminGuard from '@/components/auth/AdminGuard';
 // Admin Imports
 import AdminLayout from '@/layouts/AdminLayout';
 import UserLayout from '@/layouts/UserLayout';
@@ -32,7 +33,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/wadminw',
-    element: <AdminLayout />,
+    element: (
+      <AdminGuard>
+        <AdminLayout />
+      </AdminGuard>
+    ),
     children: [
       {
         index: true,

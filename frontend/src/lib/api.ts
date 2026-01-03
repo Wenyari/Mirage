@@ -11,7 +11,7 @@ const api = axios.create({
 // 请求拦截器：添加 JWT Token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,8 +29,14 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // 401 未授权，清除 token 并跳转登录
-      localStorage.removeItem('admin_token');
-      window.location.href = '/wadminw/login';
+      localStorage.removeItem('auth_token');
+      
+      // 根据当前路径判断跳转到哪个登录页
+      if (window.location.pathname.startsWith('/wadminw')) {
+        window.location.href = '/wadminw/login';
+      } else {
+        window.location.href = '/login';
+      }
     }
 
     // 统一错误格式

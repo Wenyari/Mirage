@@ -1,6 +1,6 @@
-import { Moon, Sun } from 'lucide-react';
+import { LogOut,Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   Breadcrumb,
@@ -11,6 +11,9 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { logout } from '@/services/admin/auth';
+import { useAuthStore } from '@/store/authStore';
 
 const routeNames: Record<string, string> = {
   '/wadminw/dashboard': '仪表盘',
@@ -23,6 +26,9 @@ const routeNames: Record<string, string> = {
 
 export function AdminHeader() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout: storeLogout } = useAuthStore();
+  const { toast } = useToast();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
@@ -40,6 +46,22 @@ export function AdminHeader() {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      storeLogout();
+      toast({
+        title: '登出成功',
+        description: '您已安全退出系统',
+      });
+      navigate('/wadminw/login');
+    } catch (error) {
+      // 即使后端报错，前端也要登出
+      storeLogout();
+      navigate('/wadminw/login');
+    }
   };
 
   const currentPageName = routeNames[location.pathname] || '未知页面';
@@ -76,6 +98,15 @@ export function AdminHeader() {
           ) : (
             <Sun className="size-5" />
           )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleLogout}
+          aria-label="Logout"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <LogOut className="size-5" />
         </Button>
       </div>
     </header>

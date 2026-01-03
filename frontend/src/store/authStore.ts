@@ -1,23 +1,22 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface AdminUser {
-  id: number;
-  email: string;
-  name: string;
-  role: 'admin';
+import { User } from '@/types/user';
+
+export type AuthUser = Omit<User, 'password_hash' | 'register_ip'> & {
   avatar?: string;
-}
+  name?: string;
+};
 
 interface AuthState {
   token: string | null;
-  user: AdminUser | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
 
   // Actions
-  login: (token: string, user: AdminUser) => void;
+  login: (token: string, user: AuthUser) => void;
   logout: () => void;
-  setUser: (user: AdminUser) => void;
+  setUser: (user: AuthUser) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -28,7 +27,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: (token, user) => {
-        localStorage.setItem('admin_token', token);
+        localStorage.setItem('auth_token', token);
         set({
           token,
           user,
@@ -37,7 +36,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        localStorage.removeItem('admin_token');
+        localStorage.removeItem('auth_token');
         set({
           token: null,
           user: null,
@@ -50,7 +49,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'admin-auth-storage',
+      name: 'auth-storage',
       partialize: (state) => ({
         token: state.token,
         user: state.user,
