@@ -29,16 +29,21 @@ class User(db.Model):
         return f'<User {self.email}>'
 
     def to_dict(self):
-        """转换为字典"""
+        """
+        转换为字典
+
+        Note:
+            status字段：1=正常，0=封禁（与数据库定义一致）
+        """
         return {
             'id': self.id,
             'email': self.email,
-            'balance': float(self.balance),
+            'avatar': None,  # 头像URL（可选，暂未实现）
             'level': self.level,
-            'vip_desc': f'T{self.level}',
-            'role': self.role,
-            'status': self.status,
+            'balance': float(self.balance),
+            'status': self.status,  # 1=正常，0=封禁
             'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_active': self.last_login_at.isoformat() if self.last_login_at else None,
         }
 
 

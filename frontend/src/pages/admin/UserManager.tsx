@@ -151,7 +151,7 @@ export default function UserManager() {
       </div>
 
       {/* 统计卡片 */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">总用户数</CardTitle>
@@ -169,7 +169,7 @@ export default function UserManager() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {data?.items.filter(user => user.status === 1).length || 0}
+              {data?.items?.filter(user => user.status === 1).length || 0}
             </div>
           </CardContent>
         </Card>
@@ -181,19 +181,7 @@ export default function UserManager() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {data?.items.filter(user => user.status === 0).length || 0}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">管理员</CardTitle>
-            <Users className="size-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              {data?.items.filter(user => user.role === 'admin').length || 0}
+              {data?.items?.filter(user => user.status === 0).length || 0}
             </div>
           </CardContent>
         </Card>

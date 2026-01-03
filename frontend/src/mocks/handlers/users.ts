@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, passthrough } from 'msw';
 
 import type { User } from '@/types/user';
 
@@ -10,6 +10,8 @@ const runtimeUsers = [...mockUsers];
 export const usersHandlers = [
   // GET /api/admin/users - 获取用户列表（支持分页、搜索、筛选）
   http.get('/api/admin/users', ({ request }) => {
+    return passthrough();
+    /*
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '10');
@@ -49,10 +51,13 @@ export const usersHandlers = [
         );
       }, 500);
     });
+    */
   }),
 
   // PATCH /api/admin/users/:id/balance - 人工充值/扣费
   http.patch('/api/admin/users/:id/balance', async ({ params, request }) => {
+    return passthrough();
+    /*
     const userId = parseInt(params.id as string);
     const body = (await request.json()) as { amount: number; reason: string };
 
@@ -98,10 +103,13 @@ export const usersHandlers = [
         );
       }, 500);
     });
+    */
   }),
 
   // PATCH /api/admin/users/:id/profile - 修改用户资料
   http.patch('/api/admin/users/:id/profile', async ({ params, request }) => {
+    return passthrough();
+    /*
     const userId = parseInt(params.id as string);
     const body = (await request.json()) as { level?: number; status?: number };
 
@@ -136,5 +144,6 @@ export const usersHandlers = [
         );
       }, 500);
     });
+    */
   }),
 ];

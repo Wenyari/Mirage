@@ -220,11 +220,13 @@ export function UsersTable({
         <div className="rounded-md border">
           <Table>
             <TableHeader>
-              {Array.from({ length: 8 }).map((_, i) => (
-                <TableHead key={i}>
-                  <Skeleton className="h-4 w-16" />
-                </TableHead>
-              ))}
+              <TableRow>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <TableHead key={i}>
+                    <Skeleton className="h-4 w-16" />
+                  </TableHead>
+                ))}
+              </TableRow>
             </TableHeader>
             <TableBody>
               {Array.from({ length: 10 }).map((_, i) => (

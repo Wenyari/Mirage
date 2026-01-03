@@ -8,32 +8,31 @@ from app.extensions import db
 from app.models import User, Transaction
 
 
-def get_user_list(page=1, per_page=20, keyword=None, status=None, level=None):
+def get_user_list(page=1, limit=10, email=None, status=None, level=None):
     """
     获取用户列表（带分页和筛选）
 
     Args:
         page: 页码，从1开始
-        per_page: 每页数量
-        keyword: 搜索关键词（邮箱）
-        status: 状态筛选 (0=封禁, 1=正常, None=全部)
+        limit: 每页数量
+        email: 搜索关键词（邮箱，模糊匹配）
+        status: 状态筛选 (1=正常, 0=封禁, None=全部)
         level: 等级筛选 (1-5, None=全部)
 
     Returns:
         dict: {
+            'items': [用户列表],
             'total': 总记录数,
-            'pages': 总页数,
-            'current_page': 当前页,
-            'per_page': 每页数量,
-            'users': [用户列表]
+            'page': 当前页,
+            'limit': 每页数量
         }
     """
     # 构建查询条件
     query = User.query
 
     # 关键词搜索（邮箱）
-    if keyword:
-        query = query.filter(User.email.like(f'%{keyword}%'))
+    if email:
+        query = query.filter(User.email.like(f'%{email}%'))
 
     # 状态筛选
     if status is not None:
@@ -47,20 +46,75 @@ def get_user_list(page=1, per_page=20, keyword=None, status=None, level=None):
     query = query.order_by(User.created_at.desc())
 
     # 分页查询
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    pagination = query.paginate(page=page, per_page=limit, error_out=False)
 
     return {
+        'items': [user.to_dict() for user in pagination.items],
         'total': pagination.total,
-        'pages': pagination.pages,
-        'current_page': pagination.page,
-        'per_page': pagination.per_page,
-        'users': [user.to_dict() for user in pagination.items]
+        'page': pagination.page,
+        'limit': limit
+    }
+
+
+def update_user_profile(user_id, level=None, status=None, admin_id=None):
+    """
+    修改用户资料（等级和状态）
+
+    Args:
+        user_id: 用户ID
+        level: 新等级 (1-5, None=不修改)
+        status: 新状态 (1=正常, 0=封禁, None=不修改)
+        admin_id: 执行操作的管理员ID
+
+    Returns:
+        dict: 操作结果
+
+    Raises:
+        ValueError: 用户不存在、等级无效或尝试修改管理员
+    """
+    user = User.query.get(user_id)
+
+    if not user:
+        raise ValueError("User not found")
+
+    # 不允许修改管理员账号
+    if user.role == 'admin':
+        raise ValueError("Cannot modify admin user")
+
+    changes = []
+
+    # 修改等级
+    if level is not None:
+        if level not in [1, 2, 3, 4, 5]:
+            raise ValueError("Invalid level. Must be between 1 and 5")
+        old_level = user.level
+        user.level = level
+        changes.append(f"level: T{old_level} -> T{level}")
+
+    # 修改状态
+    if status is not None:
+        if status not in [0, 1]:
+            raise ValueError("Invalid status. Must be 0 (banned) or 1 (active)")
+        old_status = user.status
+        user.status = status
+        status_names = {0: 'banned', 1: 'active'}
+        changes.append(f"status: {status_names[old_status]} -> {status_names[status]}")
+
+    if not changes:
+        raise ValueError("No changes specified")
+
+    db.session.commit()
+
+    return {
+        'user_id': user_id,
+        'changes': changes,
+        'message': f'User {user.email} profile updated: {", ".join(changes)}'
     }
 
 
 def ban_user(user_id, admin_id):
     """
-    封禁用户
+    封禁用户（旧版接口，建议使用update_user_profile）
 
     Args:
         user_id: 被封禁的用户ID
@@ -220,13 +274,17 @@ def adjust_user_balance(user_id, amount, remark, admin_id):
 
 def get_user_detail(user_id):
     """
-    获取用户详细信息（包括统计数据）
+    获取用户详细信息（包括最近交易和任务记录）
 
     Args:
         user_id: 用户ID
 
     Returns:
-        dict: 用户详细信息
+        dict: {
+            'user': 用户基本信息,
+            'recent_transactions': 最近交易记录（前10条）,
+            'recent_tasks': 最近任务记录（前10条）
+        }
 
     Raises:
         ValueError: 用户不存在
@@ -236,43 +294,56 @@ def get_user_detail(user_id):
     if not user:
         raise ValueError("User not found")
 
-    # 获取任务统计
+    # 获取最近10条交易记录
     from app.models import Task
-    total_tasks = Task.query.filter_by(user_id=user_id).count()
-    completed_tasks = Task.query.filter_by(user_id=user_id, status='completed').count()
-    processing_tasks = Task.query.filter_by(user_id=user_id, status='processing').count()
+    recent_transactions = Transaction.query.filter_by(
+        user_id=user_id
+    ).order_by(
+        Transaction.created_at.desc()
+    ).limit(10).all()
 
-    # 获取交易统计
-    total_recharge = db.session.query(
-        db.func.coalesce(db.func.sum(Transaction.amount), 0)
-    ).filter(
-        and_(
-            Transaction.user_id == user_id,
-            Transaction.type == 'recharge'
-        )
-    ).scalar()
+    # 获取最近10条任务记录
+    recent_tasks = Task.query.filter_by(
+        user_id=user_id
+    ).order_by(
+        Task.created_at.desc()
+    ).limit(10).all()
 
-    total_consumed = db.session.query(
-        db.func.coalesce(db.func.sum(Transaction.amount), 0)
-    ).filter(
-        and_(
-            Transaction.user_id == user_id,
-            Transaction.type == 'task_cost'
-        )
-    ).scalar()
+    # 转换交易记录
+    transactions_list = []
+    for tx in recent_transactions:
+        transactions_list.append({
+            'id': tx.id,
+            'type': tx.type,
+            'amount': float(tx.amount),
+            'reason': tx.remark or '',
+            'created_at': tx.created_at.isoformat() if tx.created_at else None
+        })
 
-    # 组合返回数据
-    user_data = user.to_dict()
-    user_data.update({
-        'statistics': {
-            'total_tasks': total_tasks,
-            'completed_tasks': completed_tasks,
-            'processing_tasks': processing_tasks,
-            'total_recharge': float(total_recharge or 0),
-            'total_consumed': abs(float(total_consumed or 0)),
-        },
-        'register_ip': user.register_ip,
-        'last_login_at': user.last_login_at.isoformat() if user.last_login_at else None,
-    })
+    # 转换任务记录
+    tasks_list = []
+    for task in recent_tasks:
+        # 从params中提取model信息（如果有）
+        model_name = 'unknown'
+        if task.params and isinstance(task.params, dict):
+            model_name = task.params.get('model', task.platform)
 
-    return user_data
+        # 计算token使用量
+        token_used = 0
+        if task.token_usage and isinstance(task.token_usage, dict):
+            token_used = task.token_usage.get('input', 0) + task.token_usage.get('output', 0)
+
+        tasks_list.append({
+            'id': task.id,
+            'model': model_name,
+            'prompt': task.prompt[:50] + '...' if task.prompt and len(task.prompt) > 50 else task.prompt,
+            'status': task.status,
+            'token_used': token_used,
+            'created_at': task.created_at.isoformat() if task.created_at else None
+        })
+
+    return {
+        'user': user.to_dict(),
+        'recent_transactions': transactions_list,
+        'recent_tasks': tasks_list
+    }
