@@ -3,13 +3,14 @@
 包含个人信息、会员等级等接口
 """
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity
+from app.utils.auth import jwt_and_redis_required
 
 bp = Blueprint('users', __name__, url_prefix='/api/users')
 
 
 @bp.route('/me', methods=['GET'])
-@jwt_required()
+@jwt_and_redis_required()
 def get_user_info():
     """
     获取个人信息

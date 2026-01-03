@@ -3,13 +3,14 @@
 包含 CDK 兑换、流水查询等接口
 """
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity
+from app.utils.auth import jwt_and_redis_required
 
 bp = Blueprint('wallet', __name__, url_prefix='/api/wallet')
 
 
 @bp.route('/redeem', methods=['POST'])
-@jwt_required()
+@jwt_and_redis_required()
 def redeem_cdk():
     """
     CDK 兑换 (含悲观锁防并发)
@@ -45,7 +46,7 @@ def redeem_cdk():
 
 
 @bp.route('/transactions', methods=['GET'])
-@jwt_required()
+@jwt_and_redis_required()
 def get_transactions():
     """
     获取资金流水
@@ -78,7 +79,7 @@ def get_transactions():
 
 
 @bp.route('/balance', methods=['GET'])
-@jwt_required()
+@jwt_and_redis_required()
 def get_balance():
     """
     获取当前余额

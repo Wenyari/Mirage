@@ -3,13 +3,14 @@
 包含任务提交、查询状态、历史记录等接口
 """
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity
+from app.utils.auth import jwt_and_redis_required
 
 bp = Blueprint('tasks', __name__, url_prefix='/api/tasks')
 
 
 @bp.route('', methods=['POST'])
-@jwt_required()
+@jwt_and_redis_required()
 def create_task():
     """
     提交新任务 (含并发检查、预扣费、入队)
@@ -54,7 +55,7 @@ def create_task():
 
 
 @bp.route('/<task_id>', methods=['GET'])
-@jwt_required()
+@jwt_and_redis_required()
 def get_task_status(task_id):
     """
     查询任务状态 (轮询接口)
@@ -107,7 +108,7 @@ def get_task_status(task_id):
 
 
 @bp.route('', methods=['GET'])
-@jwt_required()
+@jwt_and_redis_required()
 def get_task_history():
     """
     获取任务历史记录

@@ -4,6 +4,7 @@
 """
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.utils.auth import jwt_and_redis_required
 # avoid name collision with route function 'send_verify_code'
 from app.services import send_verify_code as send_verify_code_service, register_user, login_user
 
@@ -122,8 +123,41 @@ def login():
         return jsonify({"code": 500, "msg": f"Internal error: {str(e)}", "data": None}), 500
 
 
-@bp.route('/me', methods=['GET'])
+@bp.route('/logout', methods=['POST'])
 @jwt_required()
+def logout():
+    """
+    用户登出，清除 Redis 中保存的单点登录 Token
+    POST /api/auth/logout
+    Header: Authorization: Bearer <token>
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # 尝试从 Redis 删除该用户的 token（如果 Redis 未配置则记录警告）
+        try:
+            from app.extensions import redis_client
+        except Exception:
+            redis_client = None
+
+        if redis_client is None:
+            current_app.logger.warning("Redis not configured; cannot revoke token on logout")
+        else:
+            auth_key = f"auth:token:{user_id}"
+            try:
+                redis_client.delete(auth_key)
+            except Exception as e:
+                current_app.logger.exception(f"Failed to delete auth token for user {user_id}: {e}")
+
+        return jsonify({"code": 200, "msg": "Logout successful", "data": None}), 200
+
+    except Exception as e:
+        current_app.logger.exception(f"Unexpected error in logout: {e}")
+        return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
+
+
+@bp.route('/me', methods=['GET'])
+@jwt_and_redis_required()
 def get_current_user():
     """
     获取当前用户信息
