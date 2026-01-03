@@ -38,6 +38,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'email': self.email,
+            'role': self.role,  # 用户角色：'user' 或 'admin'
             'avatar': None,  # 头像URL（可选，暂未实现）
             'level': self.level,
             'balance': float(self.balance),
