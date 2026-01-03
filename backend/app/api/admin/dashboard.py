@@ -3,15 +3,14 @@
 提供仪表盘数据接口
 """
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
-from app.utils.decorators import admin_required
+from app.utils.decorators import admin_required, login_required
 from app.services.admin import get_dashboard_overview, get_trend_chart_data
 
 bp = Blueprint('admin_dashboard', __name__)
 
 
 @bp.route('/stats/overview', methods=['GET'])
-@jwt_required()
+@login_required
 @admin_required
 def get_overview():
     """
@@ -47,7 +46,7 @@ def get_overview():
 
 
 @bp.route('/stats/chart', methods=['GET'])
-@jwt_required()
+@login_required
 @admin_required
 def get_chart_data():
     """

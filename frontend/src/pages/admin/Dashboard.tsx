@@ -66,7 +66,6 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{overview?.today_new_users || 0}</div>
-              {/* <p className="text-xs text-muted-foreground">较昨日增长 12%</p> */}
             </CardContent>
           </Card>
         )}

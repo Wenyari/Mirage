@@ -1,13 +1,13 @@
 """
-Pytest 全局配置和 Fixtures
-提供测试所需的各种工具和环境
+Pytest 全局配置和 Fixtures - 业务逻辑测试专用
+仅包含业务逻辑测试所需的配置，不包含接口测试相关内容
 """
 import pytest
 import bcrypt
 from datetime import datetime
 from app import create_app
 from app.extensions import db, redis_client
-from app.models import User, MembershipConfig, PlatformConfig, Task, CDK, Transaction, Platform
+from app.models import User, MembershipConfig, Task, CDK, Platform
 from app.config import Config
 
 
@@ -28,9 +28,6 @@ class TestConfig(Config):
     # JWT 配置
     JWT_SECRET_KEY = 'test-secret-key'
 
-    # 禁用 CSRF
-    WTF_CSRF_ENABLED = False
-
     # 邮件配置 (测试模式不实际发送)
     MAIL_SUPPRESS_SEND = True
     MAIL_DEFAULT_SENDER = 'test@example.com'
@@ -47,15 +44,6 @@ def app():
     # 创建应用上下文
     with app.app_context():
         yield app
-
-
-@pytest.fixture(scope='function')
-def client(app):
-    """
-    Flask 测试客户端 (函数级别)
-    每个测试函数都会创建新的客户端
-    """
-    return app.test_client()
 
 
 @pytest.fixture(scope='function')
@@ -126,7 +114,7 @@ def _init_test_data():
 @pytest.fixture
 def test_user(db_session):
     """
-    创建测试用户
+    创建测试用户 - 用于业务逻辑测试
     """
     password_hash = bcrypt.hashpw('password123'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
@@ -147,7 +135,7 @@ def test_user(db_session):
 @pytest.fixture
 def admin_user(db_session):
     """
-    创建管理员用户
+    创建管理员用户 - 用于业务逻辑测试
     """
     password_hash = bcrypt.hashpw('admin123'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
@@ -166,48 +154,9 @@ def admin_user(db_session):
 
 
 @pytest.fixture
-def auth_headers(client, test_user):
-    """
-    获取认证 Header
-    """
-    from flask_jwt_extended import create_access_token
-
-    token = create_access_token(identity=test_user.id)
-
-    # 将 Token 存入 Redis (模拟单点登录)
-    from app.extensions import redis_client
-    auth_token_key = f"auth:token:{test_user.id}"
-    redis_client.setex(auth_token_key, 604800, token)
-
-    return {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    }
-
-
-@pytest.fixture
-def admin_headers(client, admin_user):
-    """
-    获取管理员认证 Header
-    """
-    from flask_jwt_extended import create_access_token
-
-    token = create_access_token(identity=admin_user.id)
-
-    from app.extensions import redis_client
-    auth_token_key = f"auth:token:{admin_user.id}"
-    redis_client.setex(auth_token_key, 604800, token)
-
-    return {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    }
-
-
-@pytest.fixture
 def test_cdk(db_session):
     """
-    创建测试 CDK
+    创建测试 CDK - 用于业务逻辑测试
     """
     cdk = CDK(
         code='TEST-CDK-12345',
@@ -226,7 +175,7 @@ def test_cdk(db_session):
 @pytest.fixture
 def test_task(db_session, test_user):
     """
-    创建测试任务
+    创建测试任务 - 用于业务逻辑测试
     """
     task = Task(
         user_id=test_user.id,
@@ -245,7 +194,7 @@ def test_task(db_session, test_user):
 @pytest.fixture
 def mock_redis(mocker):
     """
-    Mock Redis 客户端
+    Mock Redis 客户端 - 用于不依赖 Redis 的单元测试
     """
     mock = mocker.MagicMock()
     mock.get.return_value = None
@@ -257,6 +206,6 @@ def mock_redis(mocker):
 @pytest.fixture
 def mock_mail(mocker):
     """
-    Mock 邮件发送
+    Mock 邮件发送 - 避免实际发送邮件
     """
     return mocker.patch('app.extensions.mail.send')
