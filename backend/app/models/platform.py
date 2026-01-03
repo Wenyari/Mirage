@@ -64,8 +64,8 @@ class PlatformConfig(db.Model):
 
     # 索引
     __table_args__ = (
-        db.Index('idx_platform', 'platform'),
-        db.Index('idx_active', 'is_active'),
+        db.Index('idx_platform_config_platform', 'platform'),
+        db.Index('idx_platform_config_active', 'is_active'),
     )
 
     def __repr__(self):

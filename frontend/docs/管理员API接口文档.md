@@ -75,10 +75,10 @@
   "code": 0,
   "message": "Success",
   "data": {
-    "today_new_users": 42,          // 今日新增用户数
-    "today_token_usage": 125000,    // 今日 Token 消耗量
-    "estimated_revenue": 3580.5,    // 今日估算收入（元）
-    "active_tasks": 18              // 当前活跃任务数
+    "today_new_users": 42,              // 今日新增用户数
+    "today_points_consumed": 12500.50,  // 今日积分消耗量
+    "today_cdk_recharge": 50000.00,     // 今日通过CDK兑换充值的积分
+    "active_tasks": 18                  // 当前活跃任务数
   }
 }
 ```
@@ -103,16 +103,16 @@
   "message": "Success",
   "data": [
     {
-      "date": "2024-12-24",      // 日期（YYYY-MM-DD）
-      "new_users": 35,           // 新增用户数
-      "token_usage": 98000,      // Token 消耗量
-      "revenue": 2800            // 收入（元）
+      "date": "2024-12-24",            // 日期（YYYY-MM-DD）
+      "new_users": 35,                 // 新增用户数
+      "points_consumed": 9800.50,      // 积分消耗量
+      "cdk_recharge": 28000.00         // CDK充值积分
     },
     {
       "date": "2024-12-25",
       "new_users": 28,
-      "token_usage": 85000,
-      "revenue": 2400
+      "points_consumed": 8500.00,
+      "cdk_recharge": 24000.00
     }
     // ... 更多数据点
   ]
@@ -122,7 +122,6 @@
 **说明**：
 - `days=7` 返回近 7 天的数据（7 个数据点）
 - `days=30` 返回近 30 天的数据（30 个数据点）
-
 ---
 
 ## 二、用户管理 (User Management)

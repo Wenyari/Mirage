@@ -1,6 +1,7 @@
 import { Activity, AlertCircle,DollarSign, Users, Zap } from 'lucide-react';
 import { useState } from 'react';
 
+import { CdkRechargeChart } from '@/components/charts/CdkRechargeChart';
 import { TokenUsageChart } from '@/components/charts/TokenUsageChart';
 import { UserGrowthChart } from '@/components/charts/UserGrowthChart';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -65,12 +66,12 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{overview?.today_new_users || 0}</div>
-              <p className="text-xs text-muted-foreground">较昨日增长 12%</p>
+              {/* <p className="text-xs text-muted-foreground">较昨日增长 12%</p> */}
             </CardContent>
           </Card>
         )}
 
-        {/* Token 消耗 */}
+        {/* 积分消耗 */}
         {overviewLoading ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -85,19 +86,19 @@ export default function Dashboard() {
         ) : (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">今日 Token 消耗</CardTitle>
+              <CardTitle className="text-sm font-medium">今日积分消耗</CardTitle>
               <Activity className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatNumber(overview?.today_token_usage || 0)}
+                {formatNumber(overview?.today_points_consumed || 0)}
               </div>
-              <p className="text-xs text-muted-foreground">较昨日增长 8%</p>
+              {/* <p className="text-xs text-muted-foreground">较昨日增长 8%</p> */}
             </CardContent>
           </Card>
         )}
 
-        {/* 估算收入 */}
+        {/* CDK 兑换 */}
         {overviewLoading ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -112,14 +113,14 @@ export default function Dashboard() {
         ) : (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">今日估算收入</CardTitle>
+              <CardTitle className="text-sm font-medium">今日 CDK 兑换</CardTitle>
               <DollarSign className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatCurrency(overview?.estimated_revenue || 0)}
+                {formatNumber(overview?.today_cdk_recharge || 0)}
               </div>
-              <p className="text-xs text-muted-foreground">较昨日增长 15%</p>
+              <p className="text-xs text-muted-foreground">积分充值</p>
             </CardContent>
           </Card>
         )}
@@ -161,9 +162,17 @@ export default function Dashboard() {
         </div>
 
         <TabsContent value={chartDays} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {chartLoading ? (
               <>
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-32" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-[300px] w-full" />
+                  </CardContent>
+                </Card>
                 <Card>
                   <CardHeader>
                     <Skeleton className="h-6 w-32" />
@@ -185,9 +194,10 @@ export default function Dashboard() {
               <>
                 <UserGrowthChart data={chartData} />
                 <TokenUsageChart data={chartData} />
+                <CdkRechargeChart data={chartData} />
               </>
             ) : (
-              <div className="col-span-2 rounded-lg border p-8 text-center">
+              <div className="col-span-3 rounded-lg border p-8 text-center">
                 <p className="text-muted-foreground">暂无数据</p>
               </div>
             )}

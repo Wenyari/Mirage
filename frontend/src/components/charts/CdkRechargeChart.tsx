@@ -1,17 +1,17 @@
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer,Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ChartDataPoint } from '@/types';
 
-interface TokenUsageChartProps {
+interface CdkRechargeChartProps {
   data: ChartDataPoint[];
 }
 
-export function TokenUsageChart({ data }: TokenUsageChartProps) {
+export function CdkRechargeChart({ data }: CdkRechargeChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>积分消耗趋势</CardTitle>
+        <CardTitle>CDK 兑换积分趋势</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -46,14 +46,14 @@ export function TokenUsageChart({ data }: TokenUsageChartProps) {
               }}
               formatter={(value: number) => [
                 value.toLocaleString(),
-                '积分消耗',
+                '兑换积分',
               ]}
             />
             <Bar
-              dataKey="points_consumed"
-              fill="hsl(var(--chart-1))"
+              dataKey="cdk_recharge"
+              fill="hsl(var(--chart-2))"
               radius={[4, 4, 0, 0]}
-              name="积分消耗"
+              name="兑换积分"
             />
           </BarChart>
         </ResponsiveContainer>

@@ -4,12 +4,17 @@ import AdminLayout from '@/layouts/AdminLayout';
 import CDKManager from '@/pages/admin/CDKManager';
 import Dashboard from '@/pages/admin/Dashboard';
 import KeyPool from '@/pages/admin/KeyPool';
+import Login from '@/pages/admin/Login';
 import ModelManager from '@/pages/admin/ModelManager';
+import PlatformManager from '@/pages/admin/PlatformManager';
 import Playground from '@/pages/admin/Playground';
 import UserManager from '@/pages/admin/UserManager';
-import PlatformManager from '@/pages/admin/PlatformManager';
 
 export const router = createBrowserRouter([
+  {
+    path: '/wadminw/login',
+    element: <Login />,
+  },
   {
     path: '/wadminw',
     element: <AdminLayout />,

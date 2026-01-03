@@ -2,14 +2,14 @@
 API 蓝图注册
 统一导入所有蓝图
 """
-from app.api import auth, users, tasks, wallet, admin
+from app.api import auth, users, tasks, wallet
+from app.api.admin import admin_bp
 
 # 导出所有蓝图
 auth_bp = auth.bp
 users_bp = users.bp
 tasks_bp = tasks.bp
 wallet_bp = wallet.bp
-admin_bp = admin.bp
 
 __all__ = [
     'auth_bp',

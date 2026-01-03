@@ -7,7 +7,7 @@ import bcrypt
 from datetime import datetime
 from app import create_app
 from app.extensions import db, redis_client
-from app.models import User, MembershipConfig, ModelPricing, Task, CDK, Transaction
+from app.models import User, MembershipConfig, PlatformConfig, Task, CDK, Transaction, Platform
 from app.config import Config
 
 
@@ -65,6 +65,9 @@ def db_session(app):
     每个测试函数都会创建新的数据库会话，测试完成后回滚
     """
     with app.app_context():
+        # 删除所有表（如果存在）
+        db.drop_all()
+
         # 创建所有表
         db.create_all()
 
@@ -90,7 +93,7 @@ def redis_db(app):
         # 清空测试数据库（如果 Redis 未配置则跳过）
         try:
             if redis_client is not None:
-        redis_client.flushdb()
+                redis_client.flushdb()
         except Exception:
             # 忽略清理错误（测试环境可能没有 Redis）
             pass
@@ -100,22 +103,22 @@ def _init_test_data():
     """初始化测试数据"""
     # 创建会员等级配置
     configs = [
-        MembershipConfig(level=1, name='T1', concurrency_limit=1, queue_priority=0),
-        MembershipConfig(level=2, name='T2', concurrency_limit=2, queue_priority=5),
-        MembershipConfig(level=3, name='T3', concurrency_limit=3, queue_priority=10),
-        MembershipConfig(level=4, name='T4', concurrency_limit=4, queue_priority=15),
-        MembershipConfig(level=5, name='T5', concurrency_limit=5, queue_priority=20),
+        MembershipConfig(level=1, name='T1', concurrent_limit=1, queue_weight=1),
+        MembershipConfig(level=2, name='T2', concurrent_limit=2, queue_weight=2),
+        MembershipConfig(level=3, name='T3', concurrent_limit=3, queue_weight=3),
+        MembershipConfig(level=4, name='T4', concurrent_limit=4, queue_weight=4),
+        MembershipConfig(level=5, name='T5', concurrent_limit=5, queue_weight=5),
     ]
     for config in configs:
         db.session.add(config)
 
-    # 创建模型定价
-    pricings = [
-        ModelPricing(model_key='sora-v2', base_cost=100.00, is_active=1),
-        ModelPricing(model_key='sora-turbo', base_cost=50.00, is_active=1),
+    # 创建平台
+    platforms = [
+        Platform(key='openai', name='OpenAI', enabled=1),
+        Platform(key='sora', name='Sora', enabled=1),
     ]
-    for pricing in pricings:
-        db.session.add(pricing)
+    for platform in platforms:
+        db.session.add(platform)
 
     db.session.commit()
 
@@ -227,7 +230,7 @@ def test_task(db_session, test_user):
     """
     task = Task(
         user_id=test_user.id,
-        model_name='sora-v2',
+        platform='openai',
         prompt='Test prompt',
         params={'duration': 5},
         status='pending',
