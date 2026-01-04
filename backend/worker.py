@@ -42,6 +42,39 @@ def get_redis():
     return redis_client
 
 
+def execute_sql(sql, params=None):
+    """
+    使用独立连接执行 SQL，避免 session 缓存
+
+    Args:
+        sql: SQL 语句（text 对象）
+        params: 参数字典
+
+    Returns:
+        执行结果（对于 SELECT）或 None（对于 UPDATE/INSERT）
+    """
+    with db.engine.connect() as conn:
+        result = conn.execute(sql, params or {})
+        conn.commit()
+        return result
+
+
+def query_sql(sql, params=None):
+    """
+    使用独立连接查询 SQL，返回结果
+
+    Args:
+        sql: SQL 语句（text 对象）
+        params: 参数字典
+
+    Returns:
+        查询结果
+    """
+    with db.engine.connect() as conn:
+        result = conn.execute(sql, params or {})
+        return result.fetchone()  # 返回单行结果
+
+
 def _should_refund_on_failure(fail_reason: str) -> bool:
     """
     判断任务失败时是否应该退款
@@ -123,10 +156,11 @@ def process_task(payload):
 
     logger.info(f"Processing task {task_id} with key {key_id}")
 
-    # 【关键修复】使用原始 SQL 检查任务状态，避免 SQLAlchemy 会话缓存问题
-    # 1. 检查任务是否存在以及状态
+    # 【关键修复】使用独立数据库连接，完全避开 session 缓存
+    # Worker 长时间运行，session 缓存会导致查询失败
+    # 1. 检查任务是否存在以及状态（使用新连接 + 原始 SQL）
     check_sql = text("SELECT status, user_id FROM tasks WHERE id = :task_id")
-    result = db.session.execute(check_sql, {"task_id": task_id}).fetchone()
+    result = query_sql(check_sql, {"task_id": task_id})
 
     if not result:
         logger.error(f"Task {task_id} not found in database")
@@ -149,8 +183,7 @@ def process_task(payload):
         SET status = 'processing', api_key_id = :key_id
         WHERE id = :task_id
     """)
-    db.session.execute(update_sql, {"task_id": task_id, "key_id": key_id})
-    db.session.commit()
+    execute_sql(update_sql, {"task_id": task_id, "key_id": key_id})
 
     logger.info(f"Task {task_id} status updated to processing")
 
@@ -214,17 +247,16 @@ def process_task(payload):
 
         logger.info(f"Task {task_id} submitted successfully, upstream ID: {task_uuid}")
 
-        # 【关键】保存上游任务ID到数据库（使用原始 SQL）
+        # 【关键】保存上游任务ID到数据库（使用独立连接）
         save_upstream_sql = text("""
             UPDATE tasks
             SET upstream_task_id = :upstream_task_id
             WHERE id = :task_id
         """)
-        db.session.execute(save_upstream_sql, {
+        execute_sql(save_upstream_sql, {
             "task_id": task_id,
             "upstream_task_id": task_uuid
         })
-        db.session.commit()
 
         # 3. 轮询任务进度
         status_url = f"{status_base.rstrip('/')}/{task_uuid}"
@@ -263,7 +295,7 @@ def process_task(payload):
                 get_redis().setex(f"task:progress:{task_id}", 86400, progress)
 
             elif state == 'SUCCESS':
-                # 任务成功（使用原始 SQL 更新）
+                # 任务成功（使用独立连接）
                 success_sql = text("""
                     UPDATE tasks
                     SET status = 'success',
@@ -272,12 +304,11 @@ def process_task(payload):
                         finished_at = :finished_at
                     WHERE id = :task_id
                 """)
-                db.session.execute(success_sql, {
+                execute_sql(success_sql, {
                     "task_id": task_id,
                     "result_url": result_url,
                     "finished_at": datetime.now()
                 })
-                db.session.commit()
 
                 # 清理 Redis 进度
                 get_redis().delete(f"task:progress:{task_id}")
@@ -300,14 +331,14 @@ def process_task(payload):
 
         if should_refund:
             # 系统错误或非用户责任，进行退款
-            # 先查询任务的 cost_points
+            # 先查询任务的 cost_points（使用独立连接）
             cost_sql = text("SELECT cost_points FROM tasks WHERE id = :task_id")
-            cost_result = db.session.execute(cost_sql, {"task_id": task_id}).fetchone()
+            cost_result = query_sql(cost_sql, {"task_id": task_id})
 
             if cost_result:
                 refund_amount = cost_result[0]
 
-                # 更新任务状态并退款（原子操作）
+                # 更新任务状态并退款（原子操作，使用独立连接）
                 fail_with_refund_sql = text("""
                     UPDATE tasks t
                     JOIN users u ON u.id = :user_id
@@ -318,20 +349,19 @@ def process_task(payload):
                         u.balance = u.balance + :refund_amount
                     WHERE t.id = :task_id
                 """)
-                db.session.execute(fail_with_refund_sql, {
+                execute_sql(fail_with_refund_sql, {
                     "task_id": task_id,
                     "user_id": user_id,  # 之前从检查时获取的
                     "fail_reason": fail_reason,
                     "finished_at": datetime.now(),
                     "refund_amount": refund_amount
                 })
-                db.session.commit()
 
                 logger.info(f"Refunded {refund_amount} points to user {user_id} for task {task_id} (reason: {fail_reason[:50]})")
             else:
                 logger.error(f"Cannot query cost for task {task_id}")
         else:
-            # 用户责任（内容违规等），不退款，只更新任务状态
+            # 用户责任（内容违规等），不退款，只更新任务状态（使用独立连接）
             fail_no_refund_sql = text("""
                 UPDATE tasks
                 SET status = 'failed',
@@ -340,12 +370,11 @@ def process_task(payload):
                     finished_at = :finished_at
                 WHERE id = :task_id
             """)
-            db.session.execute(fail_no_refund_sql, {
+            execute_sql(fail_no_refund_sql, {
                 "task_id": task_id,
                 "fail_reason": fail_reason,
                 "finished_at": datetime.now()
             })
-            db.session.commit()
 
             logger.info(f"No refund for task {task_id} - user responsibility (reason: {fail_reason[:50]})")
 
