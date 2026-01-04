@@ -360,6 +360,7 @@
 | limit | integer | 否 | 10 | 每页数量 |
 | batch_no | string | 否 | - | 批次号筛选 |
 | status | string | 否 | - | 状态筛选（unused、used、void） |
+| search | string | 否 | - | 模糊搜索（批次号或CDK码） |
 
 **响应示例**：
 

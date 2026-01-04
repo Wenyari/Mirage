@@ -13,6 +13,11 @@ from .user_service import (
     unban_user,
     update_user_level,
 )
+from .cdk_service import (
+    generate_cdk_batch,
+    get_cdk_list,
+    void_cdk_batch,
+)
 
 __all__ = [
     # Dashboard服务
@@ -27,4 +32,8 @@ __all__ = [
     'ban_user',
     'unban_user',
     'update_user_level',
+    # CDK管理服务
+    'generate_cdk_batch',
+    'get_cdk_list',
+    'void_cdk_batch',
 ]

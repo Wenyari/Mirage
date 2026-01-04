@@ -1,10 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData,useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   CDKGenerateRequest,
   CDKListParams,
   CDKVoidRequest,
 } from '@/types/cdk';
-import { generateCDK, getCDKList, voidCDK, getBatchList } from '@/services/admin/cdk';
+import { generateCDK, getBatchList,getCDKList, voidCDK } from '@/services/admin/cdk';
 
 /**
  * 获取 CDK 列表
@@ -13,6 +13,7 @@ export function useCDKList(params: CDKListParams) {
   return useQuery({
     queryKey: ['admin', 'cdk', 'list', params],
     queryFn: () => getCDKList(params),
+    placeholderData: keepPreviousData,
   });
 }
 

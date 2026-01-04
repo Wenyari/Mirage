@@ -1,11 +1,13 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, passthrough } from 'msw';
+
 import type { CDKGenerateRequest, CDKVoidRequest } from '@/types/cdk';
+
 import {
-  mockCDKList,
-  generateMockCDKs,
   addCDKsToList,
-  voidCDKsByIds,
+  generateMockCDKs,
+  mockCDKList,
   voidCDKsByBatchNo,
+  voidCDKsByIds,
 } from '../data/cdk';
 
 /**
@@ -17,6 +19,8 @@ export const cdkHandlers = [
    * POST /api/admin/cdk/generate
    */
   http.post('/api/admin/cdk/generate', async ({ request }) => {
+    return passthrough();
+    /*
     try {
       const body = (await request.json()) as CDKGenerateRequest;
       const { points, type, count, batch_no, expire_at } = body;
@@ -68,6 +72,7 @@ export const cdkHandlers = [
         { status: 500 }
       );
     }
+    */
   }),
 
   /**
@@ -75,6 +80,8 @@ export const cdkHandlers = [
    * GET /api/admin/cdk
    */
   http.get('/api/admin/cdk', ({ request }) => {
+    return passthrough();
+    /*
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const pageSize = parseInt(url.searchParams.get('page_size') || '10');
@@ -120,6 +127,7 @@ export const cdkHandlers = [
       page,
       page_size: pageSize,
     });
+    */
   }),
 
   /**
@@ -127,6 +135,8 @@ export const cdkHandlers = [
    * POST /api/admin/cdk/void
    */
   http.post('/api/admin/cdk/void', async ({ request }) => {
+    return passthrough();
+    /*
     try {
       const body = (await request.json()) as CDKVoidRequest;
       const { ids, batch_no } = body;
@@ -164,6 +174,7 @@ export const cdkHandlers = [
         { status: 500 }
       );
     }
+    */
   }),
 
   /**
@@ -171,6 +182,8 @@ export const cdkHandlers = [
    * GET /api/admin/cdk/batches
    */
   http.get('/api/admin/cdk/batches', () => {
+    return passthrough();
+    /*
     // 提取所有唯一的批次号
     const batches = [...new Set(mockCDKList.map((cdk) => cdk.batch_no).filter(Boolean))];
 
@@ -178,5 +191,6 @@ export const cdkHandlers = [
       success: true,
       data: batches,
     });
+    */
   }),
 ];

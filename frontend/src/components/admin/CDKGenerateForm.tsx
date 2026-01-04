@@ -65,12 +65,12 @@ export function CDKGenerateForm() {
     try {
       const result = await generateMutation.mutateAsync(values);
 
-      if (result.success) {
+      if (result.code === 0) {
         toast.success(`成功生成 ${values.count} 个CDK兑换码`);
 
         // 自动下载 Excel
         exportCDKCodesToExcel(
-          result.data.codes,
+          result.data.cdks.map(c => c.code), // 适配新的数据结构
           result.data.batch_no,
           values.points,
           `cdk-${result.data.batch_no}`

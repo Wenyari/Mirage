@@ -1,32 +1,14 @@
-import { useState } from 'react';
 import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
   type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
 } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { Copy, Trash2, Download, Eye, EyeOff } from 'lucide-react';
+import { Copy, Download, Eye, EyeOff, Trash2, X } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,9 +19,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-
-import type { CDK, CDKStatus, CDKType } from '@/types/cdk';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { useVoidCDK } from '@/hooks/useCDK';
+import type { CDK, CDKStatus, CDKType } from '@/types/cdk';
 import { exportCDKToExcel } from '@/utils/export';
 
 interface CDKTableProps {
@@ -52,6 +51,8 @@ interface CDKTableProps {
   onTypeChange: (type: CDKType | 'all') => void;
   onStatusChange: (status: CDKStatus | 'all') => void;
   onSearch: (search: string) => void;
+  onClearSearch: () => void;
+  searchValue: string;
 }
 
 export function CDKTable({
@@ -64,6 +65,8 @@ export function CDKTable({
   onTypeChange,
   onStatusChange,
   onSearch,
+  onClearSearch,
+  searchValue,
 }: CDKTableProps) {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -90,11 +93,11 @@ export function CDKTable({
   // 状态徽章
   const getStatusBadge = (status: CDKStatus) => {
     switch (status) {
-      case 0:
+      case 'unused':
         return <Badge variant="outline">未使用</Badge>;
-      case 1:
+      case 'used':
         return <Badge variant="default">已使用</Badge>;
-      case 2:
+      case 'void':
         return <Badge variant="destructive">已作废</Badge>;
       default:
         return <Badge variant="secondary">未知</Badge>;
@@ -156,34 +159,34 @@ export function CDKTable({
         const isShow = showCodes[row.original.id];
         return (
           <div className="flex items-center gap-2">
-            <code className="text-sm bg-muted px-2 py-1 rounded">
+            <code className="rounded bg-muted px-2 py-1 text-sm">
               {isShow ? code : maskCode(code)}
             </code>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="size-8"
               onClick={() => toggleShowCode(row.original.id)}
             >
-              {isShow ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {isShow ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="size-8"
               onClick={() => copyCode(code)}
             >
-              <Copy className="h-4 w-4" />
+              <Copy className="size-4" />
             </Button>
           </div>
         );
       },
     },
     {
-      accessorKey: 'points',
+      accessorKey: 'value', // 字段名变更为 value
       header: '积分',
       cell: ({ row }) => (
-        <span className="font-semibold text-primary">{row.original.points}</span>
+        <span className="font-semibold text-primary">{row.original.value}</span>
       ),
     },
     {
@@ -259,12 +262,25 @@ export function CDKTable({
   return (
     <div className="space-y-4">
       {/* 筛选和操作栏 */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <Input
-          placeholder="搜索兑换码或批次号..."
-          onChange={(e) => onSearch(e.target.value)}
-          className="md:w-80"
-        />
+      <div className="flex flex-col gap-4 md:flex-row">
+        <div className="relative max-w-sm md:w-80">
+          <Input
+            placeholder="搜索兑换码或批次号..."
+            value={searchValue || ''}
+            onChange={(e) => onSearch(e.target.value)}
+            className="pr-8"
+          />
+          {searchValue && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-2 py-1 hover:bg-transparent"
+              onClick={onClearSearch}
+            >
+              <X className="size-4 text-muted-foreground" />
+            </Button>
+          )}
+        </div>
 
         <Select onValueChange={(value) => onTypeChange(value as CDKType | 'all')}>
           <SelectTrigger className="md:w-40">
@@ -283,15 +299,15 @@ export function CDKTable({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">全部状态</SelectItem>
-            <SelectItem value="0">未使用</SelectItem>
-            <SelectItem value="1">已使用</SelectItem>
-            <SelectItem value="2">已作废</SelectItem>
+            <SelectItem value="unused">未使用</SelectItem>
+            <SelectItem value="used">已使用</SelectItem>
+            <SelectItem value="void">已作废</SelectItem>
           </SelectContent>
         </Select>
 
         <div className="flex gap-2 md:ml-auto">
           <Button variant="outline" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 size-4" />
             导出列表
           </Button>
           <Button
@@ -299,7 +315,7 @@ export function CDKTable({
             onClick={() => setShowDeleteDialog(true)}
             disabled={selectedIds.length === 0}
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="mr-2 size-4" />
             批量作废 ({selectedIds.length})
           </Button>
         </div>

@@ -10,7 +10,7 @@ export type CDKType = 'once' | 'universal';
 /**
  * CDK 状态枚举
  */
-export type CDKStatus = 0 | 1 | 2; // 0=未使用, 1=已使用, 2=已作废
+export type CDKStatus = 'unused' | 'used' | 'void';
 
 /**
  * CDK 兑换码实体
@@ -18,13 +18,13 @@ export type CDKStatus = 0 | 1 | 2; // 0=未使用, 1=已使用, 2=已作废
 export interface CDK {
   id: number;
   code: string;
-  points: number;
+  value: number; // 对应后端的 value (原 points)
   type: CDKType;
-  batch_no: string | null;
+  batch_no: string;
+  batch_name: string;
   status: CDKStatus;
-  used_by: number | null;
+  used_by: string | null; // 后端返回的是邮箱字符串
   used_at: string | null;
-  expire_at: string | null;
   created_at: string;
 }
 
@@ -35,7 +35,7 @@ export interface CDKGenerateRequest {
   points: number;
   type: CDKType;
   count: number;
-  batch_no?: string;
+  batch_no?: string; // 前端表单字段，实际对应后端的 batch_name
   expire_at?: string;
 }
 
@@ -43,10 +43,11 @@ export interface CDKGenerateRequest {
  * CDK 生成响应
  */
 export interface CDKGenerateResponse {
-  success: boolean;
+  code: number;
+  message: string;
   data: {
-    codes: string[];
     batch_no: string;
+    cdks: CDK[];
   };
 }
 
@@ -66,27 +67,23 @@ export interface CDKListParams {
  * CDK 列表响应
  */
 export interface CDKListResponse {
-  data: CDK[];
-  total: number;
-  page: number;
-  page_size: number;
-}
-
-/**
- * CDK 作废请求参数
- */
-export interface CDKVoidRequest {
-  ids?: number[];
-  batch_no?: string;
+  code: number;
+  message: string;
+  data: {
+    items: CDK[];
+    total: number;
+    page: number;
+    limit: number;
+  };
 }
 
 /**
  * CDK 状态显示文本映射
  */
 export const CDK_STATUS_MAP: Record<CDKStatus, string> = {
-  0: '未使用',
-  1: '已使用',
-  2: '已作废',
+  unused: '未使用',
+  used: '已使用',
+  void: '已作废',
 };
 
 /**
