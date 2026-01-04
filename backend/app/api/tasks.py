@@ -125,3 +125,41 @@ def get_task_history():
 
     except Exception as e:
         return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
+
+
+@bp.route('/queue/status', methods=['GET'])
+@jwt_and_redis_required()
+def get_queue_status():
+    """
+    获取队列排队状态
+    GET /api/tasks/queue/status
+
+    返回示例:
+    {
+        "code": 200,
+        "msg": "Success",
+        "data": {
+            "vip_queue": 10,         # VIP 队列排队任务数
+            "normal_queue": 25,      # 普通队列排队任务数
+            "user_queue": "vip",     # 当前用户所在队列 ("vip" 或 "normal")
+            "user_position": 10      # 当前用户所在队列的排队人数
+        }
+    }
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # 调用服务层获取队列状态
+        queue_data = TaskService.get_queue_status(user_id)
+
+        return jsonify({
+            "code": 200,
+            "msg": "Success",
+            "data": queue_data
+        }), 200
+
+    except ValueError as e:
+        return jsonify({"code": 404, "msg": str(e), "data": None}), 404
+    except Exception as e:
+        return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
+

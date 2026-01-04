@@ -252,3 +252,40 @@ class TaskService:
             "page": page,
             "size": size
         }
+
+    @classmethod
+    def get_queue_status(cls, user_id: int):
+        """
+        获取队列排队状态
+
+        Args:
+            user_id: 用户 ID
+
+        Returns:
+            dict: {
+                "vip_queue": 10,      # VIP 队列排队人数
+                "normal_queue": 25,   # 普通队列排队人数
+                "user_queue": "vip",  # 用户所在队列类型
+                "user_position": 10   # 用户所在队列的排队人数
+            }
+        """
+        # 获取用户信息以判断所属队列
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        # 获取队列长度
+        vip_count = get_redis().llen(KeyManager.QUEUE_VIP)
+        normal_count = get_redis().llen(KeyManager.QUEUE_NORMAL)
+
+        # 判断用户所属队列（T4/T5 为 VIP，其他为普通）
+        is_vip = user.level >= 4
+        user_queue_type = "vip" if is_vip else "normal"
+        user_position = vip_count if is_vip else normal_count
+
+        return {
+            "vip_queue": vip_count,
+            "normal_queue": normal_count,
+            "user_queue": user_queue_type,
+            "user_position": user_position
+        }
