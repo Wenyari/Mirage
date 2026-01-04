@@ -19,7 +19,7 @@ import { ModelOption, TaskHistoryItem,taskService, TaskStatusResponse } from '@/
 export default function VideoGeneration() {
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState('');
-  const [duration, setDuration] = useState(5);
+  const [duration, setDuration] = useState('5');
   const [taskId, setTaskId] = useState<string | null>(null);
   const [taskStatus, setTaskStatus] = useState<TaskStatusResponse | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -309,15 +309,15 @@ export default function VideoGeneration() {
             <Label>时长</Label>
             <div className="flex gap-2">
               <Button 
-                variant={duration === 5 ? 'default' : 'outline'} 
-                onClick={() => setDuration(5)}
+                variant={duration === '5' ? 'default' : 'outline'} 
+                onClick={() => setDuration('5')}
                 className="flex-1"
               >
                 5s
               </Button>
               <Button 
-                variant={duration === 10 ? 'default' : 'outline'} 
-                onClick={() => setDuration(10)}
+                variant={duration === '10' ? 'default' : 'outline'} 
+                onClick={() => setDuration('10')}
                 className="flex-1"
               >
                 10s
