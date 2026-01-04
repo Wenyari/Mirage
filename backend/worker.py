@@ -40,6 +40,61 @@ def get_redis():
     return redis_client
 
 
+def _should_refund_on_failure(fail_reason: str) -> bool:
+    """
+    判断任务失败时是否应该退款
+
+    退款规则：
+    - 用户责任（内容违规）：不退款
+    - 系统责任（API错误、超时等）：退款
+
+    Args:
+        fail_reason: 失败原因文本
+
+    Returns:
+        bool: True 表示应该退款，False 表示不退款
+    """
+    if not fail_reason:
+        return True  # 未知原因默认退款
+
+    reason_lower = fail_reason.lower()
+
+    # 内容违规关键词列表（用户责任，不退款）
+    CONTENT_VIOLATION_KEYWORDS = [
+        'content policy',
+        'content violation',
+        'policy violation',
+        'safety',
+        'unsafe',
+        'inappropriate',
+        'explicit',
+        'violence',
+        'violent',
+        'sexual',
+        'nsfw',
+        'prohibited',
+        'banned',
+        'moderation',
+        'restricted',
+        'offensive',
+        'harmful',
+        'abuse',
+        'illegal',
+        'terms of service',
+        'community guidelines',
+    ]
+
+    # 检查是否包含内容违规关键词
+    for keyword in CONTENT_VIOLATION_KEYWORDS:
+        if keyword in reason_lower:
+            logger.info(f"Detected content violation keyword: '{keyword}' in reason: {fail_reason[:100]}")
+            return False  # 内容违规，不退款
+
+    # 其他情况（系统错误、超时、API故障等）默认退款
+    logger.info(f"System error detected, will refund: {fail_reason[:100]}")
+    return True
+
+
 def process_task(payload):
     """
     处理单个任务
@@ -187,10 +242,28 @@ def process_task(payload):
         # 任务失败处理
         logger.error(f"Task {task_id} failed: {str(e)}")
 
+        fail_reason = str(e)
         task.status = 'failed'
         task.progress = 0
-        task.fail_reason = str(e)[:255]  # 限制长度
+        task.fail_reason = fail_reason[:255]  # 限制长度
         task.finished_at = datetime.now()
+
+        # 【智能退款逻辑】根据失败原因判断是否退款
+        should_refund = _should_refund_on_failure(fail_reason)
+
+        if should_refund:
+            # 系统错误或非用户责任，进行退款
+            from app.models.user import User
+            user_obj = User.query.get(task.user_id)
+            if user_obj:
+                refund_amount = task.cost_points
+                user_obj.balance += refund_amount
+                logger.info(f"Refunded {refund_amount} points to user {task.user_id} for task {task_id} (reason: {fail_reason[:50]})")
+            else:
+                logger.error(f"User {task.user_id} not found for refund")
+        else:
+            # 用户责任（内容违规等），不退款
+            logger.info(f"No refund for task {task_id} - user responsibility (reason: {fail_reason[:50]})")
 
         # 清理 Redis 进度
         get_redis().delete(f"task:progress:{task_id}")

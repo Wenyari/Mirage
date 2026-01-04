@@ -1,5 +1,6 @@
 import api from '@/lib/api';
 import { AuthUser } from '@/store/authStore';
+import { ApiResponse } from '@/types/api';
 
 // Request Types
 export interface SendCodeRequest {
@@ -34,26 +35,29 @@ export interface MeResponse extends AuthUser {
 export const authService = {
   // 1. 发送邮箱验证码
   sendCode: async (data: SendCodeRequest) => {
-    return api.post<void>('/auth/code', data);
+    return api.post<ApiResponse<void>>('/auth/code', data);
   },
 
   // 2. 用户注册
   register: async (data: RegisterRequest) => {
-    return api.post<RegisterResponse>('/auth/register', data);
+    const response = await api.post<ApiResponse<RegisterResponse>>('/auth/register', data);
+    return response.data;
   },
 
   // 3. 用户登录
   login: async (data: LoginRequest) => {
-    return api.post<LoginResponse>('/auth/login', data);
+    const response = await api.post<ApiResponse<LoginResponse>>('/auth/login', data);
+    return response.data;
   },
 
   // 4. 获取当前用户信息
   me: async () => {
-    return api.get<MeResponse>('/auth/me');
+    const response = await api.get<ApiResponse<MeResponse>>('/auth/me');
+    return response.data;
   },
 
   // 5. 用户登出
   logout: async () => {
-    return api.post<void>('/auth/logout');
+    return api.post<ApiResponse<void>>('/auth/logout');
   },
 };

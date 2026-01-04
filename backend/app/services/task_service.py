@@ -201,14 +201,14 @@ class TaskService:
     @classmethod
     def get_task_status(cls, user_id: int, task_id: str):
         """
-        获取任务状态（支持实时进度）
+        获取任务状态（支持实时进度和队列信息）
 
         Args:
             user_id: 用户 ID
             task_id: 任务 ID
 
         Returns:
-            dict: 任务详情
+            dict: 任务详情，如果是 pending 状态会附带队列信息
 
         Raises:
             ValueError: 业务错误
@@ -221,13 +221,32 @@ class TaskService:
         if task.user_id != user_id:
             raise ValueError("Permission denied")
 
+        task_dict = task.to_dict()
+
         # 如果任务正在执行，从 Redis 读取实时进度
         if task.status == 'processing':
             redis_progress = get_redis().get(f"task:progress:{task_id}")
             if redis_progress:
-                task.progress = int(redis_progress)
+                task_dict['progress'] = int(redis_progress)
 
-        return task.to_dict()
+        # 如果任务还在排队，附带队列信息
+        elif task.status == 'pending':
+            user = User.query.get(user_id)
+            is_vip = user.level >= 4 if user else False
+
+            # 获取队列长度
+            vip_count = get_redis().llen(KeyManager.QUEUE_VIP)
+            normal_count = get_redis().llen(KeyManager.QUEUE_NORMAL)
+
+            # 附加队列信息到返回数据
+            task_dict['queue_info'] = {
+                'user_queue': 'vip' if is_vip else 'normal',
+                'position': vip_count if is_vip else normal_count,
+                'vip_queue': vip_count,
+                'normal_queue': normal_count
+            }
+
+        return task_dict
 
     @classmethod
     def get_task_history(cls, user_id: int, page: int = 1, size: int = 20):
@@ -289,3 +308,89 @@ class TaskService:
             "user_queue": user_queue_type,
             "user_position": user_position
         }
+
+    @classmethod
+    def get_available_models(cls, user_id: int):
+        """
+        获取所有模型列表，并标注当前用户是否可用
+
+        Args:
+            user_id: 用户 ID
+
+        Returns:
+            list: 所有模型列表，每个模型包含基本信息、价格配置和可用性标记
+            [
+                {
+                    "key": "sora-2",
+                    "name": "Sora-2",
+                    "description": "...",
+                    "cost_per_call": 100.00,
+                    "is_available": false,        # 当前用户是否可用
+                    "min_tier": "T3",             # 最低要求等级
+                    "user_tier": "T1",            # 用户当前等级
+                    "allowed_tiers": ["T3", "T4", "T5"],
+                    ...
+                }
+            ]
+
+        Raises:
+            ValueError: 用户不存在
+        """
+        from app.models.model import Model, ModelConfig
+
+        # 获取用户信息
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        # 获取用户等级对应的 tier 名称
+        membership = MembershipConfig.query.filter_by(level=user.level).first()
+        user_tier = membership.name if membership else f"T{user.level}"
+
+        # 查询所有启用的模型及其配置
+        models = db.session.query(Model, ModelConfig).join(
+            ModelConfig, Model.key == ModelConfig.model
+        ).filter(
+            Model.enabled == 1,           # 模型已启用
+            ModelConfig.is_active == 1    # 配置已激活
+        ).all()
+
+        # 返回所有模型，标注可用性
+        result_models = []
+        for model, config in models:
+            model_dict = model.to_dict()
+
+            # 添加价格信息
+            model_dict['cost_per_call'] = float(config.cost_per_call)
+            model_dict['allowed_tiers'] = config.allowed_tiers
+
+            # 判断用户是否可用
+            is_available = user_tier in config.allowed_tiers
+            model_dict['is_available'] = is_available
+
+            # 添加用户当前等级
+            model_dict['user_tier'] = user_tier
+
+            # 计算最低要求等级（从 allowed_tiers 中提取最小的）
+            tier_levels = []
+            for tier in config.allowed_tiers:
+                # 提取 T1, T2... 中的数字
+                if tier.startswith('T') and len(tier) > 1:
+                    try:
+                        tier_levels.append((int(tier[1:]), tier))
+                    except ValueError:
+                        pass
+
+            if tier_levels:
+                min_tier_level, min_tier_name = min(tier_levels)
+                model_dict['min_tier'] = min_tier_name
+            else:
+                model_dict['min_tier'] = config.allowed_tiers[0] if config.allowed_tiers else None
+
+            result_models.append(model_dict)
+
+        # 按可用性排序：可用的在前，不可用的在后
+        result_models.sort(key=lambda x: (not x['is_available'], x['cost_per_call']))
+
+        return result_models
+
