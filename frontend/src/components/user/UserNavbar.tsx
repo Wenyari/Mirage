@@ -54,11 +54,11 @@ export function UserNavbar() {
             <NavigationMenuList>
               {/* Model Square */}
               <NavigationMenuItem>
-                <Link to={USER_NAVIGATION.MODEL_SQUARE.path}>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                  <Link to={USER_NAVIGATION.MODEL_SQUARE.path}>
                     {USER_NAVIGATION.MODEL_SQUARE.label}
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
 
               {/* Explore */}
@@ -95,9 +95,9 @@ export function UserNavbar() {
                   <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                     <li className="row-span-3">
                       <NavigationMenuLink asChild>
-                        <a
+                        <Link
                           className="flex size-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                          href={USER_NAVIGATION.PLAYGROUND.path}
+                          to={USER_NAVIGATION.PLAYGROUND.path}
                         >
                           <div className="mb-2 mt-4 text-lg font-medium">
                             {USER_NAVIGATION.PLAYGROUND.label}
@@ -105,7 +105,7 @@ export function UserNavbar() {
                           <p className="text-sm leading-tight text-muted-foreground">
                             沉浸式体验 AI 的强大能力。
                           </p>
-                        </a>
+                        </Link>
                       </NavigationMenuLink>
                     </li>
                     <ListItem
@@ -249,23 +249,24 @@ export function UserNavbar() {
 const ListItem = React.forwardRef<
   React.ElementRef<'a'>,
   React.ComponentPropsWithoutRef<'a'>
->(({ className, title, children, ...props }, ref) => {
+>(({ className, title, children, href, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a
+        <Link
           ref={ref}
           className={cn(
             'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
             className
           )}
+          to={href || '#'}
           {...props}
         >
           <div className="text-sm font-medium leading-none">{title}</div>
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
           </p>
-        </a>
+        </Link>
       </NavigationMenuLink>
     </li>
   );

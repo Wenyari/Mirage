@@ -20,6 +20,7 @@ class Task(db.Model):
     status = db.Column(db.Enum('pending', 'processing', 'success', 'failed', 'cancelled'),
                        default='pending', nullable=False, index=True)
     progress = db.Column(db.SmallInteger, default=0, nullable=False)  # 任务进度 0-100
+    upstream_task_id = db.Column(db.String(255), nullable=True, index=True)  # 上游 API 返回的任务 ID
     result_url = db.Column(db.Text, nullable=True)  # 生成结果链接
     cost_points = db.Column(db.Numeric(10, 2), nullable=False)  # 消耗积分
     token_usage = db.Column(db.JSON, nullable=True)  # Token 使用情况 {"input": 1000, "output": 500}
@@ -48,6 +49,7 @@ class Task(db.Model):
             'params': self.params,
             'status': self.status,
             'progress': self.progress,
+            'upstream_task_id': self.upstream_task_id,
             'result_url': self.result_url,
             'cost_points': float(self.cost_points),
             'token_usage': self.token_usage,

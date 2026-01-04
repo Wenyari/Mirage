@@ -1,17 +1,34 @@
 """
 项目初始化脚本
 用于创建数据库表、初始化数据等
+
+重要更新：
+- Task 表新增 upstream_task_id 字段（上游API任务ID）
+- Task 表新增 progress 字段（任务进度 0-100）
+- Task 表 status 新增 cancelled 状态（已取消）
 """
 from app import create_app
 from app.extensions import db
-from app.models import User, MembershipConfig, Model, ModelConfig, ApiKey
+from app.models import User, MembershipConfig, Model, ModelConfig, ApiKey, Task
 import bcrypt
 
 app = create_app()
 
 
 def init_database():
-    """初始化数据库表"""
+    """
+    初始化数据库表
+
+    创建的表包括：
+    - users: 用户表
+    - membership_configs: 会员等级配置表
+    - models: 模型基本信息表
+    - model_configs: 模型配置表（包含价格、允许等级）
+    - api_keys: API密钥池管理表
+    - tasks: 任务表（包含 upstream_task_id, progress 等字段）
+    - cdk: CDK兑换码表
+    - transactions: 资金流水表
+    """
     with app.app_context():
         print("Dropping existing database tables...")
         db.drop_all()
@@ -20,6 +37,15 @@ def init_database():
         print("Creating database tables...")
         db.create_all()
         print("✓ Database tables created successfully")
+        print("\nCreated tables:")
+        print("  - users (with balance, level)")
+        print("  - membership_configs (T1-T5 tiers)")
+        print("  - models (model registry)")
+        print("  - model_configs (pricing & permissions)")
+        print("  - api_keys (key pool management)")
+        print("  - tasks (with upstream_task_id, progress, status)")
+        print("  - cdk (redemption codes)")
+        print("  - transactions (financial records)")
 
 
 def init_membership_configs():
@@ -125,7 +151,7 @@ def init_api_keys():
                 'api_base': 'https://ai.t8star.cn/v2/videos/generations',
                 'max_concurrency': 2,
                 'weight': 10,
-                'status': 0  # 默认禁用，需要管理员启用
+                'status': 1
             },
         ]
 
@@ -221,11 +247,21 @@ def main():
     print("✓ Initialization completed successfully!")
     print("=" * 60)
     print()
+    print("Database Schema Updates:")
+    print("  ✓ tasks.upstream_task_id - 上游API任务ID")
+    print("  ✓ tasks.progress - 任务进度（0-100）")
+    print("  ✓ tasks.status - 新增 'cancelled' 状态")
+    print()
     print("Next steps:")
     print("1. Update API keys in the database with your actual keys")
     print("2. Enable API keys by setting status=1")
-    print("3. Start the application: python run.py")
-    print("4. Start the worker: python worker.py")
+    print("3. Start the application:")
+    print("   Terminal 1: python run.py")
+    print("   Terminal 2: python worker.py")
+    print("   Terminal 3: python scheduler.py")
+    print()
+    print("Note: If upgrading from old schema, run:")
+    print("   python migrations/add_upstream_task_id.py")
 
 
 if __name__ == '__main__':

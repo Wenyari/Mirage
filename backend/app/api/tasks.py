@@ -24,7 +24,7 @@ def create_task():
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # 修复：JWT返回字符串，转为整数
         data = request.get_json()
 
         model = data.get('model')
@@ -99,7 +99,7 @@ def get_task_status(task_id):
     - success/failed/cancelled: 停止轮询
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # 修复：JWT返回字符串，转为整数
 
         # 调用服务层查询任务
         task_data = TaskService.get_task_status(user_id, task_id)
@@ -124,7 +124,7 @@ def cancel_task(task_id):
     POST /api/tasks/{task_id}/cancel
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # 修复：JWT返回字符串，转为整数
 
         # 调用服务层取消任务
         result = TaskService.cancel_task(user_id, task_id)
@@ -149,7 +149,7 @@ def get_task_history():
     GET /api/tasks?page=1&size=20
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # 修复：JWT返回字符串，转为整数
         page = request.args.get('page', 1, type=int)
         size = request.args.get('size', 20, type=int)
 
@@ -186,7 +186,7 @@ def get_queue_status():
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # 修复：JWT返回字符串，转为整数
 
         # 调用服务层获取队列状态
         queue_data = TaskService.get_queue_status(user_id)
@@ -268,7 +268,7 @@ def get_available_models():
       * 点击后弹出升级会员提示
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # 修复：JWT返回字符串，转为整数
 
         # 调用服务层获取可用模型
         models = TaskService.get_available_models(user_id)

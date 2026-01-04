@@ -46,7 +46,32 @@ export interface ModelOption {
   max_concurrency_limit: number;
 }
 
+export interface TaskHistoryItem {
+  id: string;
+  model: string;
+  prompt: string;
+  status: 'pending' | 'processing' | 'success' | 'failed' | 'cancelled';
+  created_at: string;
+  result_url?: string;
+  thumbnail_url?: string;
+}
+
+export interface TaskHistoryResponse {
+  list: TaskHistoryItem[];
+  total: number;
+  page: number;
+  size: number;
+}
+
 export const taskService = {
+  // 获取任务历史
+  getTaskHistory: async (page = 1, size = 20) => {
+    const response = await api.get<ApiResponse<TaskHistoryResponse>>('/tasks', {
+      params: { page, size }
+    });
+    return response.data;
+  },
+
   // 获取可用模型列表
   getAvailableModels: async () => {
     const response = await api.get<ApiResponse<ModelOption[]>>('/tasks/models');

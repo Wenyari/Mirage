@@ -58,7 +58,7 @@ class TaskService:
         prompt = task_data.get('prompt')
         params = task_data.get('params', {})
         input_file_url = task_data.get('input_file_url')
-
+        print("task-dat::::::::::", task_data)
         # 1. 验证用户和模型配置
         user = User.query.get(user_id)
         if not user:

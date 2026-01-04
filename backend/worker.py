@@ -17,10 +17,12 @@ import time
 import logging
 import requests
 from datetime import datetime
+from sqlalchemy import text
 from app import create_app
 from app.extensions import db
 from app.models.task import Task
 from app.services.key_manager import KeyManager
+from app.adapters import get_adapter
 
 # 创建 Flask 应用上下文
 app = create_app()
@@ -116,17 +118,41 @@ def process_task(payload):
     api_key = payload['api_key']
     params = payload.get('params', {})
 
+    # 【关键】根据 API Base 创建对应的适配器
+    adapter = get_adapter(submit_endpoint)
+
     logger.info(f"Processing task {task_id} with key {key_id}")
 
-    # 1. 更新 DB 为 Processing
-    task = Task.query.get(task_id)
-    if not task:
+    # 【关键修复】使用原始 SQL 检查任务状态，避免 SQLAlchemy 会话缓存问题
+    # 1. 检查任务是否存在以及状态
+    check_sql = text("SELECT status, user_id FROM tasks WHERE id = :task_id")
+    result = db.session.execute(check_sql, {"task_id": task_id}).fetchone()
+
+    if not result:
         logger.error(f"Task {task_id} not found in database")
+        # 释放密钥
+        KeyManager.release_key_and_dispatch(key_id)
         return
 
-    task.status = 'processing'
-    task.api_key_id = key_id
+    current_status, user_id = result
+
+    # 检查任务是否已被取消（懒删除模式）
+    if current_status == 'cancelled':
+        logger.info(f"Task {task_id} has been cancelled, skipping")
+        # 释放密钥并触发下一个任务
+        KeyManager.release_key_and_dispatch(key_id)
+        return
+
+    # 2. 更新任务状态为 processing（使用原始 SQL）
+    update_sql = text("""
+        UPDATE tasks
+        SET status = 'processing', api_key_id = :key_id
+        WHERE id = :task_id
+    """)
+    db.session.execute(update_sql, {"task_id": task_id, "key_id": key_id})
     db.session.commit()
+
+    logger.info(f"Task {task_id} status updated to processing")
 
     try:
         # 2. 调用上游 API
@@ -162,6 +188,7 @@ def process_task(payload):
             **params  # 合并其他参数（aspect_ratio, duration, hd, watermark 等）
         }
 
+        logger.info(f"Submitting task param: {params}")
         resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=30)
 
         # 错误处理
@@ -179,14 +206,25 @@ def process_task(payload):
             logger.error(f"API error {resp.status_code}: {resp.text}")
             raise Exception(f"API error: {resp.status_code}")
 
-        # 解析响应
+        # 解析响应（使用适配器）
         response_data = resp.json()
-        task_uuid = response_data.get('id')
-
+        task_uuid = adapter.parse_submit_response(response_data)
         if not task_uuid:
-            raise Exception("No task ID returned from API")
+            raise Exception("Failed to extract task ID from API response")
 
         logger.info(f"Task {task_id} submitted successfully, upstream ID: {task_uuid}")
+
+        # 【关键】保存上游任务ID到数据库（使用原始 SQL）
+        save_upstream_sql = text("""
+            UPDATE tasks
+            SET upstream_task_id = :upstream_task_id
+            WHERE id = :task_id
+        """)
+        db.session.execute(save_upstream_sql, {
+            "task_id": task_id,
+            "upstream_task_id": task_uuid
+        })
+        db.session.commit()
 
         # 3. 轮询任务进度
         status_url = f"{status_base.rstrip('/')}/{task_uuid}"
@@ -209,66 +247,110 @@ def process_task(payload):
                 logger.error(f"Status check error {check.status_code}: {check.text}")
                 raise Exception(f"Status check failed: {check.status_code}")
 
-            data = check.json()
-            state = data.get('status')  # SUCCEEDED / FAILED / RUNNING
-            progress = data.get('progress', 0)
+            # 【使用适配器解析响应】
+            raw_data = check.json()
+            parsed = adapter.parse_status_response(raw_data)
 
-            logger.debug(f"Task {task_id} status: {state}, progress: {progress}%")
+            state = parsed['status']  # SUCCESS / FAILED / RUNNING
+            progress = parsed['progress']  # 0-100 整数
+            result_url = parsed['result_url']
+            fail_reason = parsed['fail_reason']
 
-            # 写入 Redis 实时进度
-            if state in ['RUNNING', 'PROCESSING']:
+            logger.info(f"Task {task_id} rawData:{raw_data} status: {state}, progress: {progress}%")
+
+            # 写入 Redis 实时进度（只使用本地任务ID）
+            if state == 'RUNNING':
                 get_redis().setex(f"task:progress:{task_id}", 86400, progress)
 
-            elif state in ['SUCCEEDED', 'SUCCESS', 'COMPLETED']:
-                # 任务成功
-                task.status = 'success'
-                task.progress = 100
-                task.result_url = data.get('output', {}).get('url') or data.get('result_url')
-                task.finished_at = datetime.now()
+            elif state == 'SUCCESS':
+                # 任务成功（使用原始 SQL 更新）
+                success_sql = text("""
+                    UPDATE tasks
+                    SET status = 'success',
+                        progress = 100,
+                        result_url = :result_url,
+                        finished_at = :finished_at
+                    WHERE id = :task_id
+                """)
+                db.session.execute(success_sql, {
+                    "task_id": task_id,
+                    "result_url": result_url,
+                    "finished_at": datetime.now()
+                })
+                db.session.commit()
 
                 # 清理 Redis 进度
                 get_redis().delete(f"task:progress:{task_id}")
 
-                db.session.commit()
-                logger.info(f"Task {task_id} completed successfully")
+                logger.info(f"Task {task_id} completed successfully, result: {result_url}")
                 break
 
-            elif state in ['FAILED', 'ERROR']:
+            elif state == 'FAILED':
                 # 任务失败
-                fail_reason = data.get('failure_reason') or data.get('error') or 'Unknown error'
-                raise Exception(fail_reason)
+                raise Exception(fail_reason or 'Unknown error')
 
     except Exception as e:
-        # 任务失败处理
+        # 任务失败处理（使用原始 SQL）
         logger.error(f"Task {task_id} failed: {str(e)}")
 
-        fail_reason = str(e)
-        task.status = 'failed'
-        task.progress = 0
-        task.fail_reason = fail_reason[:255]  # 限制长度
-        task.finished_at = datetime.now()
+        fail_reason = str(e)[:255]  # 限制长度
 
         # 【智能退款逻辑】根据失败原因判断是否退款
         should_refund = _should_refund_on_failure(fail_reason)
 
         if should_refund:
             # 系统错误或非用户责任，进行退款
-            from app.models.user import User
-            user_obj = User.query.get(task.user_id)
-            if user_obj:
-                refund_amount = task.cost_points
-                user_obj.balance += refund_amount
-                logger.info(f"Refunded {refund_amount} points to user {task.user_id} for task {task_id} (reason: {fail_reason[:50]})")
+            # 先查询任务的 cost_points
+            cost_sql = text("SELECT cost_points FROM tasks WHERE id = :task_id")
+            cost_result = db.session.execute(cost_sql, {"task_id": task_id}).fetchone()
+
+            if cost_result:
+                refund_amount = cost_result[0]
+
+                # 更新任务状态并退款（原子操作）
+                fail_with_refund_sql = text("""
+                    UPDATE tasks t
+                    JOIN users u ON u.id = :user_id
+                    SET t.status = 'failed',
+                        t.progress = 0,
+                        t.fail_reason = :fail_reason,
+                        t.finished_at = :finished_at,
+                        u.balance = u.balance + :refund_amount
+                    WHERE t.id = :task_id
+                """)
+                db.session.execute(fail_with_refund_sql, {
+                    "task_id": task_id,
+                    "user_id": user_id,  # 之前从检查时获取的
+                    "fail_reason": fail_reason,
+                    "finished_at": datetime.now(),
+                    "refund_amount": refund_amount
+                })
+                db.session.commit()
+
+                logger.info(f"Refunded {refund_amount} points to user {user_id} for task {task_id} (reason: {fail_reason[:50]})")
             else:
-                logger.error(f"User {task.user_id} not found for refund")
+                logger.error(f"Cannot query cost for task {task_id}")
         else:
-            # 用户责任（内容违规等），不退款
+            # 用户责任（内容违规等），不退款，只更新任务状态
+            fail_no_refund_sql = text("""
+                UPDATE tasks
+                SET status = 'failed',
+                    progress = 0,
+                    fail_reason = :fail_reason,
+                    finished_at = :finished_at
+                WHERE id = :task_id
+            """)
+            db.session.execute(fail_no_refund_sql, {
+                "task_id": task_id,
+                "fail_reason": fail_reason,
+                "finished_at": datetime.now()
+            })
+            db.session.commit()
+
             logger.info(f"No refund for task {task_id} - user responsibility (reason: {fail_reason[:50]})")
 
         # 清理 Redis 进度
         get_redis().delete(f"task:progress:{task_id}")
-
-        db.session.commit()
 
     finally:
         # 【核心】释放密钥并触发下一个任务调度
