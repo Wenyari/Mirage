@@ -1,44 +1,25 @@
-import { useState } from 'react';
 import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
   type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
 } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import {
+  Clock,
+  Copy,
+  Edit,
   Eye,
   EyeOff,
-  Copy,
-  Trash2,
-  Edit,
+  MoreVertical,
   Power,
   PowerOff,
-  Clock,
-  MoreVertical,
+  Trash2,
 } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Switch } from '@/components/ui/switch';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,16 +30,34 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
+import { useDeleteKey, useModels,useTriggerCooldown, useUpdateKey } from '@/hooks/useKeys';
 import type { Key } from '@/types/key';
 import { getConcurrencyColorClass, getConcurrencyRate } from '@/types/key';
-import { useDeleteKey, useUpdateKey, useTriggerCooldown, useModels } from '@/hooks/useKeys';
 
 interface KeysTableProps {
   data: Key[];
@@ -174,24 +173,24 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
         const isShow = showKeys[key.id];
         return (
           <div className="flex items-center gap-2">
-            <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
+            <code className="rounded bg-muted px-2 py-1 font-mono text-xs">
               {isShow ? key.key_secret : key.key_secret}
             </code>
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="size-7"
               onClick={() => toggleShowKey(key.id)}
             >
-              {isShow ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+              {isShow ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="size-7"
               onClick={() => copyKey(key.key_secret)}
             >
-              <Copy className="h-3 w-3" />
+              <Copy className="size-3" />
             </Button>
           </div>
         );
@@ -207,7 +206,7 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
 
         return (
           <div className="w-48">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="mb-1 flex items-center gap-2">
               <span className="text-sm font-medium">
                 {key.current_usage} / {key.max_concurrency}
               </span>
@@ -276,7 +275,7 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
             <Tooltip>
               <TooltipTrigger>
                 <Badge variant="destructive" className="cursor-help">
-                  <Clock className="h-3 w-3 mr-1" />
+                  <Clock className="mr-1 size-3" />
                   冷却中
                 </Badge>
               </TooltipTrigger>
@@ -322,13 +321,13 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreVertical className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="size-8">
+                <MoreVertical className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(key)}>
-                <Edit className="h-4 w-4 mr-2" />
+                <Edit className="mr-2 size-4" />
                 编辑配置
               </DropdownMenuItem>
 
@@ -340,7 +339,7 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
                     setCooldownDialog({ open: true, keyId: key.id, action: 'release' })
                   }
                 >
-                  <Power className="h-4 w-4 mr-2" />
+                  <Power className="mr-2 size-4" />
                   解除熔断
                 </DropdownMenuItem>
               ) : (
@@ -349,7 +348,7 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
                     setCooldownDialog({ open: true, keyId: key.id, action: 'trigger' })
                   }
                 >
-                  <PowerOff className="h-4 w-4 mr-2" />
+                  <PowerOff className="mr-2 size-4" />
                   触发熔断
                 </DropdownMenuItem>
               )}
@@ -360,7 +359,7 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
                 className="text-red-600"
                 onClick={() => setDeleteDialog({ open: true, keyId: key.id })}
               >
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="mr-2 size-4" />
                 删除密钥
               </DropdownMenuItem>
             </DropdownMenuContent>

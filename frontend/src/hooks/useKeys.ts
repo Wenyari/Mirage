@@ -1,27 +1,28 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type {
-  ModelType,
-  AddKeyRequest,
-  BatchAddKeysRequest,
-  UpdateKeyRequest,
-  CooldownRequest,
-  CreateModelRequest,
-  UpdateModelRequest,
-} from '@/types/key';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import {
-  getModels,
-  getKeys,
   addKey,
   batchAddKeys,
-  updateKey,
-  deleteKey,
-  triggerCooldown,
-  healthCheck,
-  getKeyStats,
   createModel,
-  updateModel,
+  deleteKey,
   deleteModel,
+  getKeys,
+  getKeyStats,
+  getModels,
+  healthCheck,
+  triggerCooldown,
+  updateKey,
+  updateModel,
 } from '@/services/admin/keys';
+import type {
+  AddKeyRequest,
+  BatchAddKeysRequest,
+  CooldownRequest,
+  CreateModelRequest,
+  ModelType,
+  UpdateKeyRequest,
+  UpdateModelRequest,
+} from '@/types/key';
 
 /**
  * 获取模型列表

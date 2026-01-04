@@ -18,6 +18,32 @@ from .cdk_service import (
     get_cdk_list,
     void_cdk_batch,
 )
+from .model_service import (
+    get_model_list,
+    create_model,
+    update_model,
+    delete_model,
+)
+from .key_service import (
+    get_key_list,
+    create_key,
+    batch_create_keys,
+    update_key,
+    delete_key,
+    trigger_cooldown,
+    get_key_stats,
+)
+from .model_config_service import (
+    get_model_config_list,
+    get_available_models,
+    create_model_config,
+    update_model_config,
+    delete_model_config,
+)
+from .membership_config_service import (
+    get_membership_config,
+    update_membership_config,
+)
 
 __all__ = [
     # Dashboard服务
@@ -36,4 +62,26 @@ __all__ = [
     'generate_cdk_batch',
     'get_cdk_list',
     'void_cdk_batch',
+    # 模型管理服务
+    'get_model_list',
+    'create_model',
+    'update_model',
+    'delete_model',
+    # 密钥管理服务
+    'get_key_list',
+    'create_key',
+    'batch_create_keys',
+    'update_key',
+    'delete_key',
+    'trigger_cooldown',
+    'get_key_stats',
+    # 模型配置管理服务
+    'get_model_config_list',
+    'get_available_models',
+    'create_model_config',
+    'update_model_config',
+    'delete_model_config',
+    # 会员配置管理服务
+    'get_membership_config',
+    'update_membership_config',
 ]
