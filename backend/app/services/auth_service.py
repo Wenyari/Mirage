@@ -29,6 +29,11 @@ def send_verify_code(email: str):
     Raises:
         ValueError: 邮箱格式错误、发送频繁等
     """
+    # Import Redis client at the beginning
+    from app.extensions import redis_client
+    if redis_client is None:
+        raise ValueError("Redis service unavailable")
+
     # 1. 校验邮箱格式 (使用正则表达式进行更完善的验证)
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not re.match(email_pattern, email):
@@ -43,9 +48,6 @@ def send_verify_code(email: str):
     code = str(random.randint(100000, 999999))
 
     # 4. 存入 Redis (5分钟过期)
-    from app.extensions import redis_client
-    if redis_client is None:
-        raise ValueError("Redis service unavailable")
     verify_key = f"verify:email:{email}"
     redis_client.setex(verify_key, 300, code)
 
@@ -120,10 +122,8 @@ def register_user(email: str, code: str, password: str) -> int:
     db.session.add(new_user)
     db.session.commit()
 
-    # 删除验证码
-    from app.extensions import redis_client
-    if redis_client is not None:
-        redis_client.delete(verify_key)
+    # Delete verification code from Redis
+    redis_client.delete(verify_key)
 
     return new_user.id
 

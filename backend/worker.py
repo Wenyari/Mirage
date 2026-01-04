@@ -86,10 +86,25 @@ def process_task(payload):
 
         logger.info(f"Submitting task to {submit_url}")
 
-        # 提交任务
+        # 构建符合上游 API 的请求体
+        # 1. 处理 images 字段（必需）
+        images = params.get('images')  # 优先使用 params 中的 images
+        if not images:
+            # 如果 params 中没有 images，尝试从 input_file_url 转换
+            input_url = payload.get('input_file_url')
+            if input_url:
+                # 单个 URL 转为数组
+                images = [input_url] if isinstance(input_url, str) else input_url
+            else:
+                # 如果都没有，使用空数组（某些 API 可能允许纯文本生成）
+                images = []
+
+        # 2. 构建完整请求体
         submit_payload = {
-            "prompt": payload.get('prompt', ''),
-            **params  # 合并其他参数
+            "model": payload.get('model'),  # 必需：模型标识
+            "prompt": payload.get('prompt', ''),  # 必需：提示词
+            "images": images,  # 必需：图片列表
+            **params  # 合并其他参数（aspect_ratio, duration, hd, watermark 等）
         }
 
         resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=30)
