@@ -9,6 +9,7 @@ export const mockKeys: Key[] = [
   {
     id: 1,
     platform: 'openai',
+    api_base: 'https://api.openai.com/v1',
     key_secret: 'sk-proj-abc12345defg6789hijk0123lmno4567pqrs8901tuvw',
     max_concurrency: 5,
     weight: 20,
@@ -24,6 +25,7 @@ export const mockKeys: Key[] = [
   {
     id: 2,
     platform: 'openai',
+    api_base: '',
     key_secret: 'sk-proj-wxyz9876abcd5432efgh1234ijkl8765mnop4321qrst',
     max_concurrency: 3,
     weight: 10,
@@ -39,6 +41,7 @@ export const mockKeys: Key[] = [
   {
     id: 3,
     platform: 'openai',
+    api_base: 'https://openai.proxy.com/v1',
     key_secret: 'sk-proj-test1111test2222test3333test4444test5555test',
     max_concurrency: 2,
     weight: 5,
@@ -56,6 +59,7 @@ export const mockKeys: Key[] = [
   {
     id: 4,
     platform: 'sora',
+    api_base: 'https://api.sora.com/v1',
     key_secret: 'sk-sora-xyz45678abcd1234efgh5678ijkl9012mnop3456qrst',
     max_concurrency: 2,
     weight: 15,
@@ -71,6 +75,7 @@ export const mockKeys: Key[] = [
   {
     id: 5,
     platform: 'sora',
+    api_base: '',
     key_secret: 'sk-sora-uvw12345xyz67890abc34567def89012ghi45678jkl',
     max_concurrency: 3,
     weight: 10,
@@ -88,6 +93,7 @@ export const mockKeys: Key[] = [
   {
     id: 6,
     platform: 'midjourney',
+    api_base: '',
     key_secret: 'mj-key-abcd1234efgh5678ijkl9012mnop3456qrst7890uvwx',
     max_concurrency: 4,
     weight: 12,
@@ -103,6 +109,7 @@ export const mockKeys: Key[] = [
   {
     id: 7,
     platform: 'midjourney',
+    api_base: 'https://mj.proxy.com',
     key_secret: 'mj-key-yzab5678cdef1234ghij5678klmn9012opqr3456stuv',
     max_concurrency: 3,
     weight: 8,
@@ -120,6 +127,7 @@ export const mockKeys: Key[] = [
   {
     id: 8,
     platform: 'anthropic',
+    api_base: 'https://api.anthropic.com',
     key_secret: 'sk-ant-api03-abc123def456ghi789jkl012mno345pqr678stu901',
     max_concurrency: 5,
     weight: 18,
@@ -137,6 +145,7 @@ export const mockKeys: Key[] = [
   {
     id: 9,
     platform: 'google',
+    api_base: '',
     key_secret: 'AIzaSyAbc123Def456Ghi789Jkl012Mno345Pqr678',
     max_concurrency: 10,
     weight: 25,
@@ -207,7 +216,8 @@ export function batchAddMockKeys(
   platform: Platform,
   keys: string[],
   maxConcurrency: number = 3,
-  weight: number = 10
+  weight: number = 10,
+  apiBase: string = ''
 ): { success: Key[]; failed: string[] } {
   const success: Key[] = [];
   const failed: string[] = [];
@@ -218,7 +228,7 @@ export function batchAddMockKeys(
       if (mockKeys.find((k) => k.key_secret === keySecret)) {
         failed.push(keySecret);
       } else {
-        const newKey = addMockKey(platform, keySecret, maxConcurrency, weight);
+        const newKey = addMockKey(platform, keySecret, maxConcurrency, weight, apiBase);
         success.push(newKey);
       }
     } catch {

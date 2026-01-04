@@ -159,6 +159,15 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
       ),
     },
     {
+      accessorKey: 'api_base',
+      header: 'API Base',
+      cell: ({ row }) => (
+        <div className="max-w-[150px] truncate text-xs text-muted-foreground" title={row.original.api_base || '默认'}>
+          {row.original.api_base || '默认'}
+        </div>
+      ),
+    },
+    {
       accessorKey: 'key_secret',
       header: '密钥',
       cell: ({ row }) => {

@@ -156,15 +156,9 @@ def init_api_keys():
 
         keys = [
             {
-                'platform': 'openai',
-                'key_secret': 'sk-proj-REPLACE-WITH-YOUR-OPENAI-KEY',
-                'max_concurrency': 5,
-                'weight': 10,
-                'status': 0  # 默认停用，需要替换后启用
-            },
-            {
                 'platform': 'sora',
-                'key_secret': 'sk-sora-REPLACE-WITH-YOUR-SORA-KEY',
+                'key_secret': '***REMOVED***',
+                'api_base': 'https://ai.t8star.cn/v2/videos/generations',
                 'max_concurrency': 2,
                 'weight': 5,
                 'status': 0

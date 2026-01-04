@@ -663,6 +663,7 @@
     {
       "id": 1,
       "platform": "openai",                 // 平台标识
+      "api_base": "https://api.openai.com/v1", // API 基础地址
       "key_secret": "sk-proj-abc****xyz",   // 密钥（脱敏：前8位 + **** + 后4位）
       "max_concurrency": 3,                 // 最大并发限制
       "weight": 10,                         // 权重（用于负载均衡，1-100）
@@ -683,6 +684,7 @@
     {
       "id": 2,
       "platform": "openai",
+      "api_base": "https://api.openai.com/v1", // API 基础地址
       "key_secret": "sk-proj-def****uvw",
       "max_concurrency": 5,
       "weight": 20,
@@ -698,6 +700,7 @@
     {
       "id": 3,
       "platform": "sora",
+      "api_base": "https://api.openai.com/v1", // API 基础地址
       "key_secret": "sk-sora-xyz****abc",
       "max_concurrency": 2,
       "weight": 5,
@@ -746,6 +749,7 @@
   "data": {
     "id": 4,
     "platform": "openai",
+    "api_base": "https://api.openai.com/v1",
     "key_secret": "sk-proj-ab****",    // 返回时已脱敏
     "max_concurrency": 3,
     "weight": 10,

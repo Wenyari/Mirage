@@ -60,6 +60,7 @@ export interface UpdatePlatformRequest {
 export interface Key {
   id: number;
   platform: Platform;
+  api_base: string;                // API 基础地址
   key_secret: string;              // 密钥（前端会脱敏显示）
   max_concurrency: number;         // 最大并发限制（核心配置）
   weight: number;                  // 权重（1-100，用于负载均衡）
@@ -93,6 +94,7 @@ export interface AddKeyRequest {
  */
 export interface BatchAddKeysRequest {
   platform: Platform;
+  api_base?: string;               // 默认为官方地址
   keys: string[];                  // 密钥数组
   max_concurrency?: number;        // 统一的最大并发
   weight?: number;                 // 统一的权重

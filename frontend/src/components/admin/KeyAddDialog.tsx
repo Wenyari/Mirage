@@ -1,9 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { toast } from 'sonner';
+import * as z from 'zod';
 
+import { CreatePlatformDialog } from '@/components/admin/CreatePlatformDialog';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -29,15 +31,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
-
-import type { Platform } from '@/types/key';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { useAddKey, useBatchAddKeys, usePlatforms } from '@/hooks/useKeys';
-import { CreatePlatformDialog } from '@/components/admin/CreatePlatformDialog';
+import type { Platform } from '@/types/key';
 
 interface KeyAddDialogProps {
   open: boolean;
@@ -47,6 +46,7 @@ interface KeyAddDialogProps {
 // 单个添加表单 Schema（动态验证平台）
 const singleSchema = z.object({
   platform: z.string().min(1, '请选择平台'),
+  api_base: z.string().url('请输入有效的 URL').optional().or(z.literal('')),
   key_secret: z.string().min(10, '密钥长度至少10个字符'),
   max_concurrency: z.coerce.number().min(1).max(100),
   weight: z.coerce.number().min(1).max(100),
@@ -55,6 +55,7 @@ const singleSchema = z.object({
 // 批量添加表单 Schema（动态验证平台）
 const batchSchema = z.object({
   platform: z.string().min(1, '请选择平台'),
+  api_base: z.string().url('请输入有效的 URL').optional().or(z.literal('')),
   keys: z.string().min(1, '请输入至少一个密钥'),
   max_concurrency: z.coerce.number().min(1).max(100),
   weight: z.coerce.number().min(1).max(100),
@@ -80,6 +81,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
   const singleForm = useForm<SingleFormValues>({
     resolver: zodResolver(singleSchema),
     defaultValues: {
+      api_base: '',
       max_concurrency: 3,
       weight: 10,
     },
@@ -89,6 +91,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
   const batchForm = useForm<BatchFormValues>({
     resolver: zodResolver(batchSchema),
     defaultValues: {
+      api_base: '',
       max_concurrency: 3,
       weight: 10,
     },
@@ -188,7 +191,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                 </SelectItem>
               ))}
               <Separator className="my-1" />
-              <SelectItem value="__add_new__" className="text-primary font-medium">
+              <SelectItem value="__add_new__" className="font-medium text-primary">
                 + 添加新平台
               </SelectItem>
             </>
@@ -215,7 +218,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
           </TabsList>
 
           {/* 单个添加 */}
-          <TabsContent value="single" className="space-y-4 mt-4">
+          <TabsContent value="single" className="mt-4 space-y-4">
             <Form {...singleForm}>
               <form onSubmit={singleForm.handleSubmit(onSingleSubmit)} className="space-y-4">
                 <FormField
@@ -225,6 +228,25 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                     <FormItem>
                       <FormLabel>平台 *</FormLabel>
                       {renderPlatformSelect(field, singleForm)}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={singleForm.control}
+                  name="api_base"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>API Base URL (可选)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="例如: https://api.openai.com/v1"
+                          {...field}
+                          className="font-mono text-sm"
+                        />
+                      </FormControl>
+                      <FormDescription>如果不填，则默认使用该平台的官方地址</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -324,7 +346,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
           </TabsContent>
 
           {/* 批量导入 */}
-          <TabsContent value="batch" className="space-y-4 mt-4">
+          <TabsContent value="batch" className="mt-4 space-y-4">
             <Form {...batchForm}>
               <form onSubmit={batchForm.handleSubmit(onBatchSubmit)} className="space-y-4">
                 <FormField
@@ -341,6 +363,25 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
 
                 <FormField
                   control={batchForm.control}
+                  name="api_base"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>API Base URL (可选)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="例如: https://api.openai.com/v1"
+                          {...field}
+                          className="font-mono text-sm"
+                        />
+                      </FormControl>
+                      <FormDescription>所有批量导入的密钥将共用此 API 地址</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={batchForm.control}
                   name="keys"
                   render={({ field }) => (
                     <FormItem>
@@ -348,7 +389,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                       <FormControl>
                         <Textarea
                           placeholder="每行一个密钥，例如：&#10;sk-proj-abc123...&#10;sk-proj-def456...&#10;sk-proj-ghi789..."
-                          className="font-mono text-sm min-h-[150px]"
+                          className="min-h-[150px] font-mono text-sm"
                           {...field}
                         />
                       </FormControl>

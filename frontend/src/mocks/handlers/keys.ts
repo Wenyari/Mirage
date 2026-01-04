@@ -84,7 +84,13 @@ export const keysHandlers = [
   http.post('/api/admin/keys', async ({ request }) => {
     try {
       const body = (await request.json()) as AddKeyRequest;
-      const { platform, key_secret, max_concurrency = 3, weight = 10 } = body;
+      const {
+        platform,
+        api_base = '',
+        key_secret,
+        max_concurrency = 3,
+        weight = 10
+      } = body;
 
       // 参数验证
       if (!platform || !key_secret) {
