@@ -6,7 +6,7 @@ import json
 from flask import current_app
 from rq import Queue
 from app.extensions import db, redis_client
-from app.models import Task, User, MembershipConfig, PlatformConfig, Platform
+from app.models import Task, User, MembershipConfig, ModelConfig, Model
 from app.services.pay_service import check_and_deduct_balance
 
 
@@ -32,31 +32,31 @@ def get_user_concurrency_limit(user_id: int) -> int:
     return config.concurrent_limit
 
 
-def get_platform_cost(platform_key: str) -> dict:
+def get_model_cost(model_key: str) -> dict:
     """
-    获取平台配置和定价
+    获取模型配置和定价
 
     Args:
-        platform_key: 平台标识 (如 'openai', 'sora')
+        model_key: 模型标识 (如 'openai', 'sora')
 
     Returns:
-        dict: 平台配置信息 {
+        dict: 模型配置信息 {
             'cost_per_call': float,
             'token_cost_config': dict,
             'allowed_tiers': list
         }
     """
     # 先尝试从 Redis 缓存读取
-    cache_key = f"config:platform:{platform_key}"
+    cache_key = f"config:model:{model_key}"
     cached_config = redis_client.get(cache_key)
 
     if cached_config:
         return json.loads(cached_config)
 
     # 从数据库查询
-    config = PlatformConfig.query.filter_by(platform=platform_key, is_active=1).first()
+    config = ModelConfig.query.filter_by(model=model_key, is_active=1).first()
     if not config:
-        raise ValueError(f"Platform '{platform_key}' not found or not active")
+        raise ValueError(f"Model '{model_key}' not found or not active")
 
     config_data = {
         'cost_per_call': float(config.cost_per_call),
@@ -84,7 +84,7 @@ def submit_task(user_id: int, task_data: dict) -> str:
     Args:
         user_id: 用户 ID
         task_data: 任务数据 {
-            "platform": "sora",
+            "model": "sora",
             "prompt": "...",
             "params": {...},
             "input_file_url": "..."
@@ -116,22 +116,22 @@ def submit_task(user_id: int, task_data: dict) -> str:
         )
 
     # 2. 【权限检查和计算费用】
-    platform_key = task_data.get('platform')
-    if not platform_key:
-        raise ValueError("Platform is required")
+    model_key = task_data.get('model')
+    if not model_key:
+        raise ValueError("Model is required")
 
-    platform_config = get_platform_cost(platform_key)
+    model_config = get_model_cost(model_key)
 
-    # 检查用户等级是否有权使用该平台
+    # 检查用户等级是否有权使用该模型
     user_tier = f"T{user.level}"
-    allowed_tiers = platform_config.get('allowed_tiers', [])
+    allowed_tiers = model_config.get('allowed_tiers', [])
     if user_tier not in allowed_tiers:
         raise ValueError(
-            f"Your membership tier ({user_tier}) does not have access to platform '{platform_key}'. "
+            f"Your membership tier ({user_tier}) does not have access to model '{model_key}'. "
             f"Allowed tiers: {', '.join(allowed_tiers)}"
         )
 
-    base_cost = platform_config['cost_per_call']
+    base_cost = model_config['cost_per_call']
 
     # 根据参数调整价格 (例如根据时长)
     params = task_data.get('params', {})
@@ -142,7 +142,7 @@ def submit_task(user_id: int, task_data: dict) -> str:
     # 创建任务记录 (暂时不提交，获取 task_id 用于流水记录)
     new_task = Task(
         user_id=user_id,
-        platform=platform_key,
+        model=model_key,
         prompt=task_data.get('prompt'),
         input_file_url=task_data.get('input_file_url'),
         params=params,
@@ -168,7 +168,7 @@ def submit_task(user_id: int, task_data: dict) -> str:
     task_payload = {
         'task_id': new_task.id,
         'user_id': user_id,
-        'platform': platform_key,
+        'model': model_key,
         'prompt': task_data.get('prompt'),
         'input_file_url': task_data.get('input_file_url'),
         'params': params

@@ -40,36 +40,36 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 
-import type { PlatformConfig } from '@/types/platformConfig';
-import { MEMBERSHIP_TIER_LABELS } from '@/types/platformConfig';
+import type { ModelConfig } from '@/types/modelConfig';
+import { MEMBERSHIP_TIER_LABELS } from '@/types/modelConfig';
 import {
-  usePlatformConfigs,
-  useUpdatePlatformConfig,
-  useDeletePlatformConfig,
-} from '@/hooks/usePlatformConfigs';
-import { PlatformConfigDialog } from '@/components/admin/PlatformConfigDialog';
+  useModelConfigs,
+  useUpdateModelConfig,
+  useDeleteModelConfig,
+} from '@/hooks/useModelConfigs';
+import { ModelConfigDialog } from '@/components/admin/ModelConfigDialog';
 
-export function PlatformConfigsTable() {
-  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; config?: PlatformConfig }>({
+export function ModelConfigsTable() {
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; config?: ModelConfig }>({
     open: false,
   });
-  const [editDialog, setEditDialog] = useState<{ open: boolean; config?: PlatformConfig }>({
+  const [editDialog, setEditDialog] = useState<{ open: boolean; config?: ModelConfig }>({
     open: false,
   });
   const [createDialog, setCreateDialog] = useState(false);
 
-  const { data, isLoading, isError, error } = usePlatformConfigs();
-  const updateMutation = useUpdatePlatformConfig();
-  const deleteMutation = useDeletePlatformConfig();
+  const { data, isLoading, isError, error } = useModelConfigs();
+  const updateMutation = useUpdateModelConfig();
+  const deleteMutation = useDeleteModelConfig();
 
   // 切换启用状态
-  const handleToggleActive = async (config: PlatformConfig) => {
+  const handleToggleActive = async (config: ModelConfig) => {
     try {
       await updateMutation.mutateAsync({
         id: config.id,
         data: { is_active: !config.is_active },
       });
-      toast.success(config.is_active ? '平台已禁用' : '平台已启用');
+      toast.success(config.is_active ? '模型配置已禁用' : '模型配置已启用');
     } catch (err: any) {
       toast.error(err.message || '操作失败');
     }
@@ -89,14 +89,14 @@ export function PlatformConfigsTable() {
   };
 
   // 定义列
-  const columns: ColumnDef<PlatformConfig>[] = [
+  const columns: ColumnDef<ModelConfig>[] = [
     {
-      accessorKey: 'platform',
-      header: '平台',
+      accessorKey: 'model',
+      header: '模型',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Badge variant="outline">{row.original.platform_name}</Badge>
-          <code className="text-xs text-muted-foreground">{row.original.platform}</code>
+          <Badge variant="outline">{row.original.model_name}</Badge>
+          <code className="text-xs text-muted-foreground">{row.original.model}</code>
         </div>
       ),
     },
@@ -216,9 +216,9 @@ export function PlatformConfigsTable() {
       {/* 操作栏 */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-semibold">平台配置列表</h2>
+          <h2 className="text-2xl font-semibold">模型配置列表</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            共 {data?.data.length} 个平台配置
+            共 {data?.data.length} 个模型配置
           </p>
         </div>
         <Button onClick={() => setCreateDialog(true)}>
@@ -266,14 +266,14 @@ export function PlatformConfigsTable() {
       </div>
 
       {/* 创建对话框 */}
-      <PlatformConfigDialog
+      <ModelConfigDialog
         open={createDialog}
         onOpenChange={setCreateDialog}
         mode="create"
       />
 
       {/* 编辑对话框 */}
-      <PlatformConfigDialog
+      <ModelConfigDialog
         open={editDialog.open}
         onOpenChange={(open) => setEditDialog({ open })}
         mode="edit"
@@ -286,7 +286,7 @@ export function PlatformConfigsTable() {
           <AlertDialogHeader>
             <AlertDialogTitle>确认删除</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要删除平台 "{deleteDialog.config?.platform_name}" 的配置吗？
+              确定要删除模型 "{deleteDialog.config?.model_name}" 的配置吗？
               <br />
               此操作不可撤销。
             </AlertDialogDescription>

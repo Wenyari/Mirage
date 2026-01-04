@@ -7,7 +7,7 @@ import bcrypt
 from datetime import datetime
 from app import create_app
 from app.extensions import db, redis_client
-from app.models import User, MembershipConfig, Task, CDK, Platform
+from app.models import User, MembershipConfig, Task, CDK, Model
 from app.config import Config
 
 
@@ -100,13 +100,13 @@ def _init_test_data():
     for config in configs:
         db.session.add(config)
 
-    # 创建平台
-    platforms = [
-        Platform(key='openai', name='OpenAI', enabled=1),
-        Platform(key='sora', name='Sora', enabled=1),
+    # 创建模型
+    models = [
+        Model(key='openai', name='OpenAI', enabled=1),
+        Model(key='sora', name='Sora', enabled=1),
     ]
-    for platform in platforms:
-        db.session.add(platform)
+    for model in models:
+        db.session.add(model)
 
     db.session.commit()
 
@@ -179,7 +179,7 @@ def test_task(db_session, test_user):
     """
     task = Task(
         user_id=test_user.id,
-        platform='openai',
+        model='openai',
         prompt='Test prompt',
         params={'duration': 5},
         status='pending',

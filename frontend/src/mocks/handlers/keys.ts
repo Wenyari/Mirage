@@ -1,44 +1,46 @@
 import { http, HttpResponse } from 'msw';
+
 import type {
   AddKeyRequest,
   BatchAddKeysRequest,
-  UpdateKeyRequest,
   CooldownRequest,
-  Platform,
-  CreatePlatformRequest,
-  UpdatePlatformRequest,
+  CreateModelRequest,
+  ModelType,
+  UpdateKeyRequest,
+  UpdateModelRequest,
 } from '@/types/key';
+import { maskKey } from '@/types/key';
+
 import {
-  mockKeys,
   addMockKey,
   batchAddMockKeys,
-  updateMockKey,
-  deleteMockKey,
-  triggerCooldown,
   checkCoolingExpiry,
+  deleteMockKey,
+  mockKeys,
   simulateConcurrencyChange,
+  triggerCooldown,
+  updateMockKey,
 } from '../data/keys';
 import {
-  mockPlatforms,
-  createMockPlatform,
-  updateMockPlatform,
-  deleteMockPlatform,
-} from '../data/platforms';
-import { maskKey } from '@/types/key';
+  createMockModel,
+  deleteMockModel,
+  mockModels,
+  updateMockModel,
+} from '../data/models';
 
 /**
  * 密钥池管理相关的 Mock 处理器
  */
 export const keysHandlers = [
   /**
-   * 获取平台配置列表
-   * GET /api/admin/platforms
+   * 获取模型列表
+   * GET /api/admin/models
    */
-  http.get('/api/admin/platforms', () => {
+  http.get('/api/admin/models', () => {
     return HttpResponse.json({
       code: 0,
       message: 'success',
-      data: mockPlatforms,
+      data: mockModels,
     });
   }),
 
@@ -48,7 +50,7 @@ export const keysHandlers = [
    */
   http.get('/api/admin/keys', ({ request }) => {
     const url = new URL(request.url);
-    const platform = url.searchParams.get('platform') as Platform | null;
+    const model = url.searchParams.get('model') as ModelType | null;
 
     // 模拟冷却过期检查
     checkCoolingExpiry();
@@ -60,8 +62,8 @@ export const keysHandlers = [
 
     // 过滤数据
     let filteredKeys = [...mockKeys];
-    if (platform && platform !== 'all') {
-      filteredKeys = filteredKeys.filter((key) => key.platform === platform);
+    if (model && model !== 'all') {
+      filteredKeys = filteredKeys.filter((key) => key.model === model);
     }
 
     // 返回时脱敏密钥
@@ -85,7 +87,7 @@ export const keysHandlers = [
     try {
       const body = (await request.json()) as AddKeyRequest;
       const {
-        platform,
+        model,
         api_base = '',
         key_secret,
         max_concurrency = 3,
@@ -93,11 +95,11 @@ export const keysHandlers = [
       } = body;
 
       // 参数验证
-      if (!platform || !key_secret) {
+      if (!model || !key_secret) {
         return HttpResponse.json(
           {
             code: 400,
-            message: '平台和密钥不能为空',
+            message: '模型和密钥不能为空',
             data: null,
           },
           { status: 400 }
@@ -117,7 +119,7 @@ export const keysHandlers = [
       }
 
       // 添加密钥
-      const newKey = addMockKey(platform, key_secret, max_concurrency, weight);
+      const newKey = addMockKey(model, key_secret, max_concurrency, weight, api_base);
 
       return HttpResponse.json({
         code: 0,
@@ -146,14 +148,14 @@ export const keysHandlers = [
   http.post('/api/admin/keys/batch', async ({ request }) => {
     try {
       const body = (await request.json()) as BatchAddKeysRequest;
-      const { platform, keys, max_concurrency = 3, weight = 10 } = body;
+      const { model, keys, max_concurrency = 3, weight = 10, api_base = '' } = body;
 
       // 参数验证
-      if (!platform || !keys || keys.length === 0) {
+      if (!model || !keys || keys.length === 0) {
         return HttpResponse.json(
           {
             code: 400,
-            message: '平台和密钥列表不能为空',
+            message: '模型和密钥列表不能为空',
             data: null,
           },
           { status: 400 }
@@ -172,7 +174,7 @@ export const keysHandlers = [
       }
 
       // 批量添加
-      const result = batchAddMockKeys(platform, keys, max_concurrency, weight);
+      const result = batchAddMockKeys(model, keys, max_concurrency, weight, api_base);
 
       return HttpResponse.json({
         code: 0,
@@ -374,12 +376,12 @@ export const keysHandlers = [
    */
   http.post('/api/admin/keys/health-check', ({ request }) => {
     const url = new URL(request.url);
-    const platform = url.searchParams.get('platform') as Platform | null;
+    const model = url.searchParams.get('model') as ModelType | null;
 
     // 过滤要检测的密钥
     let keysToCheck = [...mockKeys];
-    if (platform && platform !== 'all') {
-      keysToCheck = keysToCheck.filter((key) => key.platform === platform);
+    if (model && model !== 'all') {
+      keysToCheck = keysToCheck.filter((key) => key.model === model);
     }
 
     // 模拟健康检测（随机结果）
@@ -395,7 +397,7 @@ export const keysHandlers = [
 
       return {
         id: key.id,
-        platform: key.platform,
+        model: key.model,
         status: key.status,
         is_cooling: key.is_cooling,
         check_result,
@@ -426,20 +428,20 @@ export const keysHandlers = [
    * GET /api/admin/keys/stats
    */
   http.get('/api/admin/keys/stats', () => {
-    // 按平台分组统计（使用动态平台配置）
-    const enabledPlatforms = mockPlatforms.filter((p) => p.enabled).map((p) => p.key);
-    const byPlatform = enabledPlatforms.map((platform) => {
-      const platformKeys = mockKeys.filter((k) => k.platform === platform);
-      const activeKeys = platformKeys.filter((k) => k.status === 1 && !k.is_cooling);
-      const coolingKeys = platformKeys.filter((k) => k.is_cooling);
+    // 按模型分组统计（使用动态模型配置）
+    const enabledModels = mockModels.filter((p) => p.enabled).map((p) => p.key);
+    const byModel = enabledModels.map((model) => {
+      const modelKeys = mockKeys.filter((k) => k.model === model);
+      const activeKeys = modelKeys.filter((k) => k.status === 1 && !k.is_cooling);
+      const coolingKeys = modelKeys.filter((k) => k.is_cooling);
 
       return {
-        platform,
-        total_keys: platformKeys.length,
+        model,
+        total_keys: modelKeys.length,
         active_keys: activeKeys.length,
         cooling_keys: coolingKeys.length,
-        total_concurrency: platformKeys.reduce((sum, k) => sum + k.max_concurrency, 0),
-        current_usage: platformKeys.reduce((sum, k) => sum + k.current_usage, 0),
+        total_concurrency: modelKeys.reduce((sum, k) => sum + k.max_concurrency, 0),
+        current_usage: modelKeys.reduce((sum, k) => sum + k.current_usage, 0),
       };
     });
 
@@ -452,7 +454,7 @@ export const keysHandlers = [
       code: 0,
       message: 'Success',
       data: {
-        by_platform: byPlatform,
+        by_model: byModel,
         total_calls_today: totalCallsToday,
         total_errors_today: totalErrorsToday,
         error_rate: parseFloat(errorRate.toFixed(2)),
@@ -461,38 +463,38 @@ export const keysHandlers = [
   }),
 
   /**
-   * 创建平台
-   * POST /api/admin/platforms
+   * 创建模型
+   * POST /api/admin/models
    */
-  http.post('/api/admin/platforms', async ({ request }) => {
+  http.post('/api/admin/models', async ({ request }) => {
     try {
-      const body = (await request.json()) as CreatePlatformRequest;
+      const body = (await request.json()) as CreateModelRequest;
 
       // 参数验证
       if (!body.key || !body.name) {
         return HttpResponse.json(
           {
             code: 400,
-            message: '平台标识和名称不能为空',
+            message: '模型标识和名称不能为空',
             data: null,
           },
           { status: 400 }
         );
       }
 
-      // 创建平台
-      const newPlatform = createMockPlatform(body);
+      // 创建模型
+      const newModel = createMockModel(body);
 
       return HttpResponse.json({
         code: 0,
-        message: 'Platform created successfully',
-        data: newPlatform,
+        message: 'Model created successfully',
+        data: newModel,
       });
     } catch (error: any) {
       return HttpResponse.json(
         {
           code: 400,
-          message: error.message || '创建平台失败',
+          message: error.message || '创建模型失败',
           data: null,
         },
         { status: 400 }
@@ -501,22 +503,22 @@ export const keysHandlers = [
   }),
 
   /**
-   * 更新平台
-   * PATCH /api/admin/platforms/:key
+   * 更新模型
+   * PATCH /api/admin/models/:key
    */
-  http.patch('/api/admin/platforms/:key', async ({ params, request }) => {
+  http.patch('/api/admin/models/:key', async ({ params, request }) => {
     try {
       const key = params.key as string;
-      const body = (await request.json()) as UpdatePlatformRequest;
+      const body = (await request.json()) as UpdateModelRequest;
 
-      // 更新平台
-      const updatedPlatform = updateMockPlatform(key, body);
+      // 更新模型
+      const updatedModel = updateMockModel(key, body);
 
-      if (!updatedPlatform) {
+      if (!updatedModel) {
         return HttpResponse.json(
           {
             code: 404,
-            message: '平台不存在',
+            message: '模型不存在',
             data: null,
           },
           { status: 404 }
@@ -525,14 +527,14 @@ export const keysHandlers = [
 
       return HttpResponse.json({
         code: 0,
-        message: 'Platform updated successfully',
-        data: updatedPlatform,
+        message: 'Model updated successfully',
+        data: updatedModel,
       });
     } catch (error: any) {
       return HttpResponse.json(
         {
           code: 500,
-          message: error.message || '更新平台失败',
+          message: error.message || '更新模型失败',
           data: null,
         },
         { status: 500 }
@@ -541,20 +543,20 @@ export const keysHandlers = [
   }),
 
   /**
-   * 删除平台
-   * DELETE /api/admin/platforms/:key
+   * 删除模型
+   * DELETE /api/admin/models/:key
    */
-  http.delete('/api/admin/platforms/:key', ({ params }) => {
+  http.delete('/api/admin/models/:key', ({ params }) => {
     try {
       const key = params.key as string;
 
       // 检查是否有关联的密钥
-      const relatedKeys = mockKeys.filter((k) => k.platform === key);
+      const relatedKeys = mockKeys.filter((k) => k.model === key);
       if (relatedKeys.length > 0) {
         return HttpResponse.json(
           {
             code: 400,
-            message: 'Cannot delete platform with existing keys or tasks',
+            message: 'Cannot delete model with existing keys or tasks',
             data: {
               key_count: relatedKeys.length,
               task_count: 0,
@@ -564,14 +566,14 @@ export const keysHandlers = [
         );
       }
 
-      // 删除平台
-      const success = deleteMockPlatform(key);
+      // 删除模型
+      const success = deleteMockModel(key);
 
       if (!success) {
         return HttpResponse.json(
           {
             code: 404,
-            message: '平台不存在',
+            message: '模型不存在',
             data: null,
           },
           { status: 404 }
@@ -580,14 +582,14 @@ export const keysHandlers = [
 
       return HttpResponse.json({
         code: 0,
-        message: 'Platform deleted successfully',
+        message: 'Model deleted successfully',
         data: null,
       });
     } catch (error: any) {
       return HttpResponse.json(
         {
           code: 500,
-          message: error.message || '删除平台失败',
+          message: error.message || '删除模型失败',
           data: null,
         },
         { status: 500 }

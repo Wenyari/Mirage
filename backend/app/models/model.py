@@ -1,29 +1,29 @@
 """
-平台相关数据模型
-包含平台基本信息、平台配置和密钥池管理
+模型相关数据模型
+包含模型基本信息、模型配置和密钥池管理
 """
 from app.extensions import db
 from datetime import datetime
 
 
-class Platform(db.Model):
-    """平台基本信息表"""
-    __tablename__ = 'platforms'
+class Model(db.Model):
+    """模型基本信息表"""
+    __tablename__ = 'models'
 
-    key = db.Column(db.String(50), primary_key=True)  # 平台唯一标识
-    name = db.Column(db.String(100), nullable=False)  # 平台显示名称
+    key = db.Column(db.String(50), primary_key=True)  # 模型唯一标识
+    name = db.Column(db.String(100), nullable=False)  # 模型显示名称
     enabled = db.Column(db.SmallInteger, default=1, nullable=False)  # 是否启用
-    description = db.Column(db.Text, nullable=True)  # 平台描述
+    description = db.Column(db.Text, nullable=True)  # 模型描述
     color = db.Column(db.String(50), nullable=True)  # UI 颜色标识
-    icon_url = db.Column(db.String(255), nullable=True)  # 平台图标 URL
+    icon_url = db.Column(db.String(255), nullable=True)  # 模型图标 URL
     max_concurrency_limit = db.Column(db.Integer, default=20, nullable=False)  # 最大并发限制
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # 关系映射
-    config = db.relationship('PlatformConfig', backref='platform_info', uselist=False, lazy=True)
-    api_keys = db.relationship('ApiKey', backref='platform_info', lazy='dynamic')
-    tasks = db.relationship('Task', backref='platform_info', lazy='dynamic')
+    config = db.relationship('ModelConfig', backref='model_info', uselist=False, lazy=True)
+    api_keys = db.relationship('ApiKey', backref='model_info', lazy='dynamic')
+    tasks = db.relationship('Task', backref='model_info', lazy='dynamic')
 
     # 索引
     __table_args__ = (
@@ -31,7 +31,7 @@ class Platform(db.Model):
     )
 
     def __repr__(self):
-        return f'<Platform {self.key}>'
+        return f'<Model {self.key}>'
 
     def to_dict(self):
         """转换为字典"""
@@ -48,12 +48,12 @@ class Platform(db.Model):
         }
 
 
-class PlatformConfig(db.Model):
-    """平台配置表（替代原 model_pricing 表）"""
-    __tablename__ = 'platform_configs'
+class ModelConfig(db.Model):
+    """模型配置表（替代原 model_pricing 表）"""
+    __tablename__ = 'model_configs'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    platform = db.Column(db.String(50), db.ForeignKey('platforms.key'), unique=True, nullable=False)
+    model = db.Column(db.String(50), db.ForeignKey('models.key'), unique=True, nullable=False)
     allowed_tiers = db.Column(db.JSON, nullable=False)  # 允许使用的等级数组 ["T1","T2",...]
     cost_per_call = db.Column(db.Numeric(10, 2), default=0.00, nullable=False)  # 固定计费
     token_cost_config = db.Column(db.JSON, nullable=True)  # Token 计费配置
@@ -64,18 +64,18 @@ class PlatformConfig(db.Model):
 
     # 索引
     __table_args__ = (
-        db.Index('idx_platform_config_platform', 'platform'),
-        db.Index('idx_platform_config_active', 'is_active'),
+        db.Index('idx_model_config_model', 'model'),
+        db.Index('idx_model_config_active', 'is_active'),
     )
 
     def __repr__(self):
-        return f'<PlatformConfig {self.platform}>'
+        return f'<ModelConfig {self.model}>'
 
     def to_dict(self):
         """转换为字典"""
         return {
             'id': self.id,
-            'platform': self.platform,
+            'model': self.model,
             'allowed_tiers': self.allowed_tiers,
             'cost_per_call': float(self.cost_per_call),
             'token_cost_config': self.token_cost_config,
@@ -91,7 +91,8 @@ class ApiKey(db.Model):
     __tablename__ = 'api_keys'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    platform = db.Column(db.String(50), db.ForeignKey('platforms.key'), nullable=False)
+    model = db.Column(db.String(50), db.ForeignKey('models.key'), nullable=False)
+    api_base = db.Column(db.String(255), nullable=False)  # API 基础地址
     key_secret = db.Column(db.String(512), nullable=False)  # 密钥本体（建议加密存储）
     max_concurrency = db.Column(db.Integer, default=3, nullable=False)  # 最大并发限制
     weight = db.Column(db.SmallInteger, default=10, nullable=False)  # 权重 (1-100)
@@ -107,18 +108,19 @@ class ApiKey(db.Model):
 
     # 索引
     __table_args__ = (
-        db.Index('idx_platform_status', 'platform', 'status'),
+        db.Index('idx_model_status', 'model', 'status'),
         db.Index('idx_weight', 'weight'),
     )
 
     def __repr__(self):
-        return f'<ApiKey {self.id} - {self.platform}>'
+        return f'<ApiKey {self.id} - {self.model}>'
 
     def to_dict(self, include_secret=False):
         """转换为字典"""
         result = {
             'id': self.id,
-            'platform': self.platform,
+            'model': self.model,
+            'api_base': self.api_base,
             'max_concurrency': self.max_concurrency,
             'weight': self.weight,
             'status': self.status,

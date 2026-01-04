@@ -34,24 +34,24 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 
-import type { PlatformConfig, MembershipTier } from '@/types/platformConfig';
-import { ALL_MEMBERSHIP_TIERS, MEMBERSHIP_TIER_LABELS } from '@/types/platformConfig';
+import type { ModelConfig, MembershipTier } from '@/types/modelConfig';
+import { ALL_MEMBERSHIP_TIERS, MEMBERSHIP_TIER_LABELS } from '@/types/modelConfig';
 import {
-  useCreatePlatformConfig,
-  useUpdatePlatformConfig,
-  useAvailablePlatforms,
-} from '@/hooks/usePlatformConfigs';
+  useCreateModelConfig,
+  useUpdateModelConfig,
+  useAvailableModels,
+} from '@/hooks/useModelConfigs';
 
-interface PlatformConfigDialogProps {
+interface ModelConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: 'create' | 'edit';
-  config?: PlatformConfig;
+  config?: ModelConfig;
 }
 
 // 表单 Schema
 const formSchema = z.object({
-  platform: z.string().min(1, '请选择平台'),
+  model: z.string().min(1, '请选择模型'),
   allowed_tiers: z.array(z.string()).min(1, '请至少选择一个等级'),
   cost_per_call: z.coerce.number().min(0, '固定计费不能为负数'),
   token_cost_enabled: z.boolean(),
@@ -63,15 +63,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function PlatformConfigDialog({ open, onOpenChange, mode, config }: PlatformConfigDialogProps) {
-  const createMutation = useCreatePlatformConfig();
-  const updateMutation = useUpdatePlatformConfig();
-  const { data: availablePlatformsData } = useAvailablePlatforms();
+export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelConfigDialogProps) {
+  const createMutation = useCreateModelConfig();
+  const updateMutation = useUpdateModelConfig();
+  const { data: availableModelsData } = useAvailableModels();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      platform: '',
+      model: '',
       allowed_tiers: ['T1', 'T2', 'T3', 'T4', 'T5'],
       cost_per_call: 10,
       token_cost_enabled: false,
@@ -88,7 +88,7 @@ export function PlatformConfigDialog({ open, onOpenChange, mode, config }: Platf
   useEffect(() => {
     if (mode === 'edit' && config) {
       form.reset({
-        platform: config.platform,
+        model: config.model,
         allowed_tiers: config.allowed_tiers,
         cost_per_call: config.cost_per_call,
         token_cost_enabled: config.token_cost_config.enabled,
@@ -105,7 +105,7 @@ export function PlatformConfigDialog({ open, onOpenChange, mode, config }: Platf
   const onSubmit = async (values: FormValues) => {
     try {
       const requestData = {
-        platform: values.platform,
+        model: values.model,
         allowed_tiers: values.allowed_tiers as MembershipTier[],
         cost_per_call: values.cost_per_call,
         token_cost_config: {
@@ -121,13 +121,13 @@ export function PlatformConfigDialog({ open, onOpenChange, mode, config }: Platf
 
       if (mode === 'create') {
         await createMutation.mutateAsync(requestData);
-        toast.success('平台配置已创建');
+        toast.success('模型配置已创建');
       } else if (config) {
         await updateMutation.mutateAsync({
           id: config.id,
           data: requestData,
         });
-        toast.success('平台配置已更新');
+        toast.success('模型配置已更新');
       }
 
       onOpenChange(false);
@@ -137,30 +137,30 @@ export function PlatformConfigDialog({ open, onOpenChange, mode, config }: Platf
     }
   };
 
-  // 可选择的平台列表（创建模式）
-  const availablePlatforms = availablePlatformsData?.data?.filter((p) => !p.has_config) || [];
+  // 可选择的模型列表（创建模式）
+  const availableModels = availableModelsData?.data?.filter((m) => !m.has_config) || [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{mode === 'create' ? '添加平台配置' : '编辑平台配置'}</DialogTitle>
+          <DialogTitle>{mode === 'create' ? '添加模型配置' : '编辑模型配置'}</DialogTitle>
           <DialogDescription>
             {mode === 'create'
-              ? '为新平台配置等级权限和计费规则'
-              : '修改平台的等级权限和计费规则'}
+              ? '为新模型配置等级权限和计费规则'
+              : '修改模型的等级权限和计费规则'}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* 平台选择 */}
+            {/* 模型选择 */}
             <FormField
               control={form.control}
-              name="platform"
+              name="model"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>平台 *</FormLabel>
+                  <FormLabel>模型 *</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -168,23 +168,23 @@ export function PlatformConfigDialog({ open, onOpenChange, mode, config }: Platf
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="选择平台" />
+                        <SelectValue placeholder="选择模型" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {mode === 'edit' && config ? (
-                        <SelectItem value={config.platform}>{config.platform_name}</SelectItem>
+                        <SelectItem value={config.model}>{config.model_name}</SelectItem>
                       ) : (
-                        availablePlatforms.map((platform) => (
-                          <SelectItem key={platform.platform} value={platform.platform}>
-                            {platform.platform_name} ({platform.key_count} 个密钥)
+                        availableModels.map((model) => (
+                          <SelectItem key={model.model} value={model.model}>
+                            {model.model_name} ({model.key_count} 个密钥)
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    {mode === 'edit' ? '平台标识不可修改' : '选择要配置的平台'}
+                    {mode === 'edit' ? '模型标识不可修改' : '选择要配置的模型'}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -227,7 +227,7 @@ export function PlatformConfigDialog({ open, onOpenChange, mode, config }: Platf
                       />
                     ))}
                   </div>
-                  <FormDescription>勾选可以使用该平台的会员等级</FormDescription>
+                  <FormDescription>勾选可以使用该模型的会员等级</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -322,8 +322,8 @@ export function PlatformConfigDialog({ open, onOpenChange, mode, config }: Platf
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">启用平台</FormLabel>
-                    <FormDescription>关闭后用户将无法使用该平台</FormDescription>
+                    <FormLabel className="text-base">启用模型</FormLabel>
+                    <FormDescription>关闭后用户将无法使用该模型</FormDescription>
                   </div>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -341,7 +341,7 @@ export function PlatformConfigDialog({ open, onOpenChange, mode, config }: Platf
                   <FormLabel>描述</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="平台功能描述（可选）"
+                      placeholder="模型功能描述（可选）"
                       className="resize-none"
                       {...field}
                     />

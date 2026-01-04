@@ -26,18 +26,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 
-import type { PlatformConfig } from '@/types/key';
-import { useUpdatePlatform } from '@/hooks/useKeys';
+import type { Model } from '@/types/key';
+import { useUpdateModel } from '@/hooks/useKeys';
 
-interface EditPlatformDialogProps {
+interface EditModelDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  platform?: PlatformConfig;
+  model?: Model;
 }
 
 // 表单 Schema
 const formSchema = z.object({
-  name: z.string().min(2, '平台名称至少2个字符').max(100, '平台名称最多100个字符'),
+  name: z.string().min(2, '模型名称至少2个字符').max(100, '模型名称最多100个字符'),
   enabled: z.boolean(),
   description: z.string().max(500, '描述最多500个字符').optional(),
   color: z.string().optional(),
@@ -47,8 +47,8 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function EditPlatformDialog({ open, onOpenChange, platform }: EditPlatformDialogProps) {
-  const updateMutation = useUpdatePlatform();
+export function EditModelDialog({ open, onOpenChange, model }: EditModelDialogProps) {
+  const updateMutation = useUpdateModel();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -62,22 +62,22 @@ export function EditPlatformDialog({ open, onOpenChange, platform }: EditPlatfor
     },
   });
 
-  // 当平台数据变化时，更新表单
+  // 当模型数据变化时，更新表单
   useEffect(() => {
-    if (platform) {
+    if (model) {
       form.reset({
-        name: platform.name,
-        enabled: platform.enabled,
-        description: platform.description || '',
-        color: platform.color || 'bg-blue-500',
-        icon_url: platform.icon_url || platform.icon || '',
-        max_concurrency_limit: platform.max_concurrency_limit || 20,
+        name: model.name,
+        enabled: model.enabled,
+        description: model.description || '',
+        color: model.color || 'bg-blue-500',
+        icon_url: model.icon_url || model.icon || '',
+        max_concurrency_limit: model.max_concurrency_limit || 20,
       });
     }
-  }, [platform, form]);
+  }, [model, form]);
 
   const onSubmit = async (values: FormValues) => {
-    if (!platform) return;
+    if (!model) return;
 
     try {
       // 清理空字符串为 undefined
@@ -88,12 +88,12 @@ export function EditPlatformDialog({ open, onOpenChange, platform }: EditPlatfor
       };
 
       const result = await updateMutation.mutateAsync({
-        key: platform.key,
+        key: model.key,
         data,
       });
 
       if (result.code === 0) {
-        toast.success('平台更新成功');
+        toast.success('模型更新成功');
         onOpenChange(false);
       }
     } catch (error: any) {
@@ -105,32 +105,32 @@ export function EditPlatformDialog({ open, onOpenChange, platform }: EditPlatfor
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>编辑平台</DialogTitle>
+          <DialogTitle>编辑模型</DialogTitle>
           <DialogDescription>
-            修改平台配置信息（平台标识不可修改）
+            修改模型配置信息（模型标识不可修改）
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* 平台标识（只读） */}
-            {platform && (
+            {/* 模型标识（只读） */}
+            {model && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">平台标识</label>
-                <Input value={platform.key} disabled className="font-mono bg-muted" />
-                <p className="text-xs text-muted-foreground">平台标识不可修改</p>
+                <label className="text-sm font-medium">模型标识</label>
+                <Input value={model.key} disabled className="font-mono bg-muted" />
+                <p className="text-xs text-muted-foreground">模型标识不可修改</p>
               </div>
             )}
 
-            {/* 平台名称 */}
+            {/* 模型名称 */}
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>平台名称 *</FormLabel>
+                  <FormLabel>模型名称 *</FormLabel>
                   <FormControl>
-                    <Input placeholder="例如: OpenAI, Claude, Gemini" {...field} />
+                    <Input placeholder="例如: GPT-4, Claude 3 Opus" {...field} />
                   </FormControl>
                   <FormDescription>用于前端显示的名称</FormDescription>
                   <FormMessage />
@@ -147,7 +147,7 @@ export function EditPlatformDialog({ open, onOpenChange, platform }: EditPlatfor
                   <FormLabel>描述</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="平台功能描述（可选）"
+                      placeholder="模型功能描述（可选）"
                       className="resize-none"
                       {...field}
                     />
@@ -187,7 +187,7 @@ export function EditPlatformDialog({ open, onOpenChange, platform }: EditPlatfor
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>平台图标URL（可选）</FormDescription>
+                  <FormDescription>模型图标URL（可选）</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -203,7 +203,7 @@ export function EditPlatformDialog({ open, onOpenChange, platform }: EditPlatfor
                   <FormControl>
                     <Input type="number" min={1} max={100} {...field} />
                   </FormControl>
-                  <FormDescription>该平台建议的最大并发限制</FormDescription>
+                  <FormDescription>该模型建议的最大并发限制</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -216,8 +216,8 @@ export function EditPlatformDialog({ open, onOpenChange, platform }: EditPlatfor
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">启用平台</FormLabel>
-                    <FormDescription>关闭后用户将无法使用该平台</FormDescription>
+                    <FormLabel className="text-base">启用模型</FormLabel>
+                    <FormDescription>关闭后用户将无法使用该模型</FormDescription>
                   </div>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />

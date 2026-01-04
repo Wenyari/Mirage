@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-import { CreatePlatformDialog } from '@/components/admin/CreatePlatformDialog';
+import { CreateModelDialog } from '@/components/admin/CreateModelDialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -35,26 +35,26 @@ import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { useAddKey, useBatchAddKeys, usePlatforms } from '@/hooks/useKeys';
-import type { Platform } from '@/types/key';
+import { useAddKey, useBatchAddKeys, useModels } from '@/hooks/useKeys';
+import type { ModelType } from '@/types/key';
 
 interface KeyAddDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-// 单个添加表单 Schema（动态验证平台）
+// 单个添加表单 Schema（动态验证模型）
 const singleSchema = z.object({
-  platform: z.string().min(1, '请选择平台'),
+  model: z.string().min(1, '请选择模型'),
   api_base: z.string().url('请输入有效的 URL').optional().or(z.literal('')),
   key_secret: z.string().min(10, '密钥长度至少10个字符'),
   max_concurrency: z.coerce.number().min(1).max(100),
   weight: z.coerce.number().min(1).max(100),
 });
 
-// 批量添加表单 Schema（动态验证平台）
+// 批量添加表单 Schema（动态验证模型）
 const batchSchema = z.object({
-  platform: z.string().min(1, '请选择平台'),
+  model: z.string().min(1, '请选择模型'),
   api_base: z.string().url('请输入有效的 URL').optional().or(z.literal('')),
   keys: z.string().min(1, '请输入至少一个密钥'),
   max_concurrency: z.coerce.number().min(1).max(100),
@@ -68,14 +68,14 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
   const [mode, setMode] = useState<'single' | 'batch'>('single');
   const [weightValue, setWeightValue] = useState([10]);
   const [concurrencyValue, setConcurrencyValue] = useState([3]);
-  const [showCreatePlatformDialog, setShowCreatePlatformDialog] = useState(false);
+  const [showCreateModelDialog, setShowCreateModelDialog] = useState(false);
 
   const addMutation = useAddKey();
   const batchAddMutation = useBatchAddKeys();
-  const { data: platformsData, isLoading: platformsLoading } = usePlatforms();
+  const { data: modelsData, isLoading: modelsLoading } = useModels();
 
-  // 获取启用的平台列表
-  const enabledPlatforms = platformsData?.data?.filter((p) => p.enabled) || [];
+  // 获取启用的模型列表
+  const enabledModels = modelsData?.data?.filter((p) => p.enabled) || [];
 
   // 单个添加表单
   const singleForm = useForm<SingleFormValues>({
@@ -131,7 +131,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
       }
 
       const result = await batchAddMutation.mutateAsync({
-        platform: values.platform,
+        model: values.model,
         keys,
         max_concurrency: values.max_concurrency,
         weight: values.weight,
@@ -154,18 +154,18 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
     }
   };
 
-  // 创建平台成功后的回调
-  const handlePlatformCreated = (platformKey: string) => {
-    // 自动选择新创建的平台
-    singleForm.setValue('platform', platformKey);
-    batchForm.setValue('platform', platformKey);
+  // 创建模型成功后的回调
+  const handleModelCreated = (modelKey: string) => {
+    // 自动选择新创建的模型
+    singleForm.setValue('model', modelKey);
+    batchForm.setValue('model', modelKey);
   };
 
-  // 渲染平台选择器
-  const renderPlatformSelect = (field: any, form: any) => {
+  // 渲染模型选择器
+  const renderModelSelect = (field: any, form: any) => {
     const handleValueChange = (value: string) => {
       if (value === '__add_new__') {
-        setShowCreatePlatformDialog(true);
+        setShowCreateModelDialog(true);
       } else {
         field.onChange(value);
       }
@@ -175,24 +175,24 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
       <Select onValueChange={handleValueChange} value={field.value}>
         <FormControl>
           <SelectTrigger>
-            <SelectValue placeholder="选择平台" />
+            <SelectValue placeholder="选择模型" />
           </SelectTrigger>
         </FormControl>
         <SelectContent>
-          {platformsLoading ? (
+          {modelsLoading ? (
             <SelectItem value="loading" disabled>
               加载中...
             </SelectItem>
           ) : (
             <>
-              {enabledPlatforms.map((platform) => (
-                <SelectItem key={platform.key} value={platform.key}>
-                  {platform.name}
+              {enabledModels.map((model) => (
+                <SelectItem key={model.key} value={model.key}>
+                  {model.name}
                 </SelectItem>
               ))}
               <Separator className="my-1" />
               <SelectItem value="__add_new__" className="font-medium text-primary">
-                + 添加新平台
+                + 添加新模型
               </SelectItem>
             </>
           )}
@@ -223,11 +223,11 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
               <form onSubmit={singleForm.handleSubmit(onSingleSubmit)} className="space-y-4">
                 <FormField
                   control={singleForm.control}
-                  name="platform"
+                  name="model"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>平台 *</FormLabel>
-                      {renderPlatformSelect(field, singleForm)}
+                      <FormLabel>模型 *</FormLabel>
+                      {renderModelSelect(field, singleForm)}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -246,7 +246,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                           className="font-mono text-sm"
                         />
                       </FormControl>
-                      <FormDescription>如果不填，则默认使用该平台的官方地址</FormDescription>
+                      <FormDescription>如果不填，则默认使用该模型的官方地址</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -351,11 +351,11 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
               <form onSubmit={batchForm.handleSubmit(onBatchSubmit)} className="space-y-4">
                 <FormField
                   control={batchForm.control}
-                  name="platform"
+                  name="model"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>平台 *</FormLabel>
-                      {renderPlatformSelect(field, batchForm)}
+                      <FormLabel>模型 *</FormLabel>
+                      {renderModelSelect(field, batchForm)}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -445,11 +445,11 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
         </Tabs>
       </DialogContent>
 
-      {/* 创建平台对话框 */}
-      <CreatePlatformDialog
-        open={showCreatePlatformDialog}
-        onOpenChange={setShowCreatePlatformDialog}
-        onSuccess={handlePlatformCreated}
+      {/* 创建模型对话框 */}
+      <CreateModelDialog
+        open={showCreateModelDialog}
+        onOpenChange={setShowCreateModelDialog}
+        onSuccess={handleModelCreated}
       />
     </Dialog>
   );

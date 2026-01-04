@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { toast } from 'sonner';
 import { Save } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { useEffect,useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import * as z from 'zod';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -17,14 +19,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Slider } from '@/components/ui/slider';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-
-import type { MembershipConfigs, MembershipTier } from '@/types/platformConfig';
-import { ALL_MEMBERSHIP_TIERS, MEMBERSHIP_TIER_LABELS } from '@/types/platformConfig';
-import { useMembershipConfigs, useUpdateMembershipConfigs } from '@/hooks/usePlatformConfigs';
+import { Slider } from '@/components/ui/slider';
+import { useMembershipConfigs, useUpdateMembershipConfigs } from '@/hooks/useModelConfigs';
+import type { MembershipConfigs, MembershipTier } from '@/types/modelConfig';
+import { ALL_MEMBERSHIP_TIERS, MEMBERSHIP_TIER_LABELS } from '@/types/modelConfig';
 
 // 表单 Schema
 const formSchema = z.object({
@@ -153,7 +152,7 @@ export function MembershipConfigCards() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {ALL_MEMBERSHIP_TIERS.map((tier) => (
           <Skeleton key={tier} className="h-80" />
         ))}
@@ -164,7 +163,7 @@ export function MembershipConfigCards() {
   if (isError) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="size-4" />
         <AlertDescription>{(error as any)?.message || '加载失败'}</AlertDescription>
       </Alert>
     );
@@ -173,10 +172,10 @@ export function MembershipConfigCards() {
   return (
     <div className="space-y-6">
       {/* 标题和保存按钮 */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold">会员等级配置</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="mt-1 text-sm text-muted-foreground">
             配置各等级的并发限制、队列权重和价格
           </p>
         </div>
@@ -184,14 +183,14 @@ export function MembershipConfigCards() {
           onClick={form.handleSubmit(onSubmit)}
           disabled={!form.formState.isDirty || updateMutation.isPending}
         >
-          <Save className="mr-2 h-4 w-4" />
+          <Save className="mr-2 size-4" />
           {updateMutation.isPending ? '保存中...' : '保存所有修改'}
         </Button>
       </div>
 
       {/* 等级配置卡片 */}
       <Form {...form}>
-        <form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <form className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {ALL_MEMBERSHIP_TIERS.map((tier) => {
             const tierConfig = data?.data[tier];
             if (!tierConfig) return null;

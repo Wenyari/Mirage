@@ -9,30 +9,30 @@
 export type KeyStatus = 0 | 1; // 0=停用, 1=启用
 
 /**
- * 平台类型（改为 string 以支持动态扩展）
+ * 模型类型（改为 string 以支持动态扩展）
  */
-export type Platform = string;
+export type ModelType = string;
 
 /**
- * 平台配置信息
+ * 模型信息
  */
-export interface PlatformConfig {
-  key: string;                   // 平台标识符（如 'openai'）
-  name: string;                  // 显示名称（如 'OpenAI'）
+export interface Model {
+  key: string;                   // 模型标识符（如 'gpt-4'）
+  name: string;                  // 显示名称（如 'GPT-4'）
   enabled: boolean;              // 是否启用
-  description?: string;          // 平台描述
+  description?: string;          // 模型描述
   color?: string;                // 颜色标识（用于 Badge）
   icon?: string;                 // 图标 URL（可选）
   icon_url?: string;             // 图标 URL（与icon同义，数据库字段）
-  max_concurrency_limit?: number; // 该平台建议的最大并发限制
+  max_concurrency_limit?: number; // 该模型建议的最大并发限制
   created_at?: string;           // 创建时间
   updated_at?: string;           // 更新时间
 }
 
 /**
- * 创建平台请求参数
+ * 创建模型请求参数
  */
-export interface CreatePlatformRequest {
+export interface CreateModelRequest {
   key: string;
   name: string;
   enabled: boolean;
@@ -43,9 +43,9 @@ export interface CreatePlatformRequest {
 }
 
 /**
- * 更新平台请求参数
+ * 更新模型请求参数
  */
-export interface UpdatePlatformRequest {
+export interface UpdateModelRequest {
   name?: string;
   enabled?: boolean;
   description?: string;
@@ -59,7 +59,7 @@ export interface UpdatePlatformRequest {
  */
 export interface Key {
   id: number;
-  platform: Platform;
+  model: ModelType;
   api_base: string;                // API 基础地址
   key_secret: string;              // 密钥（前端会脱敏显示）
   max_concurrency: number;         // 最大并发限制（核心配置）
@@ -83,7 +83,8 @@ export interface Key {
  * 添加密钥请求参数
  */
 export interface AddKeyRequest {
-  platform: Platform;
+  model: ModelType;
+  api_base?: string;
   key_secret: string;
   max_concurrency?: number;        // 默认 3
   weight?: number;                 // 默认 10
@@ -93,7 +94,7 @@ export interface AddKeyRequest {
  * 批量添加密钥请求参数
  */
 export interface BatchAddKeysRequest {
-  platform: Platform;
+  model: ModelType;
   api_base?: string;               // 默认为官方地址
   keys: string[];                  // 密钥数组
   max_concurrency?: number;        // 统一的最大并发
@@ -151,7 +152,7 @@ export interface HealthCheckResponse {
     disabled: number;
     details: Array<{
       id: number;
-      platform: Platform;
+      model: ModelType;
       status: KeyStatus;
       is_cooling: boolean;
       check_result: 'ok' | 'error' | 'rate_limit';
@@ -163,8 +164,8 @@ export interface HealthCheckResponse {
  * 密钥统计信息
  */
 export interface KeyStats {
-  by_platform: Array<{
-    platform: Platform;
+  by_model: Array<{
+    model: ModelType;
     total_keys: number;
     active_keys: number;
     cooling_keys: number;
@@ -177,12 +178,12 @@ export interface KeyStats {
 }
 
 /**
- * 获取平台列表响应
+ * 获取模型列表响应
  */
-export interface GetPlatformsResponse {
+export interface GetModelsResponse {
   code: number;
   message: string;
-  data: PlatformConfig[];
+  data: Model[];
 }
 
 /**

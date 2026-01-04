@@ -13,7 +13,7 @@ class Task(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
-    platform = db.Column(db.String(50), db.ForeignKey('platforms.key'), nullable=False)  # 平台标识 (外键关联 platforms.key)
+    model = db.Column(db.String(50), db.ForeignKey('models.key'), nullable=False)  # 模型标识 (外键关联 models.key)
     prompt = db.Column(db.Text, nullable=True)  # 用户提示词
     input_file_url = db.Column(db.Text, nullable=True)  # 参考图/视频
     params = db.Column(db.JSON, nullable=True)  # 动态参数 (时长、比例等)
@@ -30,7 +30,7 @@ class Task(db.Model):
     # 组合索引：用于快速统计用户当前运行中的任务数（并发控制）
     __table_args__ = (
         db.Index('idx_user_status', 'user_id', 'status'),
-        db.Index('idx_platform', 'platform'),
+        db.Index('idx_model', 'model'),
     )
 
     def __repr__(self):
@@ -41,7 +41,7 @@ class Task(db.Model):
         return {
             'id': self.id,
             'user_id': self.user_id,
-            'platform': self.platform,
+            'model': self.model,
             'prompt': self.prompt,
             'input_file_url': self.input_file_url,
             'params': self.params,

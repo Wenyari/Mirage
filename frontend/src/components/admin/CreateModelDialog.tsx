@@ -25,22 +25,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 
-import { useCreatePlatform } from '@/hooks/useKeys';
+import { useCreateModel } from '@/hooks/useKeys';
 
-interface CreatePlatformDialogProps {
+interface CreateModelDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: (platformKey: string) => void;
+  onSuccess?: (modelKey: string) => void;
 }
 
 // 表单 Schema
 const formSchema = z.object({
   key: z
     .string()
-    .min(2, '平台标识至少2个字符')
-    .max(50, '平台标识最多50个字符')
-    .regex(/^[a-z0-9_]+$/, '仅支持小写字母、数字、下划线'),
-  name: z.string().min(2, '平台名称至少2个字符').max(100, '平台名称最多100个字符'),
+    .min(2, '模型标识至少2个字符')
+    .max(50, '模型标识最多50个字符')
+    .regex(/^[a-z0-9_.-]+$/, '仅支持小写字母、数字、下划线、点、中划线'),
+  name: z.string().min(2, '模型名称至少2个字符').max(100, '模型名称最多100个字符'),
   enabled: z.boolean(),
   description: z.string().max(500, '描述最多500个字符').optional(),
   color: z.string().optional(),
@@ -50,8 +50,8 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function CreatePlatformDialog({ open, onOpenChange, onSuccess }: CreatePlatformDialogProps) {
-  const createMutation = useCreatePlatform();
+export function CreateModelDialog({ open, onOpenChange, onSuccess }: CreateModelDialogProps) {
+  const createMutation = useCreateModel();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -78,7 +78,7 @@ export function CreatePlatformDialog({ open, onOpenChange, onSuccess }: CreatePl
       const result = await createMutation.mutateAsync(data);
 
       if (result.code === 0) {
-        toast.success('平台创建成功');
+        toast.success('模型创建成功');
         form.reset();
         onOpenChange(false);
         onSuccess?.(values.key);
@@ -92,43 +92,43 @@ export function CreatePlatformDialog({ open, onOpenChange, onSuccess }: CreatePl
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>添加新平台</DialogTitle>
-          <DialogDescription>创建一个新的AI平台配置</DialogDescription>
+          <DialogTitle>添加新模型</DialogTitle>
+          <DialogDescription>创建一个新的AI模型配置</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* 平台标识 */}
+            {/* 模型标识 */}
             <FormField
               control={form.control}
               name="key"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>平台标识 *</FormLabel>
+                  <FormLabel>模型标识 *</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="例如: openai, claude, gemini"
+                      placeholder="例如: gpt-4, claude-3-opus"
                       {...field}
                       className="font-mono"
                     />
                   </FormControl>
                   <FormDescription>
-                    唯一标识符，仅支持小写字母、数字、下划线
+                    唯一标识符，支持小写字母、数字、下划线、点、中划线
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* 平台名称 */}
+            {/* 模型名称 */}
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>平台名称 *</FormLabel>
+                  <FormLabel>模型名称 *</FormLabel>
                   <FormControl>
-                    <Input placeholder="例如: OpenAI, Claude, Gemini" {...field} />
+                    <Input placeholder="例如: GPT-4, Claude 3 Opus" {...field} />
                   </FormControl>
                   <FormDescription>用于前端显示的名称</FormDescription>
                   <FormMessage />
@@ -145,7 +145,7 @@ export function CreatePlatformDialog({ open, onOpenChange, onSuccess }: CreatePl
                   <FormLabel>描述</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="平台功能描述（可选）"
+                      placeholder="模型功能描述（可选）"
                       className="resize-none"
                       {...field}
                     />
@@ -185,7 +185,7 @@ export function CreatePlatformDialog({ open, onOpenChange, onSuccess }: CreatePl
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>平台图标URL（可选）</FormDescription>
+                  <FormDescription>模型图标URL（可选）</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -201,7 +201,7 @@ export function CreatePlatformDialog({ open, onOpenChange, onSuccess }: CreatePl
                   <FormControl>
                     <Input type="number" min={1} max={100} {...field} />
                   </FormControl>
-                  <FormDescription>该平台建议的最大并发限制</FormDescription>
+                  <FormDescription>该模型建议的最大并发限制</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -214,8 +214,8 @@ export function CreatePlatformDialog({ open, onOpenChange, onSuccess }: CreatePl
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">启用平台</FormLabel>
-                    <FormDescription>创建后立即启用该平台</FormDescription>
+                    <FormLabel className="text-base">启用模型</FormLabel>
+                    <FormDescription>创建后立即启用该模型</FormDescription>
                   </div>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -229,7 +229,7 @@ export function CreatePlatformDialog({ open, onOpenChange, onSuccess }: CreatePl
                 取消
               </Button>
               <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? '创建中...' : '创建平台'}
+                {createMutation.isPending ? '创建中...' : '创建模型'}
               </Button>
             </DialogFooter>
           </form>

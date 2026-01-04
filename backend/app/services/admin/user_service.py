@@ -326,7 +326,7 @@ def get_user_detail(user_id):
         # 从params中提取model信息（如果有）
         model_name = 'unknown'
         if task.params and isinstance(task.params, dict):
-            model_name = task.params.get('model', task.platform)
+            model_name = task.params.get('model', task.model)
 
         # 计算token使用量
         token_used = 0

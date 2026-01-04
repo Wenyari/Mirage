@@ -1,15 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
-  Platform,
+  ModelType,
   AddKeyRequest,
   BatchAddKeysRequest,
   UpdateKeyRequest,
   CooldownRequest,
-  CreatePlatformRequest,
-  UpdatePlatformRequest,
+  CreateModelRequest,
+  UpdateModelRequest,
 } from '@/types/key';
 import {
-  getPlatforms,
+  getModels,
   getKeys,
   addKey,
   batchAddKeys,
@@ -18,19 +18,19 @@ import {
   triggerCooldown,
   healthCheck,
   getKeyStats,
-  createPlatform,
-  updatePlatform,
-  deletePlatform,
+  createModel,
+  updateModel,
+  deleteModel,
 } from '@/services/admin/keys';
 
 /**
- * 获取平台配置列表
+ * 获取模型列表
  */
-export function usePlatforms() {
+export function useModels() {
   return useQuery({
-    queryKey: ['admin', 'platforms'],
-    queryFn: getPlatforms,
-    staleTime: 1000 * 60 * 30, // 30分钟内不重新请求（平台配置变化不频繁）
+    queryKey: ['admin', 'models'],
+    queryFn: getModels,
+    staleTime: 1000 * 60 * 30, // 30分钟内不重新请求
   });
 }
 
@@ -38,10 +38,10 @@ export function usePlatforms() {
  * 获取密钥列表
  * 支持自动刷新（5秒轮询）
  */
-export function useKeys(platform?: Platform) {
+export function useKeys(model?: ModelType) {
   return useQuery({
-    queryKey: ['admin', 'keys', platform],
-    queryFn: () => getKeys(platform),
+    queryKey: ['admin', 'keys', model],
+    queryFn: () => getKeys(model),
     refetchInterval: 5000,              // 5秒自动刷新
     refetchOnWindowFocus: true,         // 窗口聚焦时刷新
     refetchIntervalInBackground: false, // 后台不刷新
@@ -125,7 +125,7 @@ export function useHealthCheck() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (platform?: Platform) => healthCheck(platform),
+    mutationFn: (model?: ModelType) => healthCheck(model),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'keys'] });
     },
@@ -144,50 +144,50 @@ export function useKeyStats() {
 }
 
 /**
- * 创建平台
+ * 创建模型
  */
-export function useCreatePlatform() {
+export function useCreateModel() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreatePlatformRequest) => createPlatform(data),
+    mutationFn: (data: CreateModelRequest) => createModel(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
-      // 刷新可用平台列表，这样模型配置页面会看到新平台
-      queryClient.invalidateQueries({ queryKey: ['admin', 'available-platforms'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'models'] });
+      // 刷新可用模型列表，这样模型配置页面会看到新模型
+      queryClient.invalidateQueries({ queryKey: ['admin', 'available-models'] });
     },
   });
 }
 
 /**
- * 更新平台
+ * 更新模型
  */
-export function useUpdatePlatform() {
+export function useUpdateModel() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ key, data }: { key: string; data: UpdatePlatformRequest }) =>
-      updatePlatform(key, data),
+    mutationFn: ({ key, data }: { key: string; data: UpdateModelRequest }) =>
+      updateModel(key, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
-      // 刷新可用平台列表
-      queryClient.invalidateQueries({ queryKey: ['admin', 'available-platforms'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'models'] });
+      // 刷新可用模型列表
+      queryClient.invalidateQueries({ queryKey: ['admin', 'available-models'] });
     },
   });
 }
 
 /**
- * 删除平台
+ * 删除模型
  */
-export function useDeletePlatform() {
+export function useDeleteModel() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (key: string) => deletePlatform(key),
+    mutationFn: (key: string) => deleteModel(key),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
-      // 刷新可用平台列表
-      queryClient.invalidateQueries({ queryKey: ['admin', 'available-platforms'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'models'] });
+      // 刷新可用模型列表
+      queryClient.invalidateQueries({ queryKey: ['admin', 'available-models'] });
     },
   });
 }

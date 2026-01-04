@@ -58,8 +58,7 @@ import {
 
 import type { Key } from '@/types/key';
 import { getConcurrencyColorClass, getConcurrencyRate } from '@/types/key';
-import { useDeleteKey, useUpdateKey, useTriggerCooldown, usePlatforms } from '@/hooks/useKeys';
-import { getPlatformByKey } from '@/mocks/data/platforms';
+import { useDeleteKey, useUpdateKey, useTriggerCooldown, useModels } from '@/hooks/useKeys';
 
 interface KeysTableProps {
   data: Key[];
@@ -80,11 +79,11 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
   const deleteMutation = useDeleteKey();
   const updateMutation = useUpdateKey();
   const cooldownMutation = useTriggerCooldown();
-  const { data: platformsData } = usePlatforms();
+  const { data: modelsData } = useModels();
 
-  // 创建平台名称映射
-  const platformMap = new Map(
-    platformsData?.data?.map((p) => [p.key, p.name]) || []
+  // 创建模型名称映射
+  const modelMap = new Map(
+    modelsData?.data?.map((p) => [p.key, p.name]) || []
   );
 
   // 切换密钥显示/隐藏
@@ -150,11 +149,11 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
       cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>,
     },
     {
-      accessorKey: 'platform',
-      header: '平台',
+      accessorKey: 'model',
+      header: '模型',
       cell: ({ row }) => (
         <Badge variant="outline">
-          {platformMap.get(row.original.platform) || row.original.platform}
+          {modelMap.get(row.original.model) || row.original.model}
         </Badge>
       ),
     },

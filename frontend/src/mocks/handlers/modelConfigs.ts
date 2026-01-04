@@ -1,66 +1,68 @@
 import { http, HttpResponse } from 'msw';
-import type { CreatePlatformConfigRequest, UpdatePlatformConfigRequest } from '@/types/platformConfig';
+
+import type { CreateModelConfigRequest, UpdateModelConfigRequest } from '@/types/modelConfig';
+
 import {
-  mockPlatformConfigs,
+  addModelConfig,
+  deleteModelConfig,
+  getAvailableModels,
   mockMembershipConfigs,
-  addPlatformConfig,
-  updatePlatformConfig,
-  deletePlatformConfig,
-  getAvailablePlatforms,
+  mockModelConfigs,
   updateMembershipConfigs,
-} from '../data/platformConfigs';
+  updateModelConfig,
+} from '../data/modelConfigs';
 
 /**
- * 平台配置管理相关的 Mock 处理器
+ * 模型配置管理相关的 Mock 处理器
  */
-export const platformConfigHandlers = [
+export const modelConfigHandlers = [
   /**
-   * 获取平台配置列表
-   * GET /api/admin/platform-configs
+   * 获取模型配置列表
+   * GET /api/admin/model-configs
    */
-  http.get('/api/admin/platform-configs', () => {
+  http.get('/api/admin/model-configs', () => {
     return HttpResponse.json({
       code: 0,
       message: 'Success',
-      data: mockPlatformConfigs,
+      data: mockModelConfigs,
     });
   }),
 
   /**
-   * 获取可配置的平台列表
-   * GET /api/admin/platform-configs/available-platforms
+   * 获取可配置的模型列表
+   * GET /api/admin/model-configs/available-models
    */
-  http.get('/api/admin/platform-configs/available-platforms', () => {
+  http.get('/api/admin/model-configs/available-models', () => {
     return HttpResponse.json({
       code: 0,
       message: 'Success',
-      data: getAvailablePlatforms(),
+      data: getAvailableModels(),
     });
   }),
 
   /**
-   * 创建平台配置
-   * POST /api/admin/platform-configs
+   * 创建模型配置
+   * POST /api/admin/model-configs
    */
-  http.post('/api/admin/platform-configs', async ({ request }) => {
-    const body = (await request.json()) as CreatePlatformConfigRequest;
+  http.post('/api/admin/model-configs', async ({ request }) => {
+    const body = (await request.json()) as CreateModelConfigRequest;
 
-    // 验证平台是否已配置
-    const exists = mockPlatformConfigs.find((c) => c.platform === body.platform);
+    // 验证模型是否已配置
+    const exists = mockModelConfigs.find((c) => c.model === body.model);
     if (exists) {
       return HttpResponse.json(
         {
           code: 400,
-          message: `Platform ${body.platform} already configured`,
+          message: `Model ${body.model} already configured`,
           data: null,
         },
         { status: 400 }
       );
     }
 
-    const newConfig = addPlatformConfig({
-      platform: body.platform,
-      platform_name: body.platform, // 实际应从 platforms 表获取 name
+    const newConfig = addModelConfig({
+      model: body.model,
+      model_name: body.model, // 实际应从 models 表获取 name
       allowed_tiers: body.allowed_tiers,
       cost_per_call: body.cost_per_call,
       token_cost_config: body.token_cost_config,
@@ -70,26 +72,26 @@ export const platformConfigHandlers = [
 
     return HttpResponse.json({
       code: 0,
-      message: 'Platform config created successfully',
+      message: 'Model config created successfully',
       data: newConfig,
     });
   }),
 
   /**
-   * 更新平台配置
-   * PATCH /api/admin/platform-configs/:id
+   * 更新模型配置
+   * PATCH /api/admin/model-configs/:id
    */
-  http.patch('/api/admin/platform-configs/:id', async ({ request, params }) => {
+  http.patch('/api/admin/model-configs/:id', async ({ request, params }) => {
     const id = Number(params.id);
-    const body = (await request.json()) as UpdatePlatformConfigRequest;
+    const body = (await request.json()) as UpdateModelConfigRequest;
 
-    const success = updatePlatformConfig(id, body);
+    const success = updateModelConfig(id, body);
 
     if (!success) {
       return HttpResponse.json(
         {
           code: 404,
-          message: 'Platform config not found',
+          message: 'Model config not found',
           data: null,
         },
         { status: 404 }
@@ -98,24 +100,24 @@ export const platformConfigHandlers = [
 
     return HttpResponse.json({
       code: 0,
-      message: 'Platform config updated successfully',
+      message: 'Model config updated successfully',
       data: null,
     });
   }),
 
   /**
-   * 删除平台配置
-   * DELETE /api/admin/platform-configs/:id
+   * 删除模型配置
+   * DELETE /api/admin/model-configs/:id
    */
-  http.delete('/api/admin/platform-configs/:id', ({ params }) => {
+  http.delete('/api/admin/model-configs/:id', ({ params }) => {
     const id = Number(params.id);
-    const success = deletePlatformConfig(id);
+    const success = deleteModelConfig(id);
 
     if (!success) {
       return HttpResponse.json(
         {
           code: 404,
-          message: 'Platform config not found',
+          message: 'Model config not found',
           data: null,
         },
         { status: 404 }
@@ -124,7 +126,7 @@ export const platformConfigHandlers = [
 
     return HttpResponse.json({
       code: 0,
-      message: 'Platform config deleted successfully',
+      message: 'Model config deleted successfully',
       data: null,
     });
   }),

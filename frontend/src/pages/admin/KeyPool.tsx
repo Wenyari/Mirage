@@ -2,9 +2,9 @@ import { Activity, AlertCircle, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { KeyPoolStats } from '@/components/admin/KeyPoolStats';
 import { KeyAddDialog } from '@/components/admin/KeyAddDialog';
 import { KeyEditDialog } from '@/components/admin/KeyEditDialog';
+import { KeyPoolStats } from '@/components/admin/KeyPoolStats';
 import { KeysTable } from '@/components/tables/KeysTable';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -16,20 +16,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useHealthCheck, useKeys, usePlatforms } from '@/hooks/useKeys';
-import type { Platform, Key } from '@/types/key';
+import { useHealthCheck, useKeys, useModels } from '@/hooks/useKeys';
+import type { Key,ModelType } from '@/types/key';
 
 export default function KeyPool() {
-  const [platform, setPlatform] = useState<Platform | undefined>();
+  const [model, setModel] = useState<ModelType | undefined>();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editKey, setEditKey] = useState<Key | null>(null);
 
   // 获取密钥列表（5秒自动刷新）
-  const { data, isLoading, isError, error } = useKeys(platform);
+  const { data, isLoading, isError, error } = useKeys(model);
 
-  // 获取平台配置列表
-  const { data: platformsData, isLoading: platformsLoading } = usePlatforms();
+  // 获取模型列表
+  const { data: modelsData, isLoading: modelsLoading } = useModels();
 
   // 健康检测
   const healthCheckMutation = useHealthCheck();
@@ -37,7 +37,7 @@ export default function KeyPool() {
   const handleHealthCheck = async () => {
     try {
       toast.info('开始健康检测...');
-      const result = await healthCheckMutation.mutateAsync(platform);
+      const result = await healthCheckMutation.mutateAsync(model);
 
       if (result.code === 0) {
         const { total, active, cooling, disabled } = result.data;
@@ -50,8 +50,8 @@ export default function KeyPool() {
     }
   };
 
-  const handlePlatformChange = (value: string) => {
-    setPlatform(value === 'all' ? undefined : (value as Platform));
+  const handleModelChange = (value: string) => {
+    setModel(value === 'all' ? undefined : (value as ModelType));
   };
 
   const handleEdit = (key: Key) => {
@@ -88,22 +88,22 @@ export default function KeyPool() {
           {healthCheckMutation.isPending ? '检测中...' : '健康检测'}
         </Button>
 
-        <Select value={platform || 'all'} onValueChange={handlePlatformChange}>
+        <Select value={model || 'all'} onValueChange={handleModelChange}>
           <SelectTrigger className="md:w-48">
-            <SelectValue placeholder="选择平台" />
+            <SelectValue placeholder="选择模型" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部平台</SelectItem>
-            {platformsLoading ? (
+            <SelectItem value="all">全部模型</SelectItem>
+            {modelsLoading ? (
               <SelectItem value="loading" disabled>
                 加载中...
               </SelectItem>
             ) : (
-              platformsData?.data
+              modelsData?.data
                 ?.filter((p) => p.enabled)
-                .map((platform) => (
-                  <SelectItem key={platform.key} value={platform.key}>
-                    {platform.name}
+                .map((model) => (
+                  <SelectItem key={model.key} value={model.key}>
+                    {model.name}
                   </SelectItem>
                 ))
             )}
@@ -144,4 +144,3 @@ export default function KeyPool() {
     </div>
   );
 }
-

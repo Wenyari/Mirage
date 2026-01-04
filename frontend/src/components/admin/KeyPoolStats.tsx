@@ -1,22 +1,23 @@
 import { Activity, AlertCircle, CheckCircle, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useKeyStats, usePlatforms } from '@/hooks/useKeys';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useKeyStats, useModels } from '@/hooks/useKeys';
 
 export function KeyPoolStats() {
   const { data, isLoading, isError, error } = useKeyStats();
-  const { data: platformsData } = usePlatforms();
+  const { data: modelsData } = useModels();
 
-  // 创建平台名称映射
-  const platformMap = new Map(
-    platformsData?.data?.map((p) => [p.key, p.name]) || []
+  // 创建模型名称映射
+  const modelMap = new Map(
+    modelsData?.data?.map((p) => [p.key, p.name]) || []
   );
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-32" />
         ))}
@@ -27,7 +28,7 @@ export function KeyPoolStats() {
   if (isError) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="size-4" />
         <AlertDescription>{(error as any)?.message || '加载统计数据失败'}</AlertDescription>
       </Alert>
     );
@@ -38,25 +39,25 @@ export function KeyPoolStats() {
   const stats = data.data;
 
   // 计算总体数据
-  const totalKeys = stats.by_platform.reduce((sum, p) => sum + p.total_keys, 0);
-  const totalActive = stats.by_platform.reduce((sum, p) => sum + p.active_keys, 0);
-  const totalCooling = stats.by_platform.reduce((sum, p) => sum + p.cooling_keys, 0);
-  const totalConcurrency = stats.by_platform.reduce((sum, p) => sum + p.total_concurrency, 0);
-  const totalUsage = stats.by_platform.reduce((sum, p) => sum + p.current_usage, 0);
+  const totalKeys = stats.by_model.reduce((sum, p) => sum + p.total_keys, 0);
+  const totalActive = stats.by_model.reduce((sum, p) => sum + p.active_keys, 0);
+  const totalCooling = stats.by_model.reduce((sum, p) => sum + p.cooling_keys, 0);
+  const totalConcurrency = stats.by_model.reduce((sum, p) => sum + p.total_concurrency, 0);
+  const totalUsage = stats.by_model.reduce((sum, p) => sum + p.current_usage, 0);
   const usageRate = totalConcurrency > 0 ? (totalUsage / totalConcurrency) * 100 : 0;
 
   return (
     <div className="space-y-4">
       {/* 顶部总览卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">总密钥数</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <Activity className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalKeys}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="mt-1 text-xs text-muted-foreground">
               <span className="text-green-600">{totalActive} 可用</span>
               {totalCooling > 0 && (
                 <span className="ml-2 text-red-600">{totalCooling} 冷却中</span>
@@ -68,13 +69,13 @@ export function KeyPoolStats() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">并发槽位</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CheckCircle className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {totalUsage} / {totalConcurrency}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="mt-1 text-xs text-muted-foreground">
               使用率：
               <span className={usageRate >= 80 ? 'text-red-600' : usageRate >= 60 ? 'text-yellow-600' : 'text-green-600'}>
                 {usageRate.toFixed(1)}%
@@ -86,11 +87,11 @@ export function KeyPoolStats() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">今日调用</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Clock className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total_calls_today.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="mt-1 text-xs text-muted-foreground">
               失败：{stats.total_errors_today.toLocaleString()}
             </p>
           </CardContent>
@@ -99,50 +100,50 @@ export function KeyPoolStats() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">错误率</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <AlertCircle className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.error_rate.toFixed(2)}%</div>
-            <p className={`text-xs mt-1 ${stats.error_rate < 1 ? 'text-green-600' : stats.error_rate < 5 ? 'text-yellow-600' : 'text-red-600'}`}>
+            <p className={`mt-1 text-xs ${stats.error_rate < 1 ? 'text-green-600' : stats.error_rate < 5 ? 'text-yellow-600' : 'text-red-600'}`}>
               {stats.error_rate < 1 ? '状态良好' : stats.error_rate < 5 ? '需要关注' : '异常偏高'}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* 按平台统计 */}
+      {/* 按模型统计 */}
       <Card>
         <CardHeader>
-          <CardTitle>平台分布</CardTitle>
+          <CardTitle>模型分布</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {stats.by_platform.filter(p => p.total_keys > 0).map((platform) => {
-              const platformUsageRate = platform.total_concurrency > 0
-                ? (platform.current_usage / platform.total_concurrency) * 100
+            {stats.by_model.filter(p => p.total_keys > 0).map((model) => {
+              const modelUsageRate = model.total_concurrency > 0
+                ? (model.current_usage / model.total_concurrency) * 100
                 : 0;
 
               return (
-                <div key={platform.platform} className="flex items-center justify-between">
+                <div key={model.model} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline">
-                      {platformMap.get(platform.platform) || platform.platform}
+                      {modelMap.get(model.model) || model.model}
                     </Badge>
                     <span className="text-sm text-muted-foreground">
-                      {platform.total_keys} 个密钥
+                      {model.total_keys} 个密钥
                     </span>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-sm">
-                      <span className="text-green-600">{platform.active_keys} 可用</span>
-                      {platform.cooling_keys > 0 && (
-                        <span className="ml-2 text-red-600">{platform.cooling_keys} 冷却</span>
+                      <span className="text-green-600">{model.active_keys} 可用</span>
+                      {model.cooling_keys > 0 && (
+                        <span className="ml-2 text-red-600">{model.cooling_keys} 冷却</span>
                       )}
                     </div>
                     <div className="text-sm font-medium">
-                      {platform.current_usage} / {platform.total_concurrency}
+                      {model.current_usage} / {model.total_concurrency}
                       <span className="ml-1 text-xs text-muted-foreground">
-                        ({platformUsageRate.toFixed(0)}%)
+                        ({modelUsageRate.toFixed(0)}%)
                       </span>
                     </div>
                   </div>

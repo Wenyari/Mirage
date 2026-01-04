@@ -4,7 +4,7 @@
 """
 from app import create_app
 from app.extensions import db
-from app.models import User, MembershipConfig, Platform, PlatformConfig, ApiKey
+from app.models import User, MembershipConfig, Model, ModelConfig, ApiKey
 import bcrypt
 
 app = create_app()
@@ -47,10 +47,10 @@ def init_membership_configs():
         print("✓ Membership configs initialized")
 
 
-def init_platforms():
-    """初始化平台基本信息"""
+def init_models():
+    """初始化模型基本信息"""
     with app.app_context():
-        platforms = [
+        models = [
             {
                 'key': 'openai',
                 'name': 'OpenAI',
@@ -80,26 +80,26 @@ def init_platforms():
             },
         ]
 
-        print("Initializing platforms...")
-        for platform_data in platforms:
-            platform = Platform.query.filter_by(key=platform_data['key']).first()
-            if not platform:
-                platform = Platform(**platform_data)
-                db.session.add(platform)
-                print(f"  ✓ Created {platform_data['name']}")
+        print("Initializing models...")
+        for model_data in models:
+            model = Model.query.filter_by(key=model_data['key']).first()
+            if not model:
+                model = Model(**model_data)
+                db.session.add(model)
+                print(f"  ✓ Created {model_data['name']}")
             else:
-                print(f"  - {platform_data['name']} already exists")
+                print(f"  - {model_data['name']} already exists")
 
         db.session.commit()
-        print("✓ Platforms initialized")
+        print("✓ Models initialized")
 
 
-def init_platform_configs():
-    """初始化平台配置"""
+def init_model_configs():
+    """初始化模型配置"""
     with app.app_context():
         configs = [
             {
-                'platform': 'openai',
+                'model': 'openai',
                 'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],
                 'cost_per_call': 10.00,
                 'token_cost_config': {
@@ -111,7 +111,7 @@ def init_platform_configs():
                 'description': 'OpenAI GPT 模型配置'
             },
             {
-                'platform': 'sora',
+                'model': 'sora',
                 'allowed_tiers': ["T3", "T4", "T5"],
                 'cost_per_call': 100.00,
                 'token_cost_config': {"enabled": False},
@@ -119,7 +119,7 @@ def init_platform_configs():
                 'description': 'Sora 视频生成配置'
             },
             {
-                'platform': 'midjourney',
+                'model': 'midjourney',
                 'allowed_tiers': ["T2", "T3", "T4", "T5"],
                 'cost_per_call': 50.00,
                 'token_cost_config': {"enabled": False},
@@ -128,18 +128,18 @@ def init_platform_configs():
             },
         ]
 
-        print("Initializing platform configs...")
+        print("Initializing model configs...")
         for config_data in configs:
-            config = PlatformConfig.query.filter_by(platform=config_data['platform']).first()
+            config = ModelConfig.query.filter_by(model=config_data['model']).first()
             if not config:
-                config = PlatformConfig(**config_data)
+                config = ModelConfig(**config_data)
                 db.session.add(config)
-                print(f"  ✓ Created config for {config_data['platform']}")
+                print(f"  ✓ Created config for {config_data['model']}")
             else:
-                print(f"  - Config for {config_data['platform']} already exists")
+                print(f"  - Config for {config_data['model']} already exists")
 
         db.session.commit()
-        print("✓ Platform configs initialized")
+        print("✓ Model configs initialized")
 
 
 def init_api_keys():
@@ -156,7 +156,7 @@ def init_api_keys():
 
         keys = [
             {
-                'platform': 'sora',
+                'model': 'sora',
                 'key_secret': '***REMOVED***',
                 'api_base': 'https://ai.t8star.cn/v2/videos/generations',
                 'max_concurrency': 2,
@@ -168,7 +168,7 @@ def init_api_keys():
         for key_data in keys:
             api_key = ApiKey(**key_data)
             db.session.add(api_key)
-            print(f"  ✓ Created API key for {key_data['platform']} (DISABLED)")
+            print(f"  ✓ Created API key for {key_data['model']} (DISABLED)")
 
         db.session.commit()
         print("✓ Sample API keys initialized")
@@ -237,12 +237,12 @@ def main():
     init_membership_configs()
     print()
 
-    # 3. 初始化平台信息
-    init_platforms()
+    # 3. 初始化模型信息
+    init_models()
     print()
 
-    # 4. 初始化平台配置
-    init_platform_configs()
+    # 4. 初始化模型配置
+    init_model_configs()
     print()
 
     # 5. 初始化 API 密钥

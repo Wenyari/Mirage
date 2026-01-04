@@ -1,6 +1,6 @@
 /**
- * 平台配置管理类型定义
- * 基于密钥池的 platform 进行等级权限和计费配置
+ * 模型配置管理类型定义
+ * 基于密钥池的 model 进行等级权限和计费配置
  */
 
 /**
@@ -18,36 +18,36 @@ export interface TokenCostConfig {
 }
 
 /**
- * 平台配置实体
+ * 模型配置实体
  */
-export interface PlatformConfig {
+export interface ModelConfig {
   id: number;
-  platform: string;                // 平台标识（来自密钥池）
-  platform_name: string;           // 平台显示名称
+  model: string;                   // 模型标识（来自密钥池）
+  model_name: string;              // 模型显示名称
   allowed_tiers: MembershipTier[]; // 允许使用的等级
   cost_per_call: number;           // 每次调用扣除积分（固定计费）
   token_cost_config: TokenCostConfig; // Token 计费配置
-  is_active: boolean;              // 是否启用该平台
-  description?: string;            // 平台描述
+  is_active: boolean;              // 是否启用该模型
+  description?: string;            // 模型描述
   created_at: string;
   updated_at: string;
 }
 
 /**
- * 可配置的平台信息
+ * 可配置的模型信息
  */
-export interface AvailablePlatform {
-  platform: string;           // 平台标识
-  platform_name: string;      // 平台显示名称
+export interface AvailableModel {
+  model: string;              // 模型标识
+  model_name: string;         // 模型显示名称
   has_config: boolean;        // 是否已有配置
-  key_count: number;          // 该平台的密钥数量
+  key_count: number;          // 该模型的密钥数量
 }
 
 /**
- * 创建平台配置请求
+ * 创建模型配置请求
  */
-export interface CreatePlatformConfigRequest {
-  platform: string;
+export interface CreateModelConfigRequest {
+  model: string;
   allowed_tiers: MembershipTier[];
   cost_per_call: number;
   token_cost_config: TokenCostConfig;
@@ -56,9 +56,9 @@ export interface CreatePlatformConfigRequest {
 }
 
 /**
- * 更新平台配置请求
+ * 更新模型配置请求
  */
-export interface UpdatePlatformConfigRequest {
+export interface UpdateModelConfigRequest {
   allowed_tiers?: MembershipTier[];
   cost_per_call?: number;
   token_cost_config?: TokenCostConfig;
@@ -103,7 +103,7 @@ export const ALL_MEMBERSHIP_TIERS: MembershipTier[] = ['T1', 'T2', 'T3', 'T4', '
  * 计算总扣除积分（辅助函数）
  */
 export function calculateTotalCost(
-  config: PlatformConfig,
+  config: ModelConfig,
   inputTokens: number = 0,
   outputTokens: number = 0
 ): number {

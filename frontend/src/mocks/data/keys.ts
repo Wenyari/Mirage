@@ -1,14 +1,14 @@
-import type { Key, Platform } from '@/types/key';
+import type { Key, ModelType } from '@/types/key';
 
 /**
  * Mock 密钥数据列表
- * 模拟不同平台、不同状态的密钥
+ * 模拟不同模型、不同状态的密钥
  */
 export const mockKeys: Key[] = [
-  // OpenAI 密钥（正常使用中）
+  // GPT-4 密钥（正常使用中）
   {
     id: 1,
-    platform: 'openai',
+    model: 'gpt-4',
     api_base: 'https://api.openai.com/v1',
     key_secret: 'sk-proj-abc12345defg6789hijk0123lmno4567pqrs8901tuvw',
     max_concurrency: 5,
@@ -24,7 +24,7 @@ export const mockKeys: Key[] = [
   },
   {
     id: 2,
-    platform: 'openai',
+    model: 'gpt-3.5-turbo',
     api_base: '',
     key_secret: 'sk-proj-wxyz9876abcd5432efgh1234ijkl8765mnop4321qrst',
     max_concurrency: 3,
@@ -40,7 +40,7 @@ export const mockKeys: Key[] = [
   },
   {
     id: 3,
-    platform: 'openai',
+    model: 'gpt-4',
     api_base: 'https://openai.proxy.com/v1',
     key_secret: 'sk-proj-test1111test2222test3333test4444test5555test',
     max_concurrency: 2,
@@ -55,44 +55,10 @@ export const mockKeys: Key[] = [
     created_at: '2024-03-10T09:15:00Z',
   },
 
-  // Sora 密钥
-  {
-    id: 4,
-    platform: 'sora',
-    api_base: 'https://api.sora.com/v1',
-    key_secret: 'sk-sora-xyz45678abcd1234efgh5678ijkl9012mnop3456qrst',
-    max_concurrency: 2,
-    weight: 15,
-    status: 1,
-    total_calls: 456,
-    total_errors: 12,
-    current_usage: 1,
-    is_cooling: false,
-    cooling_until: null,
-    last_used_at: '2024-12-31T10:28:00Z',
-    created_at: '2024-03-20T14:00:00Z',
-  },
-  {
-    id: 5,
-    platform: 'sora',
-    api_base: '',
-    key_secret: 'sk-sora-uvw12345xyz67890abc34567def89012ghi45678jkl',
-    max_concurrency: 3,
-    weight: 10,
-    status: 1,
-    total_calls: 234,
-    total_errors: 89,
-    current_usage: 0,
-    is_cooling: true,
-    cooling_until: new Date(Date.now() + 120000).toISOString(), // 2分钟后
-    last_used_at: '2024-12-31T10:28:00Z',
-    created_at: '2024-04-05T11:20:00Z',
-  },
-
   // Midjourney 密钥
   {
     id: 6,
-    platform: 'midjourney',
+    model: 'midjourney',
     api_base: '',
     key_secret: 'mj-key-abcd1234efgh5678ijkl9012mnop3456qrst7890uvwx',
     max_concurrency: 4,
@@ -108,7 +74,7 @@ export const mockKeys: Key[] = [
   },
   {
     id: 7,
-    platform: 'midjourney',
+    model: 'midjourney',
     api_base: 'https://mj.proxy.com',
     key_secret: 'mj-key-yzab5678cdef1234ghij5678klmn9012opqr3456stuv',
     max_concurrency: 3,
@@ -123,10 +89,10 @@ export const mockKeys: Key[] = [
     created_at: '2024-03-15T10:00:00Z',
   },
 
-  // Anthropic 密钥
+  // Claude 3 Opus 密钥
   {
     id: 8,
-    platform: 'anthropic',
+    model: 'claude-3-opus',
     api_base: 'https://api.anthropic.com',
     key_secret: 'sk-ant-api03-abc123def456ghi789jkl012mno345pqr678stu901',
     max_concurrency: 5,
@@ -141,10 +107,10 @@ export const mockKeys: Key[] = [
     created_at: '2024-01-25T09:30:00Z',
   },
 
-  // Google 密钥
+  // Gemini Pro 密钥
   {
     id: 9,
-    platform: 'google',
+    model: 'gemini-pro',
     api_base: '',
     key_secret: 'AIzaSyAbc123Def456Ghi789Jkl012Mno345Pqr678',
     max_concurrency: 10,
@@ -160,7 +126,7 @@ export const mockKeys: Key[] = [
   },
   {
     id: 10,
-    platform: 'google',
+    model: 'gemini-pro',
     key_secret: 'AIzaSyDef456Ghi789Jkl012Mno345Pqr678Stu901',
     max_concurrency: 5,
     weight: 15,
@@ -184,14 +150,16 @@ let nextKeyId = mockKeys.length + 1;
  * 添加单个密钥
  */
 export function addMockKey(
-  platform: Platform,
+  model: ModelType,
   keySecret: string,
   maxConcurrency: number = 3,
-  weight: number = 10
+  weight: number = 10,
+  apiBase: string = ''
 ): Key {
   const newKey: Key = {
     id: nextKeyId++,
-    platform,
+    model,
+    api_base: apiBase,
     key_secret: keySecret,
     max_concurrency: maxConcurrency,
     weight,
@@ -213,7 +181,7 @@ export function addMockKey(
  * 批量添加密钥
  */
 export function batchAddMockKeys(
-  platform: Platform,
+  model: ModelType,
   keys: string[],
   maxConcurrency: number = 3,
   weight: number = 10,
@@ -228,7 +196,7 @@ export function batchAddMockKeys(
       if (mockKeys.find((k) => k.key_secret === keySecret)) {
         failed.push(keySecret);
       } else {
-        const newKey = addMockKey(platform, keySecret, maxConcurrency, weight, apiBase);
+        const newKey = addMockKey(model, keySecret, maxConcurrency, weight, apiBase);
         success.push(newKey);
       }
     } catch {

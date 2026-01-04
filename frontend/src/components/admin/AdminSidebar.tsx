@@ -33,12 +33,12 @@ const menuItems = [
     icon: Key,
   },
   {
-    path: '/wadminw/platforms',
-    label: '平台管理',
+    path: '/wadminw/models',
+    label: '模型管理',
     icon: Layers,
   },
   {
-    path: '/wadminw/models',
+    path: '/wadminw/model-configs',
     label: '模型配置',
     icon: Settings,
   },

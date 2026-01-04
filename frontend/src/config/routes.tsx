@@ -8,8 +8,8 @@ import CDKManager from '@/pages/admin/CDKManager';
 import Dashboard from '@/pages/admin/Dashboard';
 import KeyPool from '@/pages/admin/KeyPool';
 import Login from '@/pages/admin/Login';
+import ModelConfigManager from '@/pages/admin/ModelConfigManager';
 import ModelManager from '@/pages/admin/ModelManager';
-import PlatformManager from '@/pages/admin/PlatformManager';
 import Playground from '@/pages/admin/Playground';
 import UserManager from '@/pages/admin/UserManager';
 import UserLogin from '@/pages/auth/UserLogin';
@@ -60,12 +60,12 @@ export const router = createBrowserRouter([
         element: <KeyPool />,
       },
       {
-        path: 'models',
-        element: <ModelManager />,
+        path: 'model-configs',
+        element: <ModelConfigManager />,
       },
       {
-        path: 'platforms',
-        element: <PlatformManager />,
+        path: 'models',
+        element: <ModelManager />,
       },
       {
         path: 'playground',

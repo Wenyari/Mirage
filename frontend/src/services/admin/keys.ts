@@ -9,25 +9,25 @@ import type {
   CooldownResponse,
   HealthCheckResponse,
   KeyStats,
-  Platform,
-  PlatformConfig,
-  GetPlatformsResponse,
-  CreatePlatformRequest,
-  UpdatePlatformRequest,
+  ModelType,
+  Model,
+  GetModelsResponse,
+  CreateModelRequest,
+  UpdateModelRequest,
 } from '@/types/key';
 
 /**
- * 获取平台配置列表
+ * 获取模型列表
  */
-export async function getPlatforms(): Promise<GetPlatformsResponse> {
-  return api.get('/admin/platforms');
+export async function getModels(): Promise<GetModelsResponse> {
+  return api.get('/admin/models');
 }
 
 /**
  * 获取密钥列表
  */
-export async function getKeys(platform?: Platform): Promise<{ code: number; message: string; data: Key[] }> {
-  const params = platform && platform !== 'all' ? { platform } : {};
+export async function getKeys(model?: ModelType): Promise<{ code: number; message: string; data: Key[] }> {
+  const params = model && model !== 'all' ? { model } : {};
   return api.get('/admin/keys', { params });
 }
 
@@ -72,8 +72,8 @@ export async function triggerCooldown(id: number, data: CooldownRequest): Promis
 /**
  * 触发健康检测
  */
-export async function healthCheck(platform?: Platform): Promise<HealthCheckResponse> {
-  const params = platform && platform !== 'all' ? { platform } : {};
+export async function healthCheck(model?: ModelType): Promise<HealthCheckResponse> {
+  const params = model && model !== 'all' ? { model } : {};
   return api.post('/admin/keys/health-check', {}, { params });
 }
 
@@ -85,27 +85,27 @@ export async function getKeyStats(): Promise<{ code: number; message: string; da
 }
 
 /**
- * 创建平台
+ * 创建模型
  */
-export async function createPlatform(
-  data: CreatePlatformRequest
-): Promise<{ code: number; message: string; data: PlatformConfig }> {
-  return api.post('/admin/platforms', data);
+export async function createModel(
+  data: CreateModelRequest
+): Promise<{ code: number; message: string; data: Model }> {
+  return api.post('/admin/models', data);
 }
 
 /**
- * 更新平台
+ * 更新模型
  */
-export async function updatePlatform(
+export async function updateModel(
   key: string,
-  data: UpdatePlatformRequest
-): Promise<{ code: number; message: string; data: PlatformConfig }> {
-  return api.patch(`/admin/platforms/${key}`, data);
+  data: UpdateModelRequest
+): Promise<{ code: number; message: string; data: Model }> {
+  return api.patch(`/admin/models/${key}`, data);
 }
 
 /**
- * 删除平台
+ * 删除模型
  */
-export async function deletePlatform(key: string): Promise<{ code: number; message: string; data: null }> {
-  return api.delete(`/admin/platforms/${key}`);
+export async function deleteModel(key: string): Promise<{ code: number; message: string; data: null }> {
+  return api.delete(`/admin/models/${key}`);
 }

@@ -1,9 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { toast } from 'sonner';
+import * as z from 'zod';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -21,12 +22,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-
-import type { Key } from '@/types/key';
 import { useUpdateKey } from '@/hooks/useKeys';
+import type { Key } from '@/types/key';
 
 interface KeyEditDialogProps {
   open: boolean;
@@ -99,19 +98,19 @@ export function KeyEditDialog({ open, onOpenChange, keyData }: KeyEditDialogProp
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* 密钥信息展示 */}
-            <div className="rounded-lg border p-4 bg-muted/50">
+            <div className="rounded-lg border bg-muted/50 p-4">
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">ID:</span>
                   <span className="font-mono">{keyData.id}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">平台:</span>
-                  <span className="font-semibold">{keyData.platform.toUpperCase()}</span>
+                  <span className="text-muted-foreground">模型:</span>
+                  <span className="font-semibold">{keyData.model}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">密钥:</span>
-                  <code className="text-xs bg-background px-2 py-1 rounded">
+                  <code className="rounded bg-background px-2 py-1 text-xs">
                     {keyData.key_secret.slice(0, 10)}...
                   </code>
                 </div>

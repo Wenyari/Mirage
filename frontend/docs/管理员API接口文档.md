@@ -2,7 +2,7 @@
 
 ## 文档说明
 
-**版本**：v1.0
+**版本**：v1.1
 **基础路径**：`/api/admin`
 **认证方式**：JWT Token（Header: `Authorization: Bearer <token>`）
 **权限要求**：所有接口需验证 `user.role === 'admin'`，否则返回 403
@@ -441,19 +441,19 @@
 ## 四、密钥池管理 (Key Pool Management)
 
 > **架构说明**：密钥池采用 MySQL + Redis 双层架构
-> - **MySQL**：存储密钥配置（platform, key_secret, max_concurrency, weight, status）
+> - **MySQL**：存储密钥配置（model, key_secret, max_concurrency, weight, status）
 > - **Redis**：维护实时状态（并发计数、熔断标记、统计缓冲）
 
-> **⚠️ 重要变更**：平台配置已改为动态管理，不再硬编码
-> - 新增 `GET /api/admin/platforms` 接口获取可用平台列表
-> - 支持动态添加新的 AI 模型平台，无需修改前端代码
-> - Platform 字段类型从 `enum` 改为 `string`
+> **⚠️ 重要变更**：模型配置已改为动态管理，不再硬编码
+> - 新增 `GET /api/admin/models` 接口获取可用模型列表
+> - 支持动态添加新的 AI 模型，无需修改前端代码
+> - Model 字段类型从 `enum` 改为 `string`
 
-### 4.1 获取平台配置列表
+### 4.1 获取模型列表
 
-**接口路径**：`GET /api/admin/platforms`
+**接口路径**：`GET /api/admin/models`
 
-**说明**：获取系统支持的所有平台配置，前端通过此接口动态渲染平台选择器。
+**说明**：获取系统支持的所有模型配置，前端通过此接口动态渲染模型选择器。
 
 **响应示例**：
 
@@ -463,28 +463,28 @@
   "message": "success",
   "data": [
     {
-      "key": "openai",
-      "name": "OpenAI",
+      "key": "gpt-4",
+      "name": "GPT-4",
       "enabled": true,
-      "description": "OpenAI GPT 系列模型",
+      "description": "OpenAI GPT-4 模型",
       "color": "bg-green-500",
       "max_concurrency_limit": 20
     },
     {
-      "key": "sora",
-      "name": "Sora",
+      "key": "claude-3-opus",
+      "name": "Claude 3 Opus",
       "enabled": true,
-      "description": "OpenAI Sora 视频生成模型",
-      "color": "bg-blue-500",
+      "description": "Anthropic Claude 3 Opus 模型",
+      "color": "bg-orange-500",
       "max_concurrency_limit": 10
     },
     {
-      "key": "stability",
-      "name": "Stability AI",
-      "enabled": false,
-      "description": "Stable Diffusion 系列模型",
-      "color": "bg-indigo-500",
-      "max_concurrency_limit": 10
+      "key": "midjourney",
+      "name": "Midjourney",
+      "enabled": true,
+      "description": "Midjourney 图像生成",
+      "color": "bg-purple-500",
+      "max_concurrency_limit": 15
     }
   ]
 }
@@ -494,32 +494,32 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| key | string | ✅ | 平台标识符（用于数据库存储） |
-| name | string | ✅ | 平台显示名称 |
+| key | string | ✅ | 模型标识符（用于数据库存储） |
+| name | string | ✅ | 模型显示名称 |
 | enabled | boolean | ✅ | 是否启用（false 表示禁用，不在前端显示） |
-| description | string | ❌ | 平台描述信息 |
+| description | string | ❌ | 模型描述信息 |
 | color | string | ❌ | Tailwind CSS 颜色类（用于 UI 展示） |
-| max_concurrency_limit | number | ❌ | 该平台建议的最大并发限制 |
+| max_concurrency_limit | number | ❌ | 该模型建议的最大并发限制 |
 
 ---
 
-### 4.2 创建平台
+### 4.2 创建模型
 
-**接口路径**：`POST /api/admin/platforms`
+**接口路径**：`POST /api/admin/models`
 
-**说明**：创建新的AI平台配置。
+**说明**：创建新的AI模型配置。
 
 **请求体**：
 
 ```json
 {
-  "key": "claude",                      // 平台唯一标识
-  "name": "Claude",                     // 显示名称
+  "key": "claude-3-sonnet",             // 模型唯一标识
+  "name": "Claude 3 Sonnet",            // 显示名称
   "enabled": true,                      // 是否启用
-  "description": "Anthropic Claude 系列模型",  // 描述（可选）
-  "color": "bg-purple-500",             // Tailwind颜色类（可选）
+  "description": "Anthropic Claude 3 Sonnet 模型",  // 描述（可选）
+  "color": "bg-orange-400",             // Tailwind颜色类（可选）
   "icon_url": "https://example.com/icon.png",  // 图标URL（可选）
-  "max_concurrency_limit": 15           // 建议最大并发（可选）
+  "max_concurrency_limit": 20           // 建议最大并发（可选）
 }
 ```
 
@@ -527,12 +527,12 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| key | string | ✅ | 平台唯一标识（仅支持小写字母、数字、下划线）|
-| name | string | ✅ | 平台显示名称 |
+| key | string | ✅ | 模型唯一标识（仅支持小写字母、数字、下划线、中划线）|
+| name | string | ✅ | 模型显示名称 |
 | enabled | boolean | ✅ | 是否启用 |
-| description | string | ❌ | 平台描述信息 |
+| description | string | ❌ | 模型描述信息 |
 | color | string | ❌ | Tailwind CSS 颜色类 |
-| icon_url | string | ❌ | 平台图标URL |
+| icon_url | string | ❌ | 模型图标URL |
 | max_concurrency_limit | number | ❌ | 建议的最大并发限制 |
 
 **响应示例**：
@@ -540,15 +540,15 @@
 ```json
 {
   "code": 0,
-  "message": "Platform created successfully",
+  "message": "Model created successfully",
   "data": {
-    "key": "claude",
-    "name": "Claude",
+    "key": "claude-3-sonnet",
+    "name": "Claude 3 Sonnet",
     "enabled": true,
-    "description": "Anthropic Claude 系列模型",
-    "color": "bg-purple-500",
+    "description": "Anthropic Claude 3 Sonnet 模型",
+    "color": "bg-orange-400",
     "icon_url": "https://example.com/icon.png",
-    "max_concurrency_limit": 15,
+    "max_concurrency_limit": 20,
     "created_at": "2024-01-15T10:30:00Z",
     "updated_at": "2024-01-15T10:30:00Z"
   }
@@ -560,29 +560,29 @@
 ```json
 {
   "code": 400,
-  "message": "Platform key already exists",
+  "message": "Model key already exists",
   "data": null
 }
 ```
 
 ---
 
-### 4.3 更新平台
+### 4.3 更新模型
 
-**接口路径**：`PATCH /api/admin/platforms/:key`
+**接口路径**：`PATCH /api/admin/models/:key`
 
-**说明**：更新平台配置信息（平台key不可修改）。
+**说明**：更新模型配置信息（模型key不可修改）。
 
 **请求体**：
 
 ```json
 {
-  "name": "Claude API",                 // 可选
+  "name": "Claude 3.5 Sonnet",          // 可选
   "enabled": false,                     // 可选
   "description": "Updated description", // 可选
   "color": "bg-indigo-500",            // 可选
   "icon_url": "https://new-icon.png",  // 可选
-  "max_concurrency_limit": 20          // 可选
+  "max_concurrency_limit": 30          // 可选
 }
 ```
 
@@ -591,15 +591,15 @@
 ```json
 {
   "code": 0,
-  "message": "Platform updated successfully",
+  "message": "Model updated successfully",
   "data": {
-    "key": "claude",
-    "name": "Claude API",
+    "key": "claude-3-sonnet",
+    "name": "Claude 3.5 Sonnet",
     "enabled": false,
     "description": "Updated description",
     "color": "bg-indigo-500",
     "icon_url": "https://new-icon.png",
-    "max_concurrency_limit": 20,
+    "max_concurrency_limit": 30,
     "created_at": "2024-01-15T10:30:00Z",
     "updated_at": "2024-01-16T14:20:00Z"
   }
@@ -608,22 +608,22 @@
 
 ---
 
-### 4.4 删除平台
+### 4.4 删除模型
 
-**接口路径**：`DELETE /api/admin/platforms/:key`
+**接口路径**：`DELETE /api/admin/models/:key`
 
-**说明**：删除平台配置。
+**说明**：删除模型配置。
 
 **注意事项**：
-- 只有当该平台没有关联的密钥和任务时才能删除
-- 如果有关联数据，应先禁用平台（enabled: false）而非删除
+- 只有当该模型没有关联的密钥和任务时才能删除
+- 如果有关联数据，应先禁用模型（enabled: false）而非删除
 
 **响应示例**：
 
 ```json
 {
   "code": 0,
-  "message": "Platform deleted successfully",
+  "message": "Model deleted successfully",
   "data": null
 }
 ```
@@ -633,7 +633,7 @@
 ```json
 {
   "code": 400,
-  "message": "Cannot delete platform with existing keys or tasks",
+  "message": "Cannot delete model with existing keys or tasks",
   "data": {
     "key_count": 5,
     "task_count": 120
@@ -651,7 +651,7 @@
 
 | 参数 | 类型 | 必填 | 默认值 | 说明 |
 |------|------|------|--------|------|
-| platform | string | 否 | - | 平台筛选（openai、sora、midjourney 等） |
+| model | string | 否 | - | 模型筛选（gpt-4、claude-3-opus 等） |
 
 **响应示例**：
 
@@ -662,7 +662,7 @@
   "data": [
     {
       "id": 1,
-      "platform": "openai",                 // 平台标识
+      "model": "gpt-4",                     // 模型标识
       "api_base": "https://api.openai.com/v1", // API 基础地址
       "key_secret": "sk-proj-abc****xyz",   // 密钥（脱敏：前8位 + **** + 后4位）
       "max_concurrency": 3,                 // 最大并发限制
@@ -683,7 +683,7 @@
     },
     {
       "id": 2,
-      "platform": "openai",
+      "model": "gpt-4",
       "api_base": "https://api.openai.com/v1", // API 基础地址
       "key_secret": "sk-proj-def****uvw",
       "max_concurrency": 5,
@@ -699,9 +699,9 @@
     },
     {
       "id": 3,
-      "platform": "sora",
-      "api_base": "https://api.openai.com/v1", // API 基础地址
-      "key_secret": "sk-sora-xyz****abc",
+      "model": "claude-3-opus",
+      "api_base": "https://api.anthropic.com", // API 基础地址
+      "key_secret": "sk-ant-xyz****abc",
       "max_concurrency": 2,
       "weight": 5,
       "status": 1,
@@ -733,7 +733,8 @@
 
 ```json
 {
-  "platform": "openai",              // 平台标识（必填）
+  "model": "gpt-4",                  // 模型标识（必填）
+  "api_base": "https://api.openai.com/v1", // API 基础地址（可选）
   "key_secret": "sk-proj-abc123...", // API 密钥完整串（必填）
   "max_concurrency": 3,              // 最大并发数（可选，默认 3）
   "weight": 10                       // 权重（可选，默认 10）
@@ -748,7 +749,7 @@
   "message": "Key added successfully",
   "data": {
     "id": 4,
-    "platform": "openai",
+    "model": "gpt-4",
     "api_base": "https://api.openai.com/v1",
     "key_secret": "sk-proj-ab****",    // 返回时已脱敏
     "max_concurrency": 3,
@@ -769,7 +770,8 @@
 
 ```json
 {
-  "platform": "openai",              // 平台（必填）
+  "model": "gpt-4",                  // 模型（必填）
+  "api_base": "https://api.openai.com/v1", // API 基础地址（可选，统一设置）
   "keys": [                          // 密钥数组（必填，最多 100 个）
     "sk-proj-abc123...",
     "sk-proj-def456...",
@@ -893,10 +895,10 @@
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| platform | string | 否 | 指定平台检测（不填则检测所有） |
+| model | string | 否 | 指定模型检测（不填则检测所有） |
 
 **说明**：
-- 后端调用各平台 API 验证密钥有效性
+- 后端调用各模型 API 验证密钥有效性
 - 检测结果会更新密钥状态和错误计数
 - 建议异步执行，返回任务 ID 供前端轮询
 
@@ -914,14 +916,14 @@
     "details": [           // 详细结果
       {
         "id": 1,
-        "platform": "openai",
+        "model": "gpt-4",
         "status": 1,
         "is_cooling": false,
         "check_result": "ok"
       },
       {
         "id": 3,
-        "platform": "sora",
+        "model": "claude-3-opus",
         "status": 1,
         "is_cooling": true,
         "check_result": "rate_limit"
@@ -959,9 +961,9 @@
   "code": 0,
   "message": "Success",
   "data": {
-    "by_platform": [
+    "by_model": [
       {
-        "platform": "openai",
+        "model": "gpt-4",
         "total_keys": 5,
         "active_keys": 4,
         "cooling_keys": 1,
@@ -969,7 +971,7 @@
         "current_usage": 8              // 当前实际使用的并发数
       },
       {
-        "platform": "sora",
+        "model": "claude-3-opus",
         "total_keys": 3,
         "active_keys": 2,
         "cooling_keys": 1,
@@ -986,16 +988,16 @@
 
 ---
 
-## 五、平台配置管理 (Platform Configuration)
+## 五、模型配置管理 (Model Configuration)
 
-> **设计变更说明**：平台配置管理直接基于密钥池中的 platform
-> - 后端从 `api_keys` 表中获取所有不重复的 `platform` 作为可配置的平台列表
-> - 管理员可为每个 platform 配置：等级权限、积分计费、Token 费率
-> - 平台配置存储在独立的 `platform_configs` 表中
+> **设计变更说明**：模型配置管理直接基于密钥池中的 model
+> - 后端从 `models` 表中获取所有模型列表
+> - 管理员可为每个 model 配置：等级权限、积分计费、Token 费率
+> - 模型配置存储在独立的 `model_configs` 表中
 
-### 5.1 获取平台配置列表
+### 5.1 获取模型配置列表
 
-**接口路径**：`GET /api/admin/platform-configs`
+**接口路径**：`GET /api/admin/model-configs`
 
 **请求参数**：无
 
@@ -1008,8 +1010,8 @@
   "data": [
     {
       "id": 1,
-      "platform": "openai",              // 平台标识（来自密钥池）
-      "platform_name": "OpenAI",         // 平台显示名称（来自 platforms 表）
+      "model": "gpt-4",                  // 模型标识（来自密钥池）
+      "model_name": "GPT-4",             // 模型显示名称
       "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],  // 允许使用的等级
       "cost_per_call": 10,               // 每次调用扣除积分（固定计费）
       "token_cost_config": {
@@ -1017,29 +1019,31 @@
         "input_cost": 0.03,              // 输入 Token 费率（每千 token，积分）
         "output_cost": 0.06              // 输出 Token 费率（每千 token，积分）
       },
-      "is_active": true,                 // 是否启用该平台
+      "is_active": true,                 // 是否启用该模型
       "description": "OpenAI GPT 系列模型",
       "created_at": "2024-03-01T10:00:00Z",
       "updated_at": "2024-03-20T15:30:00Z"
     },
     {
       "id": 2,
-      "platform": "sora",
-      "platform_name": "Sora",
+      "model": "claude-3-opus",
+      "model_name": "Claude 3 Opus",
       "allowed_tiers": ["T3", "T4", "T5"],  // 仅高级会员可用
       "cost_per_call": 100,
       "token_cost_config": {
-        "enabled": false                 // 不使用 Token 计费，仅固定计费
+        "enabled": true,
+        "input_cost": 0.05,
+        "output_cost": 0.1
       },
       "is_active": true,
-      "description": "OpenAI Sora 视频生成模型",
+      "description": "Anthropic Claude 3 Opus 模型",
       "created_at": "2024-03-10T12:00:00Z",
       "updated_at": "2024-03-20T16:00:00Z"
     },
     {
       "id": 3,
-      "platform": "midjourney",
-      "platform_name": "Midjourney",
+      "model": "midjourney",
+      "model_name": "Midjourney",
       "allowed_tiers": ["T2", "T3", "T4", "T5"],
       "cost_per_call": 50,
       "token_cost_config": {
@@ -1059,16 +1063,16 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | id | integer | ✅ | 配置 ID |
-| platform | string | ✅ | 平台标识（来自密钥池） |
-| platform_name | string | ✅ | 平台显示名称 |
+| model | string | ✅ | 模型标识（来自密钥池） |
+| model_name | string | ✅ | 模型显示名称 |
 | allowed_tiers | string[] | ✅ | 允许使用的等级数组（T1-T5） |
 | cost_per_call | number | ✅ | 每次调用扣除积分（固定计费） |
 | token_cost_config | object | ✅ | Token 计费配置 |
 | token_cost_config.enabled | boolean | ✅ | 是否启用 Token 计费 |
 | token_cost_config.input_cost | number | ❌ | 输入 Token 费率（每千 token，积分） |
 | token_cost_config.output_cost | number | ❌ | 输出 Token 费率（每千 token，积分） |
-| is_active | boolean | ✅ | 是否启用该平台 |
-| description | string | ❌ | 平台描述 |
+| is_active | boolean | ✅ | 是否启用该模型 |
+| description | string | ❌ | 模型描述 |
 
 **计费逻辑说明**：
 - **固定计费**：每次调用扣除 `cost_per_call` 积分
@@ -1078,13 +1082,13 @@
 
 ---
 
-### 5.2 获取可配置的平台列表
+### 5.2 获取可配置的模型列表
 
-**接口路径**：`GET /api/admin/platform-configs/available-platforms`
+**接口路径**：`GET /api/admin/model-configs/available-models`
 
 **请求参数**：无
 
-**说明**：获取密钥池中所有不重复的 platform，用于新建配置时选择。
+**说明**：获取密钥池中所有不重复的 model，用于新建配置时选择。
 
 **响应示例**：
 
@@ -1094,20 +1098,20 @@
   "message": "Success",
   "data": [
     {
-      "platform": "openai",
-      "platform_name": "OpenAI",
+      "model": "gpt-4",
+      "model_name": "GPT-4",
       "has_config": true,           // 是否已有配置
-      "key_count": 5                // 该平台的密钥数量
+      "key_count": 5                // 该模型的密钥数量
     },
     {
-      "platform": "sora",
-      "platform_name": "Sora",
+      "model": "claude-3-opus",
+      "model_name": "Claude 3 Opus",
       "has_config": true,
       "key_count": 3
     },
     {
-      "platform": "anthropic",
-      "platform_name": "Anthropic",
+      "model": "gemini-pro",
+      "model_name": "Gemini Pro",
       "has_config": false,          // 尚未配置
       "key_count": 2
     }
@@ -1117,15 +1121,15 @@
 
 ---
 
-### 5.3 创建平台配置
+### 5.3 创建模型配置
 
-**接口路径**：`POST /api/admin/platform-configs`
+**接口路径**：`POST /api/admin/model-configs`
 
 **请求 Body**：
 
 ```json
 {
-  "platform": "anthropic",
+  "model": "gemini-pro",
   "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],
   "cost_per_call": 20,
   "token_cost_config": {
@@ -1134,7 +1138,7 @@
     "output_cost": 0.08
   },
   "is_active": true,
-  "description": "Anthropic Claude 系列模型"
+  "description": "Google Gemini Pro 模型"
 }
 ```
 
@@ -1143,11 +1147,11 @@
 ```json
 {
   "code": 0,
-  "message": "Platform config created successfully",
+  "message": "Model config created successfully",
   "data": {
     "id": 4,
-    "platform": "anthropic",
-    "platform_name": "Anthropic",
+    "model": "gemini-pro",
+    "model_name": "Gemini Pro",
     "allowed_tiers": ["T1", "T2", "T3", "T4", "T5"],
     "cost_per_call": 20,
     "token_cost_config": {
@@ -1156,7 +1160,7 @@
       "output_cost": 0.08
     },
     "is_active": true,
-    "description": "Anthropic Claude 系列模型",
+    "description": "Google Gemini Pro 模型",
     "created_at": "2024-03-21T10:00:00Z",
     "updated_at": "2024-03-21T10:00:00Z"
   }
@@ -1165,15 +1169,15 @@
 
 ---
 
-### 5.4 更新平台配置
+### 5.4 更新模型配置
 
-**接口路径**：`PATCH /api/admin/platform-configs/{id}`
+**接口路径**：`PATCH /api/admin/model-configs/{id}`
 
 **路径参数**：
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| id | integer | 平台配置 ID |
+| id | integer | 模型配置 ID |
 
 **请求 Body**（所有字段可选）：
 
@@ -1196,29 +1200,29 @@
 ```json
 {
   "code": 0,
-  "message": "Platform config updated successfully",
+  "message": "Model config updated successfully",
   "data": null
 }
 ```
 
 ---
 
-### 5.5 删除平台配置
+### 5.5 删除模型配置
 
-**接口路径**：`DELETE /api/admin/platform-configs/{id}`
+**接口路径**：`DELETE /api/admin/model-configs/{id}`
 
 **路径参数**：
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| id | integer | 平台配置 ID |
+| id | integer | 模型配置 ID |
 
 **响应示例**：
 
 ```json
 {
   "code": 0,
-  "message": "Platform config deleted successfully",
+  "message": "Model config deleted successfully",
   "data": null
 }
 ```
@@ -1365,7 +1369,7 @@
     },
     "debug": {
       "key_used": "sk-proj-ab****",            // 使用的密钥（脱敏）
-      "platform": "openai",                     // 平台
+      "model": "gpt-4",                         // 模型
       "elapsed_time": 3.5,                      // 耗时（秒）
       "token_used": 500,                        // Token 消耗
       "upstream_response": {                    // 上游原始响应（可选）
@@ -1450,6 +1454,7 @@
 | 版本 | 日期 | 说明 |
 |------|------|------|
 | v1.0 | 2024-12-30 | 初始版本，定义所有管理员后台 API 接口 |
+| v1.1 | 2026-01-04 | 重构平台管理为模型管理，更新密钥池和配置接口 |
 
 ---
 
