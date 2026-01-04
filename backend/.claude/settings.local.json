@@ -3,7 +3,8 @@
     "allow": [
       "Bash(tree:*)",
       "Bash(python -m pytest:*)",
-      "Bash(conda run:*)"
+      "Bash(conda run:*)",
+      "Bash(python:*)"
     ]
   }
 }

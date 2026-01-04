@@ -1,218 +1,254 @@
 """
-任务服务层 (Task Service)
-包含任务提交、并发检查、入队等核心业务逻辑
+任务管理服务
+负责任务的创建、提交、取消等业务逻辑
+集成密钥池调度系统
 """
 import json
-from flask import current_app
-from rq import Queue
-from app.extensions import db, redis_client
-from app.models import Task, User, MembershipConfig, ModelConfig, Model
-from app.services.pay_service import check_and_deduct_balance
+import logging
+import uuid
+from datetime import datetime
+from decimal import Decimal
+from app.extensions import db
+from app.models.task import Task
+from app.models.user import User, MembershipConfig
+from app.models.model import ModelConfig
+from app.services.key_manager import KeyManager
+
+logger = logging.getLogger(__name__)
 
 
-def get_user_concurrency_limit(user_id: int) -> int:
-    """
-    获取用户的并发任务数限制
-
-    Args:
-        user_id: 用户 ID
-
-    Returns:
-        int: 并发任务数限制
-    """
-    user = User.query.get(user_id)
-    if not user:
-        raise ValueError("User not found")
-
-    # 查询会员配置
-    config = MembershipConfig.query.filter_by(level=user.level).first()
-    if not config:
-        return 1  # 默认值
-
-    return config.concurrent_limit
+def get_redis():
+    """获取 Redis 客户端"""
+    from app.extensions import redis_client
+    return redis_client
 
 
-def get_model_cost(model_key: str) -> dict:
-    """
-    获取模型配置和定价
+class TaskService:
+    """任务服务"""
 
-    Args:
-        model_key: 模型标识 (如 'openai', 'sora')
+    @classmethod
+    def submit_task(cls, user_id: int, task_data: dict):
+        """
+        提交新任务
 
-    Returns:
-        dict: 模型配置信息 {
-            'cost_per_call': float,
-            'token_cost_config': dict,
-            'allowed_tiers': list
-        }
-    """
-    # 先尝试从 Redis 缓存读取
-    cache_key = f"config:model:{model_key}"
-    cached_config = redis_client.get(cache_key)
+        流程：
+        1. 验证用户权限和余额
+        2. 检查并发限制
+        3. 扣除积分
+        4. 创建任务记录
+        5. 尝试获取密钥（快车道）或进入等待队列（慢车道）
 
-    if cached_config:
-        return json.loads(cached_config)
+        Args:
+            user_id: 用户 ID
+            task_data: 任务数据
+                {
+                    "model": "sora",
+                    "prompt": "...",
+                    "params": {...},
+                    "input_file_url": "..."
+                }
 
-    # 从数据库查询
-    config = ModelConfig.query.filter_by(model=model_key, is_active=1).first()
-    if not config:
-        raise ValueError(f"Model '{model_key}' not found or not active")
+        Returns:
+            dict: {"task_id": "...", "status": "...", "msg": "..."}
 
-    config_data = {
-        'cost_per_call': float(config.cost_per_call),
-        'token_cost_config': config.token_cost_config or {},
-        'allowed_tiers': config.allowed_tiers or []
-    }
+        Raises:
+            ValueError: 业务错误（权限不足、余额不足等）
+        """
+        model_key = task_data.get('model')
+        prompt = task_data.get('prompt')
+        params = task_data.get('params', {})
+        input_file_url = task_data.get('input_file_url')
 
-    # 缓存到 Redis (1小时)
-    redis_client.setex(cache_key, 3600, json.dumps(config_data))
+        # 1. 验证用户和模型配置
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError("User not found")
 
-    return config_data
+        if user.status != 1:
+            raise ValueError("User account is disabled")
 
+        model_config = ModelConfig.query.filter_by(model=model_key, is_active=1).first()
+        if not model_config:
+            raise ValueError(f"Model {model_key} is not available")
 
-def submit_task(user_id: int, task_data: dict) -> str:
-    """
-    提交任务 (核心业务逻辑)
+        # 2. 验证用户等级权限
+        membership = MembershipConfig.query.filter_by(level=user.level).first()
+        tier_name = membership.name if membership else f"T{user.level}"
 
-    1. 【并发检查】: 检查用户当前运行中的任务数是否超过配额
-    2. 【权限检查】: 检查用户等级是否有权使用该平台
-    3. 【计算费用】: 根据平台和参数计算需要扣除的积分
-    4. 【预扣费】: 调用 pay_service 预扣除积分
-    5. 【入库】: 创建 Task 记录，状态为 pending
-    6. 【入队】: 根据用户等级将任务推入不同优先级的队列
+        if tier_name not in model_config.allowed_tiers:
+            raise ValueError(f"Your membership tier ({tier_name}) cannot use this model")
 
-    Args:
-        user_id: 用户 ID
-        task_data: 任务数据 {
-            "model": "sora",
-            "prompt": "...",
-            "params": {...},
-            "input_file_url": "..."
-        }
+        # 3. 计算费用
+        cost = model_config.cost_per_call
 
-    Returns:
-        str: 任务 ID (UUID)
+        # 检查余额
+        if user.balance < cost:
+            raise ValueError(f"Insufficient balance. Required: {cost}, Available: {user.balance}")
 
-    Raises:
-        ValueError: 并发超限、权限不足、余额不足等业务错误
-    """
-    # 1. 【并发检查】
-    user = User.query.get(user_id)
-    if not user:
-        raise ValueError("User not found")
+        # 4. 检查并发限制
+        if membership:
+            concurrent_limit = membership.concurrent_limit
+        else:
+            concurrent_limit = 1
 
-    concurrency_limit = get_user_concurrency_limit(user_id)
+        current_processing = Task.query.filter_by(
+            user_id=user_id,
+            status='processing'
+        ).count()
 
-    # 统计用户当前运行中的任务数 (pending + processing)
-    running_count = Task.query.filter(
-        Task.user_id == user_id,
-        Task.status.in_(['pending', 'processing'])
-    ).count()
+        if current_processing >= concurrent_limit:
+            raise ValueError(f"Concurrent limit exceeded ({current_processing}/{concurrent_limit})")
 
-    if running_count >= concurrency_limit:
-        raise ValueError(
-            f"Task limit exceeded. You can run at most {concurrency_limit} tasks simultaneously. "
-            f"Please upgrade your membership or wait for existing tasks to complete."
+        # 5. 扣除积分（预扣费）
+        user.balance -= Decimal(str(cost))
+
+        # 6. 创建任务记录
+        task_id = str(uuid.uuid4())
+        task = Task(
+            id=task_id,
+            user_id=user_id,
+            model=model_key,
+            prompt=prompt,
+            input_file_url=input_file_url,
+            params=params,
+            status='pending',
+            progress=0,
+            cost_points=cost,
         )
 
-    # 2. 【权限检查和计算费用】
-    model_key = task_data.get('model')
-    if not model_key:
-        raise ValueError("Model is required")
-
-    model_config = get_model_cost(model_key)
-
-    # 检查用户等级是否有权使用该模型
-    user_tier = f"T{user.level}"
-    allowed_tiers = model_config.get('allowed_tiers', [])
-    if user_tier not in allowed_tiers:
-        raise ValueError(
-            f"Your membership tier ({user_tier}) does not have access to model '{model_key}'. "
-            f"Allowed tiers: {', '.join(allowed_tiers)}"
-        )
-
-    base_cost = model_config['cost_per_call']
-
-    # 根据参数调整价格 (例如根据时长)
-    params = task_data.get('params', {})
-    duration = params.get('duration', 1)  # 默认 1 倍
-    cost = base_cost * duration
-
-    # 3. 【预扣费】
-    # 创建任务记录 (暂时不提交，获取 task_id 用于流水记录)
-    new_task = Task(
-        user_id=user_id,
-        model=model_key,
-        prompt=task_data.get('prompt'),
-        input_file_url=task_data.get('input_file_url'),
-        params=params,
-        status='pending',
-        cost_points=cost
-    )
-    db.session.add(new_task)
-    db.session.flush()  # 获取 task_id
-
-    try:
-        check_and_deduct_balance(user_id, cost, new_task.id)
-    except ValueError as e:
-        db.session.rollback()
-        raise e
-
-    # 4. 【入库】
-    db.session.commit()
-
-    # 5. 【入队】
-    # 根据用户等级决定队列优先级
-    queue_name = 'high_priority' if user.level >= 4 else 'default'
-
-    task_payload = {
-        'task_id': new_task.id,
-        'user_id': user_id,
-        'model': model_key,
-        'prompt': task_data.get('prompt'),
-        'input_file_url': task_data.get('input_file_url'),
-        'params': params
-    }
-
-    # 推入 RQ 队列
-    try:
-        q = Queue(queue_name, connection=redis_client)
-        from app.tasks.sora_job import process_sora_task
-        q.enqueue(process_sora_task, task_payload)
-    except Exception as e:
-        current_app.logger.error(f"Failed to enqueue task: {e}")
-        # 如果入队失败，退款
-        from app.services.pay_service import execute_refund
-        execute_refund(user_id, cost, new_task.id, "Failed to enqueue task")
-        new_task.status = 'failed'
-        new_task.fail_reason = "System error: Failed to enqueue task"
+        db.session.add(task)
         db.session.commit()
-        raise ValueError("Failed to submit task, please try again later")
 
-    return new_task.id
+        logger.info(f"Task {task_id} created for user {user_id}, cost: {cost}")
 
+        # 7. 构造任务 Payload
+        payload = {
+            "task_id": task_id,
+            "user_id": user_id,
+            "model": model_key,
+            "params": params,
+            "prompt": prompt,
+            "input_file_url": input_file_url,
+        }
 
-def get_task_by_id(task_id: str, user_id: int = None) -> Task:
-    """
-    根据 ID 查询任务
+        # 8. 尝试直接获取密钥（快车道）
+        key = KeyManager.allocate_key(model_key)
 
-    Args:
-        task_id: 任务 ID
-        user_id: 用户 ID (可选，用于权限检查)
+        if key:
+            # 有资源 -> 注入密钥 -> 进执行队列
+            payload['key_id'] = key.id
+            payload['api_base'] = key.api_base
+            payload['api_key'] = key.key_secret
 
-    Returns:
-        Task: 任务对象
+            get_redis().rpush(KeyManager.QUEUE_RUNNABLE, json.dumps(payload))
+            msg = "Task is being processed"
+            logger.info(f"Task {task_id} directly dispatched to runnable queue with key {key.id}")
+        else:
+            # 无资源 -> 进等待队列（慢车道）
+            # 根据用户等级分流
+            target_queue = KeyManager.QUEUE_VIP if user.level >= 4 else KeyManager.QUEUE_NORMAL
 
-    Raises:
-        ValueError: 任务不存在或无权访问
-    """
-    query = Task.query.filter_by(id=task_id)
+            get_redis().rpush(target_queue, json.dumps(payload))
+            msg = "Task is in priority queue" if user.level >= 4 else "Task is in queue"
+            logger.info(f"Task {task_id} added to {target_queue}")
 
-    if user_id:
-        query = query.filter_by(user_id=user_id)
+        return {
+            "task_id": task_id,
+            "status": "pending",
+            "msg": msg
+        }
 
-    task = query.first()
-    if not task:
-        raise ValueError("Task not found or access denied")
+    @classmethod
+    def cancel_task(cls, user_id: int, task_id: str):
+        """
+        取消任务（仅限排队中的任务）
 
-    return task
+        Args:
+            user_id: 用户 ID
+            task_id: 任务 ID
+
+        Returns:
+            dict: {"msg": "..."}
+
+        Raises:
+            ValueError: 业务错误
+        """
+        task = Task.query.get(task_id)
+
+        if not task:
+            raise ValueError("Task not found")
+
+        if task.user_id != user_id:
+            raise ValueError("Permission denied")
+
+        if task.status != 'pending':
+            raise ValueError("Only pending tasks can be cancelled")
+
+        # 修改状态为 cancelled（惰性删除）
+        task.status = 'cancelled'
+        task.progress = 0
+
+        # 退款
+        user = User.query.get(user_id)
+        user.balance += task.cost_points
+
+        db.session.commit()
+
+        logger.info(f"Task {task_id} cancelled by user {user_id}, refunded {task.cost_points}")
+
+        return {"msg": "Task cancelled successfully"}
+
+    @classmethod
+    def get_task_status(cls, user_id: int, task_id: str):
+        """
+        获取任务状态（支持实时进度）
+
+        Args:
+            user_id: 用户 ID
+            task_id: 任务 ID
+
+        Returns:
+            dict: 任务详情
+
+        Raises:
+            ValueError: 业务错误
+        """
+        task = Task.query.get(task_id)
+
+        if not task:
+            raise ValueError("Task not found")
+
+        if task.user_id != user_id:
+            raise ValueError("Permission denied")
+
+        # 如果任务正在执行，从 Redis 读取实时进度
+        if task.status == 'processing':
+            redis_progress = get_redis().get(f"task:progress:{task_id}")
+            if redis_progress:
+                task.progress = int(redis_progress)
+
+        return task.to_dict()
+
+    @classmethod
+    def get_task_history(cls, user_id: int, page: int = 1, size: int = 20):
+        """
+        获取任务历史记录
+
+        Args:
+            user_id: 用户 ID
+            page: 页码
+            size: 每页大小
+
+        Returns:
+            dict: {"list": [...], "total": ..., "page": ..., "size": ...}
+        """
+        pagination = Task.query.filter_by(user_id=user_id)\
+            .order_by(Task.created_at.desc())\
+            .paginate(page=page, per_page=size, error_out=False)
+
+        return {
+            "list": [task.to_dict() for task in pagination.items],
+            "total": pagination.total,
+            "page": page,
+            "size": size
+        }

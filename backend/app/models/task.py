@@ -17,8 +17,9 @@ class Task(db.Model):
     prompt = db.Column(db.Text, nullable=True)  # 用户提示词
     input_file_url = db.Column(db.Text, nullable=True)  # 参考图/视频
     params = db.Column(db.JSON, nullable=True)  # 动态参数 (时长、比例等)
-    status = db.Column(db.Enum('pending', 'processing', 'success', 'failed'),
+    status = db.Column(db.Enum('pending', 'processing', 'success', 'failed', 'cancelled'),
                        default='pending', nullable=False, index=True)
+    progress = db.Column(db.SmallInteger, default=0, nullable=False)  # 任务进度 0-100
     result_url = db.Column(db.Text, nullable=True)  # 生成结果链接
     cost_points = db.Column(db.Numeric(10, 2), nullable=False)  # 消耗积分
     token_usage = db.Column(db.JSON, nullable=True)  # Token 使用情况 {"input": 1000, "output": 500}
@@ -46,6 +47,7 @@ class Task(db.Model):
             'input_file_url': self.input_file_url,
             'params': self.params,
             'status': self.status,
+            'progress': self.progress,
             'result_url': self.result_url,
             'cost_points': float(self.cost_points),
             'token_usage': self.token_usage,

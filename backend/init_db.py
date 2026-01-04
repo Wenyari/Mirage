@@ -52,31 +52,13 @@ def init_models():
     with app.app_context():
         models = [
             {
-                'key': 'openai',
-                'name': 'OpenAI',
-                'enabled': 1,
-                'description': 'OpenAI GPT 系列模型',
-                'color': 'bg-green-500',
-                'icon_url': None,
-                'max_concurrency_limit': 20
-            },
-            {
-                'key': 'sora',
-                'name': 'Sora',
+                'key': 'sora-2',
+                'name': 'sora-2',
                 'enabled': 1,
                 'description': 'OpenAI Sora 视频生成模型',
                 'color': 'bg-blue-500',
                 'icon_url': None,
                 'max_concurrency_limit': 10
-            },
-            {
-                'key': 'midjourney',
-                'name': 'Midjourney',
-                'enabled': 1,
-                'description': 'Midjourney 图像生成',
-                'color': 'bg-purple-500',
-                'icon_url': None,
-                'max_concurrency_limit': 15
             },
         ]
 
@@ -99,33 +81,13 @@ def init_model_configs():
     with app.app_context():
         configs = [
             {
-                'model': 'openai',
-                'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],
-                'cost_per_call': 10.00,
-                'token_cost_config': {
-                    "enabled": True,
-                    "input_cost": 0.03,
-                    "output_cost": 0.06
-                },
-                'is_active': 1,
-                'description': 'OpenAI GPT 模型配置'
-            },
-            {
-                'model': 'sora',
+                'model': 'sora-2',
                 'allowed_tiers': ["T3", "T4", "T5"],
                 'cost_per_call': 100.00,
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
                 'description': 'Sora 视频生成配置'
-            },
-            {
-                'model': 'midjourney',
-                'allowed_tiers': ["T2", "T3", "T4", "T5"],
-                'cost_per_call': 50.00,
-                'token_cost_config': {"enabled": False},
-                'is_active': 1,
-                'description': 'Midjourney 图像生成配置'
-            },
+            }
         ]
 
         print("Initializing model configs...")
@@ -153,15 +115,17 @@ def init_api_keys():
 
         print("Initializing sample API keys...")
         print("  ⚠️  Please replace these with your actual API keys!")
+        print("  Note: api_base should be the complete endpoint URL including path")
+        print("       Example: https://api.openai.com/v1/videos/generations")
 
         keys = [
             {
-                'model': 'sora',
+                'model': 'sora-2',
                 'key_secret': '***REMOVED***',
                 'api_base': 'https://ai.t8star.cn/v2/videos/generations',
                 'max_concurrency': 2,
-                'weight': 5,
-                'status': 0
+                'weight': 10,
+                'status': 0  # 默认禁用，需要管理员启用
             },
         ]
 

@@ -92,7 +92,7 @@ class ApiKey(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     model = db.Column(db.String(50), db.ForeignKey('models.key'), nullable=False)
-    api_base = db.Column(db.String(255), nullable=False)  # API 基础地址
+    api_base = db.Column(db.String(512), nullable=False)  # API 完整端点地址（含路径）
     key_secret = db.Column(db.String(512), nullable=False)  # 密钥本体（建议加密存储）
     max_concurrency = db.Column(db.Integer, default=3, nullable=False)  # 最大并发限制
     weight = db.Column(db.SmallInteger, default=10, nullable=False)  # 权重 (1-100)

@@ -7,7 +7,7 @@ import bcrypt
 from datetime import datetime
 from app import create_app
 from app.extensions import db, redis_client
-from app.models import User, MembershipConfig, Task, CDK, Model
+from app.models import User, MembershipConfig, Task, CDK, Model, ModelConfig
 from app.config import Config
 
 
@@ -104,9 +104,34 @@ def _init_test_data():
     models = [
         Model(key='openai', name='OpenAI', enabled=1),
         Model(key='sora', name='Sora', enabled=1),
+        Model(key='sora-2', name='Sora-2', enabled=1),
     ]
     for model in models:
         db.session.add(model)
+
+    # 创建模型配置
+    model_configs = [
+        ModelConfig(
+            model='openai',
+            allowed_tiers=['T1', 'T2', 'T3', 'T4', 'T5'],
+            cost_per_call=10.00,
+            is_active=1
+        ),
+        ModelConfig(
+            model='sora',
+            allowed_tiers=['T3', 'T4', 'T5'],
+            cost_per_call=100.00,
+            is_active=1
+        ),
+        ModelConfig(
+            model='sora-2',
+            allowed_tiers=['T3', 'T4', 'T5'],
+            cost_per_call=100.00,
+            is_active=1
+        ),
+    ]
+    for config in model_configs:
+        db.session.add(config)
 
     db.session.commit()
 
@@ -121,8 +146,8 @@ def test_user(db_session):
     user = User(
         email='test@example.com',
         password_hash=password_hash,
-        balance=1000.00,
-        level=1,
+        balance=10000.00,  # 增加余额以便测试
+        level=3,  # 提升到 T3，可以使用 sora-2
         role='user',
         status=1
     )
