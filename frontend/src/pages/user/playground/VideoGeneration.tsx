@@ -14,7 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { ModelOption, TaskHistoryItem,taskService, TaskStatusResponse } from '@/services/tasks';
+import type { ModelOption, TaskHistoryItem, TaskStatusResponse } from '@/services/tasks';
+import { taskService } from '@/services/tasks';
 
 export default function VideoGeneration() {
   const [prompt, setPrompt] = useState('');
@@ -194,7 +195,7 @@ export default function VideoGeneration() {
   const selectedModelInfo = models.find(m => m.key === model);
 
   return (
-    <div className="flex gap-6 p-6">
+    <div className="flex gap-6 px-6 pt-6">
       {/* 历史记录列表 */}
       <div className="flex h-[calc(100vh-3.5rem-3rem)] w-[300px] shrink-0 flex-col gap-4 overflow-hidden rounded-xl border bg-muted/20">
         <div className="flex items-center gap-2 border-b p-4">
