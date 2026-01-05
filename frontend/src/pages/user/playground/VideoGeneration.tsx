@@ -194,9 +194,9 @@ export default function VideoGeneration() {
   const selectedModelInfo = models.find(m => m.key === model);
 
   return (
-    <div className="container mx-auto flex h-[calc(100vh-3.5rem)] max-w-[1600px] gap-6 p-6">
+    <div className="flex gap-6 p-6">
       {/* 历史记录列表 */}
-      <div className="flex h-full w-[300px] shrink-0 flex-col gap-4 overflow-hidden rounded-xl border bg-muted/20">
+      <div className="flex h-[calc(100vh-3.5rem-3rem)] w-[300px] shrink-0 flex-col gap-4 overflow-hidden rounded-xl border bg-muted/20">
         <div className="flex items-center gap-2 border-b p-4">
           <History className="size-5 text-muted-foreground" />
           <h3 className="font-semibold">历史记录</h3>
@@ -247,7 +247,7 @@ export default function VideoGeneration() {
       </div>
 
       {/* 中间配置区 */}
-      <div className="flex h-full w-[400px] shrink-0 flex-col gap-6 overflow-y-auto pb-6">
+      <div className="flex h-[calc(100vh-3.5rem-3rem)] w-[400px] shrink-0 flex-col gap-6 overflow-y-auto pb-6">
         <div className="space-y-4">
           <h2 className="text-xl font-bold">Generate</h2>
           
@@ -346,7 +346,7 @@ export default function VideoGeneration() {
       </div>
 
       {/* 右侧预览区 */}
-      <div className="flex min-h-[600px] flex-1 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 p-6">
+      <div className="flex flex-1 h-[calc(100vh-3.5rem-3rem)] flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 p-6 overflow-y-auto">
         {!taskStatus ? (
           <div className="text-center text-muted-foreground">
             <div className="mb-4 inline-block rounded-full bg-muted p-6">
