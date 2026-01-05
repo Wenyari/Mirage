@@ -117,6 +117,8 @@ def _should_refund_on_failure(fail_reason: str) -> bool:
         'illegal',
         'terms of service',
         'community guidelines',
+        '违规',
+        '违反'
     ]
 
     # 检查是否包含内容违规关键词
