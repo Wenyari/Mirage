@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import type { ModelOption, TaskHistoryItem, TaskStatusResponse } from '@/services/tasks';
+import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskStatusResponse } from '@/services/tasks';
 import { taskService } from '@/services/tasks';
 
 export default function VideoGeneration() {
@@ -37,11 +37,11 @@ export default function VideoGeneration() {
           taskService.getTaskHistory(1, 20)
         ]);
 
-        const modelsData = modelsResponse?.data || [];
-        const historyData = historyResponse?.data;
+        const modelsData = modelsResponse || [];
+        const historyData = historyResponse;
 
-        setModels(modelsData);
-        setHistory(historyData?.list || []);
+        setModels(modelsData as unknown as ModelOption[]);
+        setHistory((historyData as unknown as TaskHistoryResponse).list || []);
 
         // 默认选中第一个可用模型
         const firstAvailable = modelsData.find((m: ModelOption) => m.is_available);
@@ -356,7 +356,7 @@ export default function VideoGeneration() {
       </div>
 
       {/* 右侧预览区 */}
-      <div className="flex flex-1 h-[calc(100vh-3.5rem-3rem)] flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 p-6 overflow-y-auto">
+      <div className="flex h-[calc(100vh-3.5rem-3rem)] flex-1 flex-col items-center justify-center overflow-y-auto rounded-xl border border-dashed bg-muted/30 p-6">
         {!taskStatus ? (
           <div className="text-center text-muted-foreground">
             <div className="mb-4 inline-block rounded-full bg-muted p-6">
