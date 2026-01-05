@@ -44,6 +44,7 @@ export interface ModelOption {
   icon_url: string;
   enabled: number;
   max_concurrency_limit: number;
+  token_cost_config?: any; // optional JSON config, may include durations etc.
 }
 
 export interface TaskHistoryItem {

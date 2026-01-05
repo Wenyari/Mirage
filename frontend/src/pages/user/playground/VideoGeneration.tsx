@@ -204,6 +204,16 @@ export default function VideoGeneration() {
   };
 
   const selectedModelInfo = models.find(m => m.key === model);
+  
+  // available durations for selected model (seconds)
+  const availableDurations: number[] = (selectedModelInfo?.token_cost_config as any)?.durations || [5, 10];
+
+  // when model changes, set default duration to first available
+  useEffect(() => {
+    if (availableDurations && availableDurations.length > 0) {
+      setDuration(String(availableDurations[0]));
+    }
+  }, [model]);
 
   return (
     <div className="flex gap-6 px-6 pt-6">
@@ -320,20 +330,16 @@ export default function VideoGeneration() {
           <div className="space-y-2">
             <Label>时长</Label>
             <div className="flex gap-2">
-              <Button 
-                variant={duration === '5' ? 'default' : 'outline'} 
-                onClick={() => setDuration('5')}
-                className="flex-1"
-              >
-                5s
-              </Button>
-              <Button 
-                variant={duration === '10' ? 'default' : 'outline'} 
-                onClick={() => setDuration('10')}
-                className="flex-1"
-              >
-                10s
-              </Button>
+              {availableDurations.map((d) => (
+                <Button
+                  key={d}
+                  variant={duration === String(d) ? 'default' : 'outline'}
+                  onClick={() => setDuration(String(d))}
+                  className="flex-1"
+                >
+                  {d}s
+                </Button>
+              ))}
             </div>
           </div>
 
@@ -358,8 +364,18 @@ export default function VideoGeneration() {
       </div>
 
       {/* 右侧预览区 */}
-      <div className="fle1 flex-x-col justify-cent overflow-y-autoer pto h-[calc(100vh-3.5rem-3rem)] items-center rounded-xl border border-dashed bg-muted/30">
-         <div className="w-full max-w-3xl space-y-6">
+      <div className="flex flex-1 min-w-[480px] flex-col items-start rounded-xl border border-dashed bg-muted/30 p-6 overflow-y-auto">
+         <div className="w-full max-w-3xl space-y-6 mx-auto">
+           {!taskStatus ? (
+             <div className="flex flex-col items-center justify-center w-full h-[60vh] rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
+               <div className="mb-4 inline-block rounded-full bg-muted p-6">
+                 <Play className="ml-1 size-12" />
+               </div>
+               <h3 className="text-lg font-semibold">预览区域</h3>
+               <p className="text-sm text-muted-foreground mt-2">生成的内容将显示在这里。</p>
+             </div>
+           ) : (
+            <>
             {/* 状态展示 */}
             <Card className="p-6">
               <div className="space-y-4">
@@ -386,19 +402,19 @@ export default function VideoGeneration() {
 
                 {/* 进度条 */}
                 {(taskStatus?.status === 'pending' || taskStatus?.status === 'processing') && (
-                  <div className="space-y-2">
-                    <Progress value={taskStatus.progress || 0} className="h-2" />
+                <div className="space-y-2">
+                    <Progress value={taskStatus?.progress || 0} className="h-2" />
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>
-                        {taskStatus.status === 'pending' && (
+                        {taskStatus?.status === 'pending' && (
                           <>
-                            当前排在第 <span className="font-bold text-primary">{taskStatus.queue_info?.position}</span> 位
-                            (通道: {taskStatus.queue_info?.user_queue === 'vip' ? '权益通道' : '普通通道'})
+                            当前排在第 <span className="font-bold text-primary">{taskStatus?.queue_info?.position}</span> 位
+                            (通道: {taskStatus?.queue_info?.user_queue === 'vip' ? '权益通道' : '普通通道'})
                           </>
                         )}
-                        {taskStatus.status === 'processing' && `生成进度: ${taskStatus.progress}%`}
+                        {taskStatus?.status === 'processing' && `生成进度: ${taskStatus?.progress}%`}
                       </span>
-                      <span>{taskStatus.status === 'pending' ? '等待处理' : '处理中'}</span>
+                      <span>{taskStatus?.status === 'pending' ? '等待处理' : '处理中'}</span>
                     </div>
                   </div>
                 )}
@@ -415,10 +431,10 @@ export default function VideoGeneration() {
 
             {/* 视频结果 */}
             {taskStatus?.status === 'success' && taskStatus?.result_url && (
-              <div className="aspect-video overflow-hidden rounded-lg bg-black shadow-xl">
-                <video 
+              <div className="w-full overflow-hidden rounded-lg bg-black shadow-xl">
+                <video
                   src={taskStatus.result_url}
-                  className="size-full" 
+                  className="w-full h-auto max-h-[65vh] object-contain"
                   controls
                   autoPlay
                   loop
@@ -428,6 +444,8 @@ export default function VideoGeneration() {
                 </video>
               </div>
             )}
+            </>
+           )}
           </div>
       </div>
     </div>
