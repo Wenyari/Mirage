@@ -1,20 +1,19 @@
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { AlertCircle, Clock,History, Loader2, Lock, Play, Square, Upload, XCircle } from 'lucide-react';
-import { useEffect, useRef,useState } from 'react';
+import { AlertCircle, Clock, History, Loader2, Lock, Play, Upload, XCircle } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { ModelOption, TaskHistoryItem,taskService, TaskStatusResponse } from '@/services/tasks';
+import type { ModelOption, TaskHistoryItem, TaskStatusResponse } from '@/services/tasks';
+import { taskService } from '@/services/tasks';
 
 export default function VideoGeneration() {
   const [prompt, setPrompt] = useState('');
@@ -26,24 +25,26 @@ export default function VideoGeneration() {
   const [models, setModels] = useState<ModelOption[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [history, setHistory] = useState<TaskHistoryItem[]>([]);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingTimerRef = useRef<number | null>(null);
 
   // 加载模型列表和历史记录
   useEffect(() => {
     const initData = async () => {
       try {
         setIsLoadingModels(true);
-        const [modelsData, historyData] = await Promise.all([
+        const [modelsResponse, historyResponse] = await Promise.all([
           taskService.getAvailableModels(),
           taskService.getTaskHistory(1, 20)
         ]);
-        
-        setModels(modelsData || []);
+
+        const modelsData = modelsResponse?.data || [];
+        const historyData = historyResponse?.data;
+
+        setModels(modelsData);
         setHistory(historyData?.list || []);
-        
+
         // 默认选中第一个可用模型
-        const firstAvailable = (modelsData || []).find(m => m.is_available);
+        const firstAvailable = modelsData.find((m: ModelOption) => m.is_available);
         if (firstAvailable) {
           setModel(firstAvailable.key);
         }
@@ -61,8 +62,8 @@ export default function VideoGeneration() {
   // 刷新历史记录
   const refreshHistory = async () => {
     try {
-      const historyData = await taskService.getTaskHistory(1, 20);
-      setHistory(historyData?.list || []);
+      const historyResponse = await taskService.getTaskHistory(1, 20);
+      setHistory(historyResponse?.data?.list || []);
     } catch (error) {
       console.error('Failed to refresh history:', error);
     }
@@ -83,16 +84,19 @@ export default function VideoGeneration() {
 
     pollingTimerRef.current = setInterval(async () => {
       try {
-        const status = await taskService.getTaskStatus(id);
-        setTaskStatus(status);
+        const statusResponse = await taskService.getTaskStatus(id);
+        const status = statusResponse?.data;
+        if (status) {
+          setTaskStatus(status);
 
-        // 任务结束，停止轮询并刷新历史
-        if (['success', 'failed', 'cancelled'].includes(status.status)) {
-          if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
-          refreshHistory();
-          
-          if (status.status === 'success') toast.success('视频生成成功！');
-          if (status.status === 'failed') toast.error(`生成失败: ${status.fail_reason}`);
+          // 任务结束，停止轮询并刷新历史
+          if (['success', 'failed', 'cancelled'].includes(status.status)) {
+            if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
+            refreshHistory();
+
+            if (status.status === 'success') toast.success('视频生成成功！');
+            if (status.status === 'failed') toast.error(`生成失败: ${status.fail_reason}`);
+          }
         }
       } catch (error) {
         console.error('Failed to poll task status:', error);
@@ -122,22 +126,25 @@ export default function VideoGeneration() {
         params: { duration }
       });
 
-      setTaskId(response.task_id);
-      
-      // 初始化状态
-      setTaskStatus({
-        id: response.task_id,
-        status: 'pending',
-        progress: 0,
-        queue_info: {
-          user_queue: 'normal',
-          position: 1,
-          vip_queue: 0,
-          normal_queue: 1
-        }
-      });
+      const taskData = response?.data;
+      if (taskData) {
+        setTaskId(taskData.task_id);
 
-      startPolling(response.task_id);
+        // 初始化状态
+        setTaskStatus({
+          id: taskData.task_id,
+          status: 'pending',
+          progress: 0,
+          queue_info: {
+            user_queue: 'normal',
+            position: 1,
+            vip_queue: 0,
+            normal_queue: 1
+          }
+        });
+
+        startPolling(taskData.task_id);
+      }
       toast.success('任务已提交');
       
       // 延迟刷新历史记录，确保新任务出现
@@ -157,8 +164,11 @@ export default function VideoGeneration() {
       await taskService.cancelTask(taskId);
       toast.success('任务已取消');
       // 立即刷新状态
-      const status = await taskService.getTaskStatus(taskId);
-      setTaskStatus(status);
+      const statusResponse = await taskService.getTaskStatus(taskId);
+      const status = statusResponse?.data;
+      if (status) {
+        setTaskStatus(status);
+      }
       refreshHistory();
       if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
     } catch (error: any) {
@@ -194,9 +204,9 @@ export default function VideoGeneration() {
   const selectedModelInfo = models.find(m => m.key === model);
 
   return (
-    <div className="container mx-auto flex h-[calc(100vh-3.5rem)] max-w-[1600px] gap-6 p-6">
+    <div className="flex gap-6 px-6 pt-6">
       {/* 历史记录列表 */}
-      <div className="flex h-full w-[300px] shrink-0 flex-col gap-4 overflow-hidden rounded-xl border bg-muted/20">
+      <div className="flex h-[calc(100vh-3.5rem-3rem)] w-[300px] shrink-0 flex-col gap-4 overflow-hidden rounded-xl border bg-muted/20">
         <div className="flex items-center gap-2 border-b p-4">
           <History className="size-5 text-muted-foreground" />
           <h3 className="font-semibold">历史记录</h3>
@@ -247,7 +257,7 @@ export default function VideoGeneration() {
       </div>
 
       {/* 中间配置区 */}
-      <div className="flex h-full w-[400px] shrink-0 flex-col gap-6 overflow-y-auto pb-6">
+      <div className="flex h-[calc(100vh-3.5rem-3rem)] w-[400px] shrink-0 flex-col gap-6 overflow-y-auto pb-6">
         <div className="space-y-4">
           <h2 className="text-xl font-bold">Generate</h2>
           
@@ -328,7 +338,7 @@ export default function VideoGeneration() {
           <Button 
             className="h-12 w-full text-lg" 
             onClick={handleSubmit}
-            disabled={isSubmitting || (taskStatus && ['pending', 'processing'].includes(taskStatus.status))}
+            disabled={isSubmitting || (taskStatus?.status && ['pending', 'processing'].includes(taskStatus.status))}
           >
             {isSubmitting ? (
               <>
@@ -346,7 +356,7 @@ export default function VideoGeneration() {
       </div>
 
       {/* 右侧预览区 */}
-      <div className="flex min-h-[600px] flex-1 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 p-6">
+      <div className="flex flex-1 h-[calc(100vh-3.5rem-3rem)] flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 p-6 overflow-y-auto">
         {!taskStatus ? (
           <div className="text-center text-muted-foreground">
             <div className="mb-4 inline-block rounded-full bg-muted p-6">

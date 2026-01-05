@@ -1,6 +1,6 @@
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { ChevronDown, LogOut, User as UserIcon } from 'lucide-react';
 import * as React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,15 +10,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
 import { USER_NAVIGATION } from '@/config/user-navigation';
 import { cn } from '@/lib/utils';
 import { authService } from '@/services/auth';
@@ -26,9 +17,13 @@ import { useAuthStore } from '@/store/authStore';
 import { LEVEL_COLORS,USER_LEVEL_LABELS } from '@/types/user';
 
 export function UserNavbar() {
-  const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const [exploreOpen, setExploreOpen] = React.useState(false);
+  const [playgroundOpen, setPlaygroundOpen] = React.useState(false);
+  const [moreOpen, setMoreOpen] = React.useState(false);
+
+
 
   const handleLogout = async () => {
     try {
@@ -45,113 +40,137 @@ export function UserNavbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+      <div className="mx-auto flex h-14 max-w-none items-center px-4 sm:px-6 lg:px-8">
         <div className="mr-4 hidden md:flex">
           <Link to="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">Mirage</span>
           </Link>
-          <NavigationMenu>
-            <NavigationMenuList>
-              {/* Model Square */}
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                  <Link to={USER_NAVIGATION.MODEL_SQUARE.path}>
-                    {USER_NAVIGATION.MODEL_SQUARE.label}
+          <div className="flex items-center space-x-1">
+            {/* Model Square */}
+            <Link
+              to={USER_NAVIGATION.MODEL_SQUARE.path}
+              className="inline-flex h-9 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+            >
+              {USER_NAVIGATION.MODEL_SQUARE.label}
+            </Link>
+
+            {/* Explore */}
+            <HoverCard open={exploreOpen} onOpenChange={setExploreOpen} openDelay={20} closeDelay={20}>
+              <HoverCardTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent"
+                >
+                  {USER_NAVIGATION.EXPLORE.label}
+                  <ChevronDown className={cn("ml-1 h-3 w-3 transition-transform duration-200", exploreOpen && "rotate-180")} />
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent
+                align="start"
+                className="w-48 p-0"
+                sideOffset={4}
+              >
+                <div className="py-1">
+                  <Link
+                    to={USER_NAVIGATION.EXPLORE.children.PROMPTS.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.EXPLORE.children.PROMPTS.label}
                   </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+                  <Link
+                    to={USER_NAVIGATION.EXPLORE.children.AGENTS.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.EXPLORE.children.AGENTS.label}
+                  </Link>
+                  <Link
+                    to={USER_NAVIGATION.EXPLORE.children.WORKFLOWS.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.EXPLORE.children.WORKFLOWS.label}
+                  </Link>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
 
-              {/* Explore */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>{USER_NAVIGATION.EXPLORE.label}</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                    <ListItem
-                      href={USER_NAVIGATION.EXPLORE.children.PROMPTS.path}
-                      title={USER_NAVIGATION.EXPLORE.children.PROMPTS.label}
-                    >
-                      探索各种高效的提示词，激发无限灵感。
-                    </ListItem>
-                    <ListItem
-                      href={USER_NAVIGATION.EXPLORE.children.AGENTS.path}
-                      title={USER_NAVIGATION.EXPLORE.children.AGENTS.label}
-                    >
-                      发现并使用功能强大的智能体。
-                    </ListItem>
-                    <ListItem
-                      href={USER_NAVIGATION.EXPLORE.children.WORKFLOWS.path}
-                      title={USER_NAVIGATION.EXPLORE.children.WORKFLOWS.label}
-                    >
-                      构建和分享自动化工作流。
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+            {/* Playground */}
+            <HoverCard open={playgroundOpen} onOpenChange={setPlaygroundOpen} openDelay={20} closeDelay={20}>
+              <HoverCardTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent"
+                >
+                  {USER_NAVIGATION.PLAYGROUND.label}
+                  <ChevronDown className={cn("ml-1 h-3 w-3 transition-transform duration-200", playgroundOpen && "rotate-180")} />
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent
+                align="start"
+                className="w-48 p-0"
+                sideOffset={4}
+              >
+                <div className="py-1">
+                  <Link
+                    to={USER_NAVIGATION.PLAYGROUND.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.PLAYGROUND.label}
+                  </Link>
+                  <Link
+                    to={USER_NAVIGATION.PLAYGROUND.children.CHAT.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.PLAYGROUND.children.CHAT.label}
+                  </Link>
+                  <Link
+                    to={USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.label}
+                  </Link>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
 
-              {/* Playground */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>{USER_NAVIGATION.PLAYGROUND.label}</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                    <li className="row-span-3">
-                      <NavigationMenuLink asChild>
-                        <Link
-                          className="flex size-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                          to={USER_NAVIGATION.PLAYGROUND.path}
-                        >
-                          <div className="mb-2 mt-4 text-lg font-medium">
-                            {USER_NAVIGATION.PLAYGROUND.label}
-                          </div>
-                          <p className="text-sm leading-tight text-muted-foreground">
-                            沉浸式体验 AI 的强大能力。
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <ListItem
-                      href={USER_NAVIGATION.PLAYGROUND.children.CHAT.path}
-                      title={USER_NAVIGATION.PLAYGROUND.children.CHAT.label}
-                    >
-                      与智能模型进行实时对话。
-                    </ListItem>
-                    <ListItem
-                      href={USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.path}
-                      title={USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.label}
-                    >
-                      一键生成创意视频。
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* More */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>{USER_NAVIGATION.MORE.label}</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                    <ListItem
-                      href={USER_NAVIGATION.MORE.children.UPDATES.path}
-                      title={USER_NAVIGATION.MORE.children.UPDATES.label}
-                    >
-                      查看平台的最新动态和更新日志。
-                    </ListItem>
-                    <ListItem
-                      href={USER_NAVIGATION.MORE.children.EVENTS.path}
-                      title={USER_NAVIGATION.MORE.children.EVENTS.label}
-                    >
-                      参与精彩活动，赢取奖励。
-                    </ListItem>
-                    <ListItem
-                      href={USER_NAVIGATION.MORE.children.COMMUNITY.path}
-                      title={USER_NAVIGATION.MORE.children.COMMUNITY.label}
-                    >
-                      加入社区，与开发者交流。
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+            {/* More */}
+            <HoverCard open={moreOpen} onOpenChange={setMoreOpen} openDelay={20} closeDelay={20}>
+              <HoverCardTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent"
+                >
+                  {USER_NAVIGATION.MORE.label}
+                  <ChevronDown className={cn("ml-1 h-3 w-3 transition-transform duration-200", moreOpen && "rotate-180")} />
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent
+                align="start"
+                className="w-48 p-0"
+                sideOffset={4}
+              >
+                <div className="py-1">
+                  <Link
+                    to={USER_NAVIGATION.MORE.children.UPDATES.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.MORE.children.UPDATES.label}
+                  </Link>
+                  <Link
+                    to={USER_NAVIGATION.MORE.children.EVENTS.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.MORE.children.EVENTS.label}
+                  </Link>
+                  <Link
+                    to={USER_NAVIGATION.MORE.children.COMMUNITY.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.MORE.children.COMMUNITY.label}
+                  </Link>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
@@ -246,29 +265,3 @@ export function UserNavbar() {
   );
 }
 
-const ListItem = React.forwardRef<
-  React.ElementRef<'a'>,
-  React.ComponentPropsWithoutRef<'a'>
->(({ className, title, children, href, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <Link
-          ref={ref}
-          className={cn(
-            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-            className
-          )}
-          to={href || '#'}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = 'ListItem';
