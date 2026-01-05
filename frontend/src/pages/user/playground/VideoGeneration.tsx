@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskStatusResponse } from '@/services/tasks';
+import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskResponse, TaskStatusResponse } from '@/services/tasks';
 import { taskService } from '@/services/tasks';
 
 export default function VideoGeneration() {
@@ -37,11 +37,11 @@ export default function VideoGeneration() {
           taskService.getTaskHistory(1, 20)
         ]);
 
-        const modelsData = modelsResponse || [];
-        const historyData = historyResponse;
+        const modelsData = modelsResponse as unknown as ModelOption[] || [];
+        const historyData = historyResponse as unknown as TaskHistoryResponse;
 
-        setModels(modelsData as unknown as ModelOption[]);
-        setHistory((historyData as unknown as TaskHistoryResponse).list || []);
+        setModels(modelsData);
+        setHistory(historyData.list || []);
 
         // 默认选中第一个可用模型
         const firstAvailable = modelsData.find((m: ModelOption) => m.is_available);
@@ -63,7 +63,7 @@ export default function VideoGeneration() {
   const refreshHistory = async () => {
     try {
       const historyResponse = await taskService.getTaskHistory(1, 20);
-      setHistory(historyResponse?.data?.list || []);
+      setHistory((historyResponse as unknown as TaskHistoryResponse).list || []);
     } catch (error) {
       console.error('Failed to refresh history:', error);
     }
@@ -85,7 +85,7 @@ export default function VideoGeneration() {
     pollingTimerRef.current = setInterval(async () => {
       try {
         const statusResponse = await taskService.getTaskStatus(id);
-        const status = statusResponse?.data;
+        const status = statusResponse as unknown as TaskStatusResponse;
         if (status) {
           setTaskStatus(status);
 
@@ -126,7 +126,7 @@ export default function VideoGeneration() {
         params: { duration }
       });
 
-      const taskData = response?.data;
+      const taskData = response as unknown as TaskResponse;
       if (taskData) {
         setTaskId(taskData.task_id);
 
@@ -165,7 +165,7 @@ export default function VideoGeneration() {
       toast.success('任务已取消');
       // 立即刷新状态
       const statusResponse = await taskService.getTaskStatus(taskId);
-      const status = statusResponse?.data;
+      const status = statusResponse as unknown as TaskStatusResponse;
       if (status) {
         setTaskStatus(status);
       }
@@ -356,34 +356,25 @@ export default function VideoGeneration() {
       </div>
 
       {/* 右侧预览区 */}
-      <div className="flex h-[calc(100vh-3.5rem-3rem)] flex-1 flex-col items-center justify-center overflow-y-auto rounded-xl border border-dashed bg-muted/30 p-6">
-        {!taskStatus ? (
-          <div className="text-center text-muted-foreground">
-            <div className="mb-4 inline-block rounded-full bg-muted p-6">
-              <Play className="ml-1 size-12" />
-            </div>
-            <h3 className="text-lg font-medium">预览区域</h3>
-            <p>生成的内容将显示在这里</p>
-          </div>
-        ) : (
-          <div className="w-full max-w-3xl space-y-6">
+      <div className="fle1 flex-x-col justify-cent overflow-y-autoer pto h-[calc(100vh-3.5rem-3rem)] items-center rounded-xl border border-dashed bg-muted/30">
+         <div className="w-full max-w-3xl space-y-6">
             {/* 状态展示 */}
             <Card className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <h3 className="flex items-center gap-2 text-lg font-semibold">
-                      {taskStatus.status === 'pending' && '排队中...'}
-                      {taskStatus.status === 'processing' && '正在生成...'}
-                      {taskStatus.status === 'success' && '生成成功'}
-                      {taskStatus.status === 'failed' && '生成失败'}
-                      {taskStatus.status === 'cancelled' && '已取消'}
+                      {taskStatus?.status === 'pending' && '排队中...'}
+                      {taskStatus?.status === 'processing' && '正在生成...'}
+                      {taskStatus?.status === 'success' && '生成成功'}
+                      {taskStatus?.status === 'failed' && '生成失败'}
+                      {taskStatus?.status === 'cancelled' && '已取消'}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Task ID: {taskStatus.id}
+                      Task ID: {taskStatus?.id}
                     </p>
                   </div>
-                  {taskStatus.status === 'pending' && (
+                  {taskStatus?.status === 'pending' && (
                     <Button variant="destructive" size="sm" onClick={handleCancel}>
                       <XCircle className="mr-2 size-4" />
                       取消任务
@@ -392,7 +383,7 @@ export default function VideoGeneration() {
                 </div>
 
                 {/* 进度条 */}
-                {(taskStatus.status === 'pending' || taskStatus.status === 'processing') && (
+                {(taskStatus?.status === 'pending' || taskStatus?.status === 'processing') && (
                   <div className="space-y-2">
                     <Progress value={taskStatus.progress || 0} className="h-2" />
                     <div className="flex justify-between text-sm text-muted-foreground">
@@ -411,31 +402,31 @@ export default function VideoGeneration() {
                 )}
 
                 {/* 失败原因 */}
-                {taskStatus.status === 'failed' && (
+                {taskStatus?.status === 'failed' && (
                   <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-4 text-destructive">
                     <AlertCircle className="size-5" />
-                    <span>{taskStatus.fail_reason || '未知错误'}</span>
+                    <span>{taskStatus?.fail_reason || '未知错误'}</span>
                   </div>
                 )}
               </div>
             </Card>
 
             {/* 视频结果 */}
-            {taskStatus.status === 'success' && taskStatus.result_url && (
+            {taskStatus?.status === 'success' && taskStatus?.result_url && (
               <div className="aspect-video overflow-hidden rounded-lg bg-black shadow-xl">
                 <video 
-                  src={taskStatus.result_url} 
+                  src={taskStatus.result_url}
                   className="size-full" 
                   controls
                   autoPlay
                   loop
                 >
+                  <track kind="captions" srcLang="zh" label="中文字幕" default />
                   您的浏览器不支持 HTML5 视频。
                 </video>
               </div>
             )}
           </div>
-        )}
       </div>
     </div>
   );
