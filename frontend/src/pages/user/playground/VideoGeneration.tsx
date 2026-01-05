@@ -149,6 +149,7 @@ export default function VideoGeneration() {
       
       // 延迟刷新历史记录，确保新任务出现
       setTimeout(refreshHistory, 1000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.message || '提交失败');
     } finally {
@@ -171,6 +172,7 @@ export default function VideoGeneration() {
       }
       refreshHistory();
       if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.message || '取消失败');
     }
