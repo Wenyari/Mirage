@@ -55,7 +55,7 @@ export function UserNavbar() {
             </Link>
 
             {/* Explore */}
-            <HoverCard open={exploreOpen} onOpenChange={setExploreOpen} openDelay={0} closeDelay={0}>
+            <HoverCard open={exploreOpen} onOpenChange={setExploreOpen} openDelay={20} closeDelay={20}>
               <HoverCardTrigger asChild>
                 <Button
                   variant="ghost"
@@ -68,7 +68,7 @@ export function UserNavbar() {
               <HoverCardContent
                 align="start"
                 className="w-48 p-0"
-                sideOffset={8}
+                sideOffset={4}
               >
                 <div className="py-1">
                   <Link
@@ -94,7 +94,7 @@ export function UserNavbar() {
             </HoverCard>
 
             {/* Playground */}
-            <HoverCard open={playgroundOpen} onOpenChange={setPlaygroundOpen} openDelay={0} closeDelay={0}>
+            <HoverCard open={playgroundOpen} onOpenChange={setPlaygroundOpen} openDelay={20} closeDelay={20}>
               <HoverCardTrigger asChild>
                 <Button
                   variant="ghost"
@@ -107,7 +107,7 @@ export function UserNavbar() {
               <HoverCardContent
                 align="start"
                 className="w-48 p-0"
-                sideOffset={8}
+                sideOffset={4}
               >
                 <div className="py-1">
                   <Link
@@ -133,7 +133,7 @@ export function UserNavbar() {
             </HoverCard>
 
             {/* More */}
-            <HoverCard open={moreOpen} onOpenChange={setMoreOpen} openDelay={0} closeDelay={0}>
+            <HoverCard open={moreOpen} onOpenChange={setMoreOpen} openDelay={20} closeDelay={20}>
               <HoverCardTrigger asChild>
                 <Button
                   variant="ghost"
@@ -146,7 +146,7 @@ export function UserNavbar() {
               <HoverCardContent
                 align="start"
                 className="w-48 p-0"
-                sideOffset={8}
+                sideOffset={4}
               >
                 <div className="py-1">
                   <Link
