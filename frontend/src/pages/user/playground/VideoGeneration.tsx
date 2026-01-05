@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskResponse, TaskStatusResponse } from '@/services/tasks';
 import { taskService } from '@/services/tasks';
 
@@ -179,27 +180,42 @@ export default function VideoGeneration() {
   };
 
   // 选择历史任务
-  const handleSelectTask = (item: TaskHistoryItem) => {
+  const handleSelectTask = async (item: TaskHistoryItem) => {
     setTaskId(item.id);
-    
-    // 如果任务未完成，继续轮询
-    if (['pending', 'processing'].includes(item.status)) {
+
+    // 清理之前的轮询
+    if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
+
+    // 直接从后端拉取该任务的完整详情（包含 prompt/input_file_url/params 等）
+    try {
+      const statusResponse = await taskService.getTaskStatus(item.id);
+      const status = statusResponse as unknown as TaskStatusResponse;
+
+      if (status) {
+        setTaskStatus(status);
+
+        // 若任务仍在运行，启动轮询以获取实时进度
+        if (['pending', 'processing'].includes(status.status)) {
+          startPolling(item.id);
+        }
+      } else {
+        // 回退：使用历史记录的简略信息
+        setTaskStatus({
+          id: item.id,
+          status: item.status,
+          progress: item.status === 'success' ? 100 : 0,
+          result_url: item.result_url,
+        } as TaskStatusResponse);
+      }
+    } catch (error) {
+      console.error('Failed to fetch task status:', error);
+      // 回退到历史记录信息
       setTaskStatus({
         id: item.id,
         status: item.status,
-        progress: 0, // 历史记录中可能没有实时进度，需要接口补充
+        progress: item.status === 'success' ? 100 : 0,
         result_url: item.result_url,
-      });
-      startPolling(item.id);
-    } else {
-      // 已完成任务，直接显示
-      if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
-      setTaskStatus({
-        id: item.id,
-        status: item.status,
-        progress: 100,
-        result_url: item.result_url,
-      });
+      } as TaskStatusResponse);
     }
   };
 
@@ -398,6 +414,48 @@ export default function VideoGeneration() {
                       取消任务
                     </Button>
                   )}
+                  {/* Details dialog trigger */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="ml-2">
+                        任务详情
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogTitle>任务详情</DialogTitle>
+                      <DialogDescription>
+                        以下为该任务的详细信息。
+                      </DialogDescription>
+                      <div className="mt-4 space-y-3">
+                        <div>
+                          <div className="text-sm text-muted-foreground">模型</div>
+                          <div className="font-medium">{(taskStatus as any)?.model || selectedModelInfo?.name || '-'}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground">提示词</div>
+                          <div className="break-words whitespace-pre-wrap bg-muted/10 p-3 rounded">{(taskStatus as any)?.prompt || '-'}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground">参数</div>
+                          <div className="font-medium">{JSON.stringify((taskStatus as any)?.params || {})}</div>
+                        </div>
+                        {(taskStatus as any)?.input_file_url && (
+                          <div>
+                            <div className="text-sm text-muted-foreground">输入文件</div>
+                            <img src={(taskStatus as any).input_file_url} alt="input" className="max-w-full max-h-48 object-contain rounded" />
+                          </div>
+                        )}
+                        <div>
+                          <div className="text-sm text-muted-foreground">消耗积分</div>
+                          <div className="font-medium">{(taskStatus as any)?.cost_points ?? '-'}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground">创建时间</div>
+                          <div className="font-medium">{(taskStatus as any)?.created_at || '-'}</div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 {/* 进度条 */}
