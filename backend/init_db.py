@@ -110,8 +110,9 @@ def init_model_configs():
                 'model': 'sora-2',
                 'allowed_tiers': ["T3", "T4", "T5"],
                 'cost_per_call': 100.00,
-                # token_cost_config now includes allowed durations (in seconds)
-                'token_cost_config': {"enabled": False, "durations": [10, 15]},
+                # params 用于存放模型特定的可配置项（如 durations、hd 等）
+                'params': {"durations": [10, 15], "hd_supported": True},
+                'token_cost_config': {"enabled": False},
                 'is_active': 1,
                 'description': 'Sora 视频生成配置'
             }

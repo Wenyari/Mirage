@@ -27,6 +27,7 @@ export interface ModelConfig {
   allowed_tiers: MembershipTier[]; // 允许使用的等级
   cost_per_call: number;           // 每次调用扣除积分（固定计费）
   token_cost_config: TokenCostConfig; // Token 计费配置
+  params?: Record<string, any>;     // 模型自定义参数，如 durations、hd 等
   is_active: boolean;              // 是否启用该模型
   description?: string;            // 模型描述
   created_at: string;

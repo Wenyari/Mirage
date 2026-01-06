@@ -57,6 +57,7 @@ class ModelConfig(db.Model):
     allowed_tiers = db.Column(db.JSON, nullable=False)  # 允许使用的等级数组 ["T1","T2",...]
     cost_per_call = db.Column(db.Numeric(10, 2), default=0.00, nullable=False)  # 固定计费
     token_cost_config = db.Column(db.JSON, nullable=True)  # Token 计费配置
+    params = db.Column(db.JSON, nullable=True)  # 自定义参数配置（如 durations, hd 等）
     is_active = db.Column(db.SmallInteger, default=1, nullable=False)  # 是否启用
     description = db.Column(db.Text, nullable=True)  # 配置说明
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -79,6 +80,7 @@ class ModelConfig(db.Model):
             'allowed_tiers': self.allowed_tiers,
             'cost_per_call': float(self.cost_per_call),
             'token_cost_config': self.token_cost_config,
+            'params': self.params,
             'is_active': self.is_active,
             'description': self.description,
             'created_at': self.created_at.isoformat() if self.created_at else None,

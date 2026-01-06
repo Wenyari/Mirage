@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { ApiResponse } from '@/types/api';
+import type { ApiResponse } from '@/types/api';
 
 // Request Types
 export interface CreateTaskRequest {
@@ -44,7 +44,8 @@ export interface ModelOption {
   icon_url: string;
   enabled: number;
   max_concurrency_limit: number;
-  token_cost_config?: any; // optional JSON config, may include durations etc.
+  token_cost_config?: any; // optional token cost config (kept for backward compat)
+  params?: any; // optional JSON config for model-specific params like durations, hd, etc.
 }
 
 export interface TaskHistoryItem {

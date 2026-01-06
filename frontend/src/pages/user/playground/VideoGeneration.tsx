@@ -222,7 +222,7 @@ export default function VideoGeneration() {
   const selectedModelInfo = models.find(m => m.key === model);
   
   // available durations for selected model (seconds)
-  const availableDurations: number[] = (selectedModelInfo?.token_cost_config as any)?.durations || [5, 10];
+  const availableDurations: number[] = (selectedModelInfo?.params as any)?.durations || [5, 10];
 
   // when model changes, set default duration to first available
   useEffect(() => {

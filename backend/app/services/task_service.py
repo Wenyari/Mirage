@@ -363,11 +363,15 @@ class TaskService:
             # 添加价格信息
             model_dict['cost_per_call'] = float(config.cost_per_call)
             model_dict['allowed_tiers'] = config.allowed_tiers
-            # 将配置中的 token_cost_config 一并返回，前端可读取可选时长等信息
+            # 将配置中的 token_cost_config 与 params 一并返回
             try:
                 model_dict['token_cost_config'] = config.token_cost_config
             except Exception:
                 model_dict['token_cost_config'] = None
+            try:
+                model_dict['params'] = config.params
+            except Exception:
+                model_dict['params'] = None
 
             # 判断用户是否可用
             is_available = user_tier in config.allowed_tiers
