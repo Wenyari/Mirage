@@ -202,28 +202,10 @@ def process_task(payload):
 
         logger.info(f"Submitting task to {submit_url}")
 
-        # 构建符合上游 API 的请求体
-        # 1. 处理 images 字段（必需）
-        images = params.get('images')  # 优先使用 params 中的 images
-        if not images:
-            # 如果 params 中没有 images，尝试从 input_file_url 转换
-            input_url = payload.get('input_file_url')
-            if input_url:
-                # 单个 URL 转为数组
-                images = [input_url] if isinstance(input_url, str) else input_url
-            else:
-                # 如果都没有，使用空数组（某些 API 可能允许纯文本生成）
-                images = []
+        # 【使用适配器构造请求体】
+        submit_payload = adapter.build_submit_payload(payload)
 
-        # 2. 构建完整请求体
-        submit_payload = {
-            "model": payload.get('model'),  # 必需：模型标识
-            "prompt": payload.get('prompt', ''),  # 必需：提示词
-            "images": images,  # 必需：图片列表
-            **params  # 合并其他参数（aspect_ratio, duration, hd, watermark 等）
-        }
-
-        logger.info(f"Submitting task param: {params}")
+        logger.info(f"Submitting task payload: {submit_payload}")
         resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=30)
 
         # 错误处理
@@ -243,84 +225,121 @@ def process_task(payload):
 
         # 解析响应（使用适配器）
         response_data = resp.json()
-        task_uuid = adapter.parse_submit_response(response_data)
-        if not task_uuid:
-            raise Exception("Failed to extract task ID from API response")
 
-        logger.info(f"Task {task_id} submitted successfully, upstream ID: {task_uuid}")
+        # 【关键分支】根据任务类型选择处理流程
+        if adapter.is_async_task():
+            # ========== 异步任务流程（视频生成等） ==========
+            task_uuid = adapter.parse_submit_response(response_data)
+            if not task_uuid:
+                raise Exception("Failed to extract task ID from API response")
 
-        # 【关键】保存上游任务ID到数据库（使用独立连接）
-        save_upstream_sql = text("""
-            UPDATE tasks
-            SET upstream_task_id = :upstream_task_id
-            WHERE id = :task_id
-        """)
-        execute_sql(save_upstream_sql, {
-            "task_id": task_id,
-            "upstream_task_id": task_uuid
-        })
+            logger.info(f"Task {task_id} submitted successfully, upstream ID: {task_uuid}")
 
-        # 3. 轮询任务进度
-        status_url = f"{status_base.rstrip('/')}/{task_uuid}"
-        max_poll_time = 600  # 最长轮询时间 10 分钟
-        poll_interval = 3    # 轮询间隔 3 秒
-        start_time = time.time()
+            # 【关键】保存上游任务ID到数据库（使用独立连接）
+            save_upstream_sql = text("""
+                UPDATE tasks
+                SET upstream_task_id = :upstream_task_id
+                WHERE id = :task_id
+            """)
+            execute_sql(save_upstream_sql, {
+                "task_id": task_id,
+                "upstream_task_id": task_uuid
+            })
 
-        while True:
-            # 检查是否超时
-            if time.time() - start_time > max_poll_time:
-                raise Exception("Task polling timeout")
+            # 3. 轮询任务进度
+            polling_config = adapter.get_polling_config()
+            status_url_pattern = polling_config['status_url_pattern']
+            status_url = status_url_pattern.format(
+                base=status_base.rstrip('/'),
+                task_id=task_uuid
+            )
+            max_poll_time = polling_config['max_timeout']
+            poll_interval = polling_config['interval']
+            start_time = time.time()
 
-            time.sleep(poll_interval)
+            while True:
+                # 检查是否超时
+                if time.time() - start_time > max_poll_time:
+                    raise Exception("Task polling timeout")
 
-            # 查询状态
-            logger.debug(f"Polling status for task {task_id}")
-            check = requests.get(status_url, headers=headers, timeout=30)
+                time.sleep(poll_interval)
 
-            if check.status_code >= 400:
-                logger.error(f"Status check error {check.status_code}: {check.text}")
-                raise Exception(f"Status check failed: {check.status_code}")
+                # 查询状态
+                logger.debug(f"Polling status for task {task_id}")
+                check = requests.get(status_url, headers=headers, timeout=30)
 
-            # 【使用适配器解析响应】
-            raw_data = check.json()
-            parsed = adapter.parse_status_response(raw_data)
+                if check.status_code >= 400:
+                    logger.error(f"Status check error {check.status_code}: {check.text}")
+                    raise Exception(f"Status check failed: {check.status_code}")
 
-            state = parsed['status']  # SUCCESS / FAILED / RUNNING
-            progress = parsed['progress']  # 0-100 整数
-            result_url = parsed['result_url']
-            fail_reason = parsed['fail_reason']
+                # 【使用适配器解析响应】
+                raw_data = check.json()
+                parsed = adapter.parse_status_response(raw_data)
 
-            logger.info(f"Task {task_id} rawData:{raw_data} status: {state}, progress: {progress}%")
+                state = parsed['status']  # SUCCESS / FAILED / RUNNING
+                progress = parsed['progress']  # 0-100 整数
+                result_url = parsed['result_url']
+                fail_reason = parsed['fail_reason']
 
-            # 写入 Redis 实时进度（只使用本地任务ID）
-            if state == 'RUNNING':
-                get_redis().setex(f"task:progress:{task_id}", 86400, progress)
+                logger.info(f"Task {task_id} rawData:{raw_data} status: {state}, progress: {progress}%")
 
-            elif state == 'SUCCESS':
-                # 任务成功（使用独立连接）
-                success_sql = text("""
-                    UPDATE tasks
-                    SET status = 'success',
-                        progress = 100,
-                        result_url = :result_url,
-                        finished_at = :finished_at
-                    WHERE id = :task_id
-                """)
-                execute_sql(success_sql, {
-                    "task_id": task_id,
-                    "result_url": result_url,
-                    "finished_at": datetime.now()
-                })
+                # 写入 Redis 实时进度（只使用本地任务ID）
+                if state == 'RUNNING':
+                    get_redis().setex(f"task:progress:{task_id}", 86400, progress)
 
-                # 清理 Redis 进度
-                get_redis().delete(f"task:progress:{task_id}")
+                elif state == 'SUCCESS':
+                    # 任务成功（使用独立连接）
+                    success_sql = text("""
+                        UPDATE tasks
+                        SET status = 'success',
+                            progress = 100,
+                            result_url = :result_url,
+                            finished_at = :finished_at
+                        WHERE id = :task_id
+                    """)
+                    execute_sql(success_sql, {
+                        "task_id": task_id,
+                        "result_url": result_url,
+                        "finished_at": datetime.now()
+                    })
 
-                logger.info(f"Task {task_id} completed successfully, result: {result_url}")
-                break
+                    # 清理 Redis 进度
+                    get_redis().delete(f"task:progress:{task_id}")
 
-            elif state == 'FAILED':
-                # 任务失败
-                raise Exception(fail_reason or 'Unknown error')
+                    logger.info(f"Task {task_id} completed successfully, result: {result_url}")
+                    break
+
+                elif state == 'FAILED':
+                    # 任务失败
+                    raise Exception(fail_reason or 'Unknown error')
+
+        else:
+            # ========== 同步任务流程（图片生成/编辑等） ==========
+            logger.info(f"Task {task_id} is synchronous, parsing result directly")
+
+            # 1. 直接从提交响应中解析结果
+            result = adapter.parse_sync_response(response_data)
+
+            if not result.get('result_url'):
+                logger.error(f"Sync task {task_id} has no result_url in response: {response_data}")
+                raise Exception("No result found in synchronous response")
+
+            # 2. 立即更新数据库为成功
+            success_sql = text("""
+                UPDATE tasks
+                SET status = 'success',
+                    progress = 100,
+                    result_url = :result_url,
+                    finished_at = :finished_at
+                WHERE id = :task_id
+            """)
+            execute_sql(success_sql, {
+                "task_id": task_id,
+                "result_url": result['result_url'],
+                "finished_at": datetime.now()
+            })
+
+            logger.info(f"Task {task_id} completed synchronously, result: {result['result_url']}")
 
     except Exception as e:
         # 任务失败处理（使用原始 SQL）

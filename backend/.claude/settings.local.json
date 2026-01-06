@@ -4,7 +4,11 @@
       "Bash(tree:*)",
       "Bash(python -m pytest:*)",
       "Bash(conda run:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(C:Userswenyarianaconda3envssora_envpython.exe -m py_compile F:Miragebackendappadaptersapi_adapter.py)",
+      "Bash(C:/Users/wenyari/anaconda3/envs/sora_env/python.exe -m py_compile app/adapters/api_adapter.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile app/adapters/api_adapter.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile worker.py)"
     ]
   }
 }
