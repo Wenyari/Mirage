@@ -22,7 +22,7 @@ class Model(db.Model):
 
     # 关系映射
     config = db.relationship('ModelConfig', backref='model_info', uselist=False, lazy=True)
-    api_keys = db.relationship('ApiKey', backref='model_info', lazy='dynamic')
+    # api_keys 多对多关系在 ApiKey 类中定义（通过 backref）
     tasks = db.relationship('Task', backref='model_info', lazy='dynamic')
 
     # 索引
@@ -93,7 +93,7 @@ class ApiKey(db.Model):
     __tablename__ = 'api_keys'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    model = db.Column(db.String(50), db.ForeignKey('models.key'), nullable=False)
+    # model 字段已移除，改为多对多关系
     api_base = db.Column(db.String(512), nullable=False)  # API 完整端点地址（含路径）
     key_secret = db.Column(db.String(512), nullable=False)  # 密钥本体（建议加密存储）
     max_concurrency = db.Column(db.Integer, default=3, nullable=False)  # 最大并发限制
@@ -106,22 +106,30 @@ class ApiKey(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # 关系映射
+    # 多对多关系：一个 ApiKey 可以支持多个 Model
+    models = db.relationship(
+        'Model',
+        secondary='api_key_models',
+        backref=db.backref('api_keys', lazy='dynamic'),
+        lazy='select'
+    )
     tasks = db.relationship('Task', backref='api_key_info', lazy='dynamic')
 
     # 索引
     __table_args__ = (
-        db.Index('idx_model_status', 'model', 'status'),
+        db.Index('idx_status', 'status'),
         db.Index('idx_weight', 'weight'),
     )
 
     def __repr__(self):
-        return f'<ApiKey {self.id} - {self.model}>'
+        model_keys = ','.join([m.key for m in self.models]) if self.models else 'none'
+        return f'<ApiKey {self.id} - [{model_keys}]>'
 
     def to_dict(self, include_secret=False):
         """转换为字典"""
         result = {
             'id': self.id,
-            'model': self.model,
+            'models': [m.key for m in self.models],  # 改为模型列表
             'api_base': self.api_base,
             'max_concurrency': self.max_concurrency,
             'weight': self.weight,

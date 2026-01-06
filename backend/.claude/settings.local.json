@@ -8,7 +8,15 @@
       "Bash(C:Userswenyarianaconda3envssora_envpython.exe -m py_compile F:Miragebackendappadaptersapi_adapter.py)",
       "Bash(C:/Users/wenyari/anaconda3/envs/sora_env/python.exe -m py_compile app/adapters/api_adapter.py)",
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile app/adapters/api_adapter.py)",
-      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile worker.py)"
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile worker.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile app/adapters/base_adapter.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile app/adapters/t8star_video_adapter.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile app/adapters/t8star_image_adapter.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile app/adapters/t8star_image_edit_adapter.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile app/adapters/default_adapter.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile app/adapters/adapter_factory.py)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -c \"from app.adapters import get_adapter, T8StarVideoGenerationAdapter, T8StarImageGenerationAdapter, T8StarImageEditAdapter, DefaultAdapter; print\\(''All imports successful!''\\)\")",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -c \"from app.adapters import get_adapter; adapter = get_adapter\\(''https://ai.t8star.cn/v2/videos/generations''\\); print\\(f''Video adapter: {adapter.__class__.__name__}''\\); adapter2 = get_adapter\\(''https://ai.t8star.cn/v1/images/generations''\\); print\\(f''Image adapter: {adapter2.__class__.__name__}''\\)\")"
     ]
   }
 }
