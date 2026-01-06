@@ -24,6 +24,7 @@ import Events from '@/pages/user/more/Events';
 import Updates from '@/pages/user/more/Updates';
 import Chat from '@/pages/user/playground/Chat';
 import VideoGeneration from '@/pages/user/playground/VideoGeneration';
+import Credits from '@/pages/user/settings/Credits';
 
 export const router = createBrowserRouter([
   // Admin Routes
@@ -134,6 +135,15 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path: 'setting',
+        children: [
+          {
+            path: 'credits',
+            element: <Credits />,
+          },
+        ],
+      },
+      {
         path: 'more',
         children: [
           {
@@ -151,6 +161,15 @@ export const router = createBrowserRouter([
           {
             path: 'community',
             element: <Community />,
+          },
+          {
+            path: 'setting',
+            children: [
+              {
+                path: 'credits',
+                element: <Credits />,
+              },
+            ],
           },
         ],
       },

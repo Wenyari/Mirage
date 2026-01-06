@@ -232,6 +232,14 @@ export function UserNavbar() {
                           进入管理后台
                         </Button>
                       )}
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => navigate('/setting/credits')}
+                      >
+                        <span className="mr-2 size-4">💳</span>
+                        充值与兑换
+                      </Button>
                       <Button 
                         variant="ghost" 
                         className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-600" 

@@ -39,6 +39,16 @@ export const USER_NAVIGATION = {
       },
     },
   },
+  SETTINGS: {
+    label: '设置',
+    path: '/setting',
+    children: {
+      CREDITS: {
+        label: '充值与兑换',
+        path: '/setting/credits',
+      },
+    },
+  },
   MORE: {
     label: '更多',
     path: '/more',
