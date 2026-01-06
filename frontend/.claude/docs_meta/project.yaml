@@ -1,0 +1,248 @@
+# 项目元信息配置
+# 用于 write_doc skill 生成准确的技术文档
+# 最后更新：2025-12-01
+
+project:
+  name: "标准范式组件库"
+  name_en: "Standard Paradigm Chart Library"
+  package_name: "thsc-datav-standard-chart"
+  version: "1.11.2"
+  description: "Standard normal form components - ECharts 扩展图表库"
+  keywords: ["柱状图", "动态", "组件", "可视化"]
+  repo: "http://gitlab.myhexin.com/cifox/datav/dynamic-chart.git"
+  license: "ISC"
+
+environment:
+  node:
+    min_version: "14.0.0"
+    recommended: "16.x 或 18.x LTS"
+    reason: "项目使用现代 JavaScript 特性，需要 Node.js 14+ 支持"
+
+  package_manager:
+    primary: "npm"
+    alternatives: ["pnpm", "yarn"]
+    note: "项目使用 npm，但也兼容 pnpm 和 yarn"
+
+  ide:
+    recommended: "Visual Studio Code"
+    plugins:
+      - name: "ESLint"
+        purpose: "代码风格检查"
+      - name: "Prettier"
+        purpose: "代码格式化"
+      - name: "TypeScript"
+        purpose: "类型检查和智能提示"
+
+  browser:
+    note: "基于 echarts 和 zrender，支持现代浏览器"
+    compatibility: "见 package.json browserslist 配置"
+
+dependencies:
+  core:
+    echarts:
+      version: "6.0.0"
+      purpose: "核心图表库"
+      peer: true
+    zrender:
+      version: "6.0.0"
+      purpose: "图形渲染引擎"
+      peer: true
+    typescript:
+      version: "^4.6.4"
+      purpose: "类型系统"
+      dev: true
+
+  d3_modules:
+    note: "使用多个 D3 模块进行布局计算"
+    modules:
+      - "d3-force: ^3.0.0 - 力导向图布局"
+      - "d3-hierarchy: ^3.1.2 - 层次结构数据处理"
+      - "d3-polygon: ^3.0.1 - 多边形计算"
+      - "d3-scale: ^4.0.2 - 比例尺"
+      - "d3-voronoi-map: ^2.1.0 - 韦恩图布局"
+
+  build_tools:
+    rollup: "^2.75.5 - 主要构建工具"
+    esbuild: "^0.14.42 - 快速开发模式"
+    babel: "^7.x - TypeScript 转译"
+    jest: "^28.1.1 - 单元测试框架"
+
+development:
+  commands:
+    dev:
+      command: "npm run dev"
+      description: "Rollup 开发模式（watch）"
+
+    esbuild_dev:
+      command: "npm run esbuild-dev"
+      description: "ESBuild 开发模式（更快）"
+
+    dev_serve:
+      command: "npm run dev-serve"
+      description: "开发模式 + Web 服务器"
+
+    esbuild_dev_serve:
+      command: "npm run esbuild-dev-serve"
+      description: "ESBuild 开发模式 + Web 服务器"
+
+  test:
+    command: "npm run test"
+    framework: "Jest with JSDom"
+    coverage: "生成到 coverage/ 目录"
+
+  lint:
+    command: "npm run lint"
+    tool: "ESLint"
+    config: ".eslintrc.cjs"
+    auto_fix: true
+
+  type_check:
+    command: "npm run tsc:types:check"
+    description: "TypeScript 类型检查（不生成文件）"
+
+build:
+  commands:
+    full_build:
+      command: "npm run build"
+      steps: "测试 → 生成类型声明 → Rollup 打包"
+
+    esm_only:
+      command: "npm run build:esm"
+      description: "仅构建 ESM 模块"
+
+    cdn_build:
+      command: "npm run build:cdn"
+      description: "CDN 分发版本"
+
+  outputs:
+    main:
+      - path: "index.umd.js"
+        format: "UMD"
+        description: "浏览器和 Node.js 通用格式"
+      - path: "index.esm.js"
+        format: "ESM"
+        description: "ES 模块格式"
+
+    types:
+      path: "types/"
+      entry: "types/index.d.ts"
+      description: "TypeScript 类型声明文件"
+
+    modular:
+      path: "build/esm/"
+      description: "模块化构建产物，支持按需引入"
+      modules:
+        - "core.js - 核心功能"
+        - "charts-basic.js - 基础图表"
+        - "charts-advanced.js - 高级图表"
+        - "charts-analysis.js - 分析类图表"
+        - "charts-special.js - 特殊图表"
+        - "components.js - 组件"
+        - "theme-*.js - 主题系列"
+        - "helpers.js - 辅助函数"
+
+deployment:
+  npm:
+    registry: "https://registry.npmjs.org"
+    package: "thsc-datav-standard-chart"
+    publish_command: "npm publish"
+    pre_publish: "自动运行测试和构建"
+
+  cdn:
+    note: "构建后可上传至 CDN，或使用公共 CDN"
+    public_cdn:
+      - "unpkg: https://unpkg.com/thsc-datav-standard-chart@版本号/"
+      - "jsDelivr: https://cdn.jsdelivr.net/npm/thsc-datav-standard-chart@版本号/"
+
+  package_exports:
+    description: "支持模块化导入"
+    examples:
+      - "import Chart from 'thsc-datav-standard-chart' - 完整引入"
+      - "import { core } from 'thsc-datav-standard-chart/core' - 按需引入"
+      - "import { ThemeAinvest } from 'thsc-datav-standard-chart/theme-ainvest'"
+
+team_conventions:
+  code_style:
+    tool: "ESLint + Prettier"
+    config: ".eslintrc.cjs"
+    auto_format: true
+    cache: "node_modules/.cache/.eslintcache"
+
+  git_workflow:
+    main_branch: "main - 主分支，稳定版本"
+    dev_branch: "develop - 开发分支"
+    commit_msg:
+      format: "Conventional Commits"
+      check: "Husky 钩子检查"
+      script: ".check-commit-msg.js"
+
+  testing:
+    framework: "Jest"
+    coverage_requirement: "无强制要求，但鼓励高覆盖率"
+    run_before_publish: "自动运行（prerelease 钩子）"
+
+  module_import:
+    standard: "使用 .js 扩展名导入 ECharts/ZRender 模块"
+    transform_script: "node scripts/transformEChartsImports.mjs"
+    transform_rules:
+      - "zrender/src → zrender/lib"
+      - "添加 .js 后缀到 echarts/lib、echarts/types、zrender/lib 导入"
+
+architecture:
+  type: "ECharts 扩展库"
+  pattern: "插件系统"
+
+  entry_points:
+    main: "src/index.ts - 主入口，安装所有扩展和主题"
+    standard_chart: "src/standardChart.ts - 图表初始化和管理"
+
+  directory_structure:
+    extension: "src/extension/ - ECharts 扩展"
+    theme: "src/theme/ - 主题系统（PC/Mobile/Ainvest/Business）"
+    helper: "src/helper/ - 工具函数和布局算法"
+    model: "src/model/ - 数据模型和系列配置"
+
+  extension_pattern:
+    description: "所有扩展遵循 ECharts 插件模式"
+    example: |
+      export function install(registers) {
+        registers.registerComponentModel(ModelClass);
+        registers.registerComponentView(ViewClass);
+        registers.registerAction(actionInfo, actionHandler);
+      }
+
+documentation:
+  location: "docs/"
+  structure:
+    - "01-project-overview.md - 项目概览"
+    - "02-quick-start.md - 快速开始"
+    - "03-core-concepts.md - 核心概念"
+    - "04-technical-architecture.md - 技术架构"
+    - "05-component-system.md - 组件系统"
+    - "06-development-guide.md - 开发指南"
+    - "07-build-and-deployment.md - 构建与部署"
+
+  examples:
+    path: "examples/"
+    description: "包含各种图表类型的示例代码"
+
+troubleshooting:
+  common_issues:
+    - issue: "模块导入错误"
+      solution: "运行 node scripts/transformEChartsImports.mjs 转换导入路径"
+
+    - issue: "类型检查失败"
+      solution: "运行 npm run tsc:types:check 查看详细错误"
+
+    - issue: "构建失败"
+      solution: "检查 Node.js 版本是否 >= 14.0.0，清除 node_modules 重新安装"
+
+    - issue: "测试失败"
+      solution: "运行 npm run test-watch 进入 watch 模式调试"
+
+notes:
+  - "本项目是 monorepo 的一部分 (packages/paradigm-chart)"
+  - "构建时会自动生成类型声明文件"
+  - "支持多种主题和平台（PC/Mobile）"
+  - "使用 patch-package 管理第三方包补丁"
+  - "Web Worker 支持通过 rollup-plugin-web-worker-loader 实现"

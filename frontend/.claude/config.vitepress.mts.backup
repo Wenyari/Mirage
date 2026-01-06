@@ -1,0 +1,163 @@
+import { defineConfig } from 'vitepress'
+
+export default defineConfig({
+  title: 'HIVIS',
+  description: 'Hexin Intelligent Visualization - 可视化组件库完整技术文档',
+  base: '/',
+
+  // Vite 配置
+  vite: {
+    optimizeDeps: {
+      include: ['mermaid']
+    }
+  },
+
+  // 主题配置
+  themeConfig: {
+    // 网站标题
+    siteTitle: 'StandardCharts',
+
+    // Logo
+    logo: '/logo.svg',
+
+    // 导航栏
+    nav: [
+      { text: '首页', link: '/' },
+      { text: '指南', link: '/01-project-overview' },
+      { text: 'API 参考', link: '/08-api-reference' },
+      { text: 'GitHub', link: 'https://github.com/zhouchangju/HIVIS' }
+    ],
+
+    // 侧边栏
+    sidebar: [
+      {
+        text: '入门与基础',
+        items: [
+          {
+            text: '第 1 章：项目概述',
+            link: '/01-project-overview'
+          },
+          {
+            text: '第 2 章：快速开始',
+            link: '/02-quick-start'
+          }
+        ]
+      },
+      {
+        text: '核心原理',
+        items: [
+          {
+            text: '第 3 章：核心概念',
+            link: '/03-core-concepts'
+          },
+          {
+            text: '第 4 章：技术架构',
+            link: '/04-technical-architecture'
+          }
+        ]
+      },
+      {
+        text: '开发实践',
+        items: [
+          {
+            text: '第 5 章：组件系统',
+            link: '/05-component-system'
+          },
+          {
+            text: '第 6 章：开发指南',
+            link: '/06-development-guide'
+          },
+          {
+            text: '第 7 章：构建与部署',
+            link: '/07-build-and-deployment'
+          }
+        ]
+      },
+      {
+        text: '参考与最佳实践',
+        items: [
+          {
+            text: '第 8 章：API 参考',
+            link: '/08-api-reference'
+          },
+          {
+            text: '第 9 章：最佳实践',
+            link: '/09-best-practices'
+          },
+          {
+            text: '第 10 章：常见问题',
+            link: '/10-troubleshooting-faq'
+          }
+        ]
+      }
+    ],
+
+    // 社交链接
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/zhouchangju/HIVIS' }
+    ],
+
+    // 页脚
+    footer: {
+      message: '基于 MIT 协议发布',
+      copyright: 'Copyright © 2025 HIVIS Team'
+    },
+
+    // 搜索
+    search: {
+      provider: 'local'
+    },
+
+    // 编辑链接
+    editLink: {
+      pattern: 'https://github.com/zhouchangju/HIVIS/edit/main/documents/docs/:path',
+      text: '在 GitHub 上编辑此页'
+    },
+
+    // 最后更新时间
+    lastUpdated: {
+      text: '最后更新',
+      formatOptions: {
+        dateStyle: 'short',
+        timeStyle: 'short'
+      }
+    },
+
+    // 文档页脚
+    docFooter: {
+      prev: '上一页',
+      next: '下一页'
+    },
+
+    // 大纲配置
+    outline: {
+      level: [2, 3],
+      label: '目录'
+    },
+
+    // 返回顶部
+    returnToTopLabel: '返回顶部',
+    sidebarMenuLabel: '菜单',
+    darkModeSwitchLabel: '主题',
+    lightModeSwitchTitle: '切换到浅色模式',
+    darkModeSwitchTitle: '切换到深色模式'
+  },
+
+  // Markdown 配置
+  markdown: {
+    lineNumbers: true,
+    theme: {
+      light: 'github-light',
+      dark: 'github-dark'
+    }
+  },
+
+  // Head 配置
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
+    ['meta', { name: 'theme-color', content: '#646cff' }],
+    ['meta', { name: 'og:type', content: 'website' }],
+    ['meta', { name: 'og:locale', content: 'zh-CN' }],
+    ['meta', { name: 'og:site_name', content: 'HIVIS' }]
+  ]
+})

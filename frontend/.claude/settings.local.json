@@ -5,7 +5,10 @@
       "Bash(npx shadcn@latest add:*)",
       "Bash(npx msw:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Skill(write_doc)",
+      "Bash(dir /B:*)",
+      "Bash(mkdir:*)"
     ]
   }
 }
