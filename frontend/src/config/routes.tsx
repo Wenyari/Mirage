@@ -25,6 +25,12 @@ import Updates from '@/pages/user/more/Updates';
 import Chat from '@/pages/user/playground/Chat';
 import VideoGeneration from '@/pages/user/playground/VideoGeneration';
 import Credits from '@/pages/user/settings/Credits';
+import Account from '@/pages/user/settings/Account';
+import ApiKey from '@/pages/user/settings/ApiKey';
+import Records from '@/pages/user/settings/Records';
+import Tiers from '@/pages/user/settings/Tiers';
+import Help from '@/pages/user/settings/Help';
+import SettingsLayout from '@/pages/user/settings/SettingsLayout';
 
 export const router = createBrowserRouter([
   // Admin Routes
@@ -136,10 +142,35 @@ export const router = createBrowserRouter([
       },
       {
         path: 'setting',
+        element: <SettingsLayout />,
         children: [
+          {
+            index: true,
+            element: <Credits />,
+          },
           {
             path: 'credits',
             element: <Credits />,
+          },
+          {
+            path: 'account',
+            element: <Account />,
+          },
+          {
+            path: 'apikey',
+            element: <ApiKey />,
+          },
+          {
+            path: 'records',
+            element: <Records />,
+          },
+          {
+            path: 'tiers',
+            element: <Tiers />,
+          },
+          {
+            path: 'help',
+            element: <Help />,
           },
         ],
       },
@@ -162,15 +193,7 @@ export const router = createBrowserRouter([
             path: 'community',
             element: <Community />,
           },
-          {
-            path: 'setting',
-            children: [
-              {
-                path: 'credits',
-                element: <Credits />,
-              },
-            ],
-          },
+          // moved setting routes to top-level under '/'
         ],
       },
     ],

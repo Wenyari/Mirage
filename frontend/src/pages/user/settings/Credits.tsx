@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import { Link } from 'react-router-dom';
+// Link not used in this page; sidebar is provided by SettingsLayout
 import api from '@/lib/api';
 
 export default function Credits() {
@@ -116,89 +116,73 @@ export default function Credits() {
   }, []);
 
   return (
-    <div className="flex gap-6 p-6">
-      <div className="w-64">
-        <div className="mb-6">
-          <h4 className="text-lg font-semibold">设置</h4>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <Card className="p-6">
+            <h3 className="font-semibold mb-2">充值积分</h3>
+            <Button onClick={() => window.open('/pay', '_blank')}>立即充值</Button>
+          </Card>
         </div>
-        <nav className="flex flex-col space-y-1">
-          <Link to="/setting/account" className="px-4 py-2 rounded hover:bg-muted/50">账号设置</Link>
-          <Link to="/setting/apikey" className="px-4 py-2 rounded hover:bg-muted/50">API 秘钥</Link>
-          <Link to="/setting/credits" className="px-4 py-2 rounded bg-muted/20">充值与兑换</Link>
-          <Link to="/setting/records" className="px-4 py-2 rounded hover:bg-muted/50">使用记录</Link>
-          <Link to="/setting/tiers" className="px-4 py-2 rounded hover:bg-muted/50">账号层级</Link>
-          <Link to="/setting/help" className="px-4 py-2 rounded hover:bg-muted/50">支持与帮助</Link>
-        </nav>
+        <div className="w-64">
+          <Card className="p-4">
+            <div className="text-sm text-muted-foreground">当前积分余额</div>
+            <div className="text-2xl font-bold">{balance !== null ? `${balance.toFixed(2)}` : '—'}</div>
+          </Card>
+        </div>
       </div>
 
-      <div className="flex-1 space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex-1">
-            <Card className="p-6">
-              <h3 className="font-semibold mb-2">充值积分</h3>
-              <Button onClick={() => window.open('/pay', '_blank')}>立即充值</Button>
-            </Card>
-          </div>
-          <div className="w-64">
-            <Card className="p-4">
-              <div className="text-sm text-muted-foreground">当前积分余额</div>
-              <div className="text-2xl font-bold">{balance !== null ? `${balance.toFixed(2)}` : '—'}</div>
-            </Card>
-          </div>
+      <Card className="p-6">
+        <h3 className="font-semibold mb-2">卡密兑换</h3>
+        <div className="flex gap-2">
+          <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="输入兑换码" />
+          <Button onClick={handleRedeem} disabled={isLoading}>{isLoading ? '兑换中' : '兑换'}</Button>
         </div>
+      </Card>
 
-        <Card className="p-6">
-          <h3 className="font-semibold mb-2">卡密兑换</h3>
-          <div className="flex gap-2">
-            <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="输入兑换码" />
-            <Button onClick={handleRedeem} disabled={isLoading}>{isLoading ? '兑换中' : '兑换'}</Button>
-          </div>
-        </Card>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogTitle>{dialogSuccess ? '兑换成功' : '兑换结果'}</DialogTitle>
+          <DialogDescription>
+            {dialogMsg}
+          </DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button onClick={() => setDialogOpen(false)}>确定</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
-            <DialogTitle>{dialogSuccess ? '兑换成功' : '兑换结果'}</DialogTitle>
-            <DialogDescription>
-              {dialogMsg}
-            </DialogDescription>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button onClick={() => setDialogOpen(false)}>确定</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Card className="p-6">
-          <h4 className="font-semibold mb-4">最近交易</h4>
-          <ScrollArea className="h-48">
-            {transactions.length === 0 ? (
-              <div className="text-muted-foreground">暂无交易记录</div>
-            ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="text-left">
-                    <th>日期</th>
-                    <th>类型</th>
-                    <th>积分</th>
-                    <th>说明</th>
+      <Card className="p-6">
+        <h4 className="font-semibold mb-4">最近交易</h4>
+        <ScrollArea className="h-48">
+          {transactions.length === 0 ? (
+            <div className="text-muted-foreground">暂无交易记录</div>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="text-left">
+                  <th>日期</th>
+                  <th>类型</th>
+                  <th>积分</th>
+                  <th>说明</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((t) => (
+                  <tr key={t.id}>
+                    <td>{t.created_at}</td>
+                    <td>{t.type}</td>
+                    <td>{t.amount}</td>
+                    <td>{t.remark}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {transactions.map((t) => (
-                    <tr key={t.id}>
-                      <td>{t.created_at}</td>
-                      <td>{t.type}</td>
-                      <td>{t.amount}</td>
-                      <td>{t.remark}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </ScrollArea>
-        </Card>
-      </div>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </ScrollArea>
+      </Card>
     </div>
   );
 }
