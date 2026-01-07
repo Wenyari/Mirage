@@ -132,12 +132,12 @@ class TaskService:
         }
 
         # 8. 尝试直接获取密钥（快车道）
-        key = KeyManager.allocate_key(model_key)
+        key, api_base = KeyManager.allocate_key(model_key)
 
         if key:
             # 有资源 -> 注入密钥 -> 进执行队列
             payload['key_id'] = key.id
-            payload['api_base'] = key.api_base
+            payload['api_base'] = api_base  # 使用分配的 api_base
             payload['api_key'] = key.key_secret
 
             get_redis().rpush(KeyManager.QUEUE_RUNNABLE, json.dumps(payload))

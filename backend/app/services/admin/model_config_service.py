@@ -44,8 +44,11 @@ def get_available_models():
         # 检查是否已有配置
         config = ModelConfig.query.filter_by(model=model.key).first()
 
-        # 统计该模型的密钥数量
-        key_count = ApiKey.query.filter_by(model=model.key).count()
+        # 统计该模型的密钥数量（改为 JOIN 查询）
+        key_count = db.session.query(ApiKey)\
+            .join(ApiKey.models)\
+            .filter(Model.key == model.key)\
+            .count()
 
         result.append({
             'model': model.key,

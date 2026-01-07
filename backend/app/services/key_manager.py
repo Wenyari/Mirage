@@ -35,7 +35,7 @@ class KeyManager:
         尝试获取一个可用的密钥
 
         逻辑：
-        1. 查询该模型所有启用的密钥
+        1. 查询支持该模型的所有启用密钥（通过 JOIN 多对多关联）
         2. 过滤掉熔断中的密钥
         3. 基于权重随机选择
         4. 原子性占用（检查并发限制）
@@ -44,24 +44,36 @@ class KeyManager:
             model: 模型标识符（如 'sora', 'openai'）
 
         Returns:
-            ApiKey 对象或 None（无可用密钥）
+            元组 (ApiKey对象, api_base) 或 (None, None)（无可用密钥）
         """
-        # 1. 查询所有启用的密钥
-        candidates = ApiKey.query.filter_by(model=model, status=1).all()
+        # 1. 查询所有启用的密钥（通过 JOIN 多对多关联表）
+        from app.models.model import Model, ApiKeyModel
+
+        # 改为查询 ApiKey 和对应的 api_base
+        candidates_with_base = db.session.query(ApiKey, ApiKeyModel.api_base)\
+            .join(ApiKeyModel, ApiKey.id == ApiKeyModel.api_key_id)\
+            .filter(
+                ApiKeyModel.model == model,
+                ApiKey.status == 1
+            )\
+            .all()
 
         # 2. 过滤掉熔断中的密钥
-        valid = [k for k in candidates if not cls._get_redis().get(f"{cls.PREFIX_COOLDOWN}{k.id}")]
+        valid = [(k, api_base) for k, api_base in candidates_with_base
+                 if not cls._get_redis().get(f"{cls.PREFIX_COOLDOWN}{k.id}")]
 
         if not valid:
             logger.warning(f"No available keys for model: {model}")
-            return None
+            return None, None
 
         # 3. 权重随机选择（尝试多次）
-        weights = [k.weight for k in valid]
+        keys = [k for k, _ in valid]
+        weights = [k.weight for k in keys]
 
         # 尝试次数 = 候选数（避免死循环）
         for _ in range(len(valid)):
-            selected = random.choices(valid, weights=weights, k=1)[0]
+            idx = random.choices(range(len(valid)), weights=weights, k=1)[0]
+            selected, api_base = valid[idx]
 
             # 4. 原子性占用
             usage_key = f"{cls.PREFIX_USAGE}{selected.id}"
@@ -72,8 +84,8 @@ class KeyManager:
                 # 成功占用，设置 TTL 并记录统计
                 cls._get_redis().expire(usage_key, 86400)  # 24 小时过期
                 cls._get_redis().incr(f"{cls.PREFIX_STATS}{selected.id}")
-                logger.info(f"Allocated key {selected.id} for model {model}, usage: {current_usage}/{selected.max_concurrency}")
-                return selected
+                logger.info(f"Allocated key {selected.id} for model {model}, usage: {current_usage}/{selected.max_concurrency}, api_base: {api_base}")
+                return selected, api_base
             else:
                 # 超限，回滚并继续尝试下一个
                 cls._get_redis().decr(usage_key)
@@ -81,7 +93,7 @@ class KeyManager:
                 continue
 
         logger.warning(f"All keys for model {model} are at full capacity")
-        return None
+        return None, None
 
     @classmethod
     def release_key_and_dispatch(cls, key_id: int):
@@ -169,8 +181,23 @@ class KeyManager:
         cls._get_redis().incr(f"{cls.PREFIX_STATS}{key_id}")
 
         # 注入密钥配置
+        # 从关联表查询该密钥对应该模型的 api_base
+        from app.models.model import ApiKeyModel
+        model_key = task_data.get('model')
+
+        api_key_model = db.session.query(ApiKeyModel)\
+            .filter_by(api_key_id=key_obj.id, model=model_key)\
+            .first()
+
+        if api_key_model:
+            api_base = api_key_model.api_base
+        else:
+            # 兜底使用默认 api_base
+            logger.warning(f"No api_base found for key {key_id} and model {model_key}, using default")
+            api_base = key_obj.api_base
+
         task_data['key_id'] = key_obj.id
-        task_data['api_base'] = key_obj.api_base
+        task_data['api_base'] = api_base
         task_data['api_key'] = key_obj.key_secret
 
         # 推送到执行队列
@@ -219,7 +246,7 @@ class KeyManager:
 
         return {
             'id': key_id,
-            'model': key_obj.model,
+            'models': [m.key for m in key_obj.models],  # 改为模型列表
             'current_usage': int(usage) if usage else 0,
             'max_concurrency': key_obj.max_concurrency,
             'is_healthy': not is_in_cooldown,

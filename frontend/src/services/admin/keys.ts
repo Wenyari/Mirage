@@ -26,8 +26,14 @@ export async function getModels(): Promise<GetModelsResponse> {
 /**
  * 获取密钥列表
  */
-export async function getKeys(model?: ModelType): Promise<{ code: number; message: string; data: Key[] }> {
-  const params = model && model !== 'all' ? { model } : {};
+export async function getKeys(models?: ModelType[] | string): Promise<{ code: number; message: string; data: Key[] }> {
+  // 如果是数组，转为逗号分隔字符串
+  let modelParam = models;
+  if (Array.isArray(models)) {
+    modelParam = models.join(',');
+  }
+  
+  const params = modelParam && modelParam !== 'all' ? { models: modelParam } : {};
   return api.get('/admin/keys', { params });
 }
 
@@ -72,8 +78,14 @@ export async function triggerCooldown(id: number, data: CooldownRequest): Promis
 /**
  * 触发健康检测
  */
-export async function healthCheck(model?: ModelType): Promise<HealthCheckResponse> {
-  const params = model && model !== 'all' ? { model } : {};
+export async function healthCheck(models?: ModelType[] | string): Promise<HealthCheckResponse> {
+  // 如果是数组，转为逗号分隔字符串
+  let modelParam = models;
+  if (Array.isArray(models)) {
+    modelParam = models.join(',');
+  }
+
+  const params = modelParam && modelParam !== 'all' ? { models: modelParam } : {};
   return api.post('/admin/keys/health-check', {}, { params });
 }
 

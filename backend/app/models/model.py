@@ -113,6 +113,14 @@ class ApiKey(db.Model):
         backref=db.backref('api_keys', lazy='dynamic'),
         lazy='select'
     )
+    # 直接访问关联表，以获取每个模型的 api_base
+    model_configs = db.relationship(
+        'ApiKeyModel',
+        foreign_keys='ApiKeyModel.api_key_id',
+        backref='api_key',
+        lazy='select',
+        cascade='all, delete-orphan'
+    )
     tasks = db.relationship('Task', backref='api_key_info', lazy='dynamic')
 
     # 索引
@@ -127,10 +135,19 @@ class ApiKey(db.Model):
 
     def to_dict(self, include_secret=False):
         """转换为字典"""
+        # 构建模型配置列表（包含 model 和 api_base）
+        model_configs = []
+        for config in self.model_configs:
+            model_configs.append({
+                'model': config.model,
+                'api_base': config.api_base
+            })
+
         result = {
             'id': self.id,
-            'models': [m.key for m in self.models],  # 改为模型列表
-            'api_base': self.api_base,
+            'models': [m.key for m in self.models],  # 简单列表（向后兼容）
+            'model_configs': model_configs,  # 详细配置（新增字段）
+            'api_base': self.api_base,  # 保留默认 api_base（向后兼容）
             'max_concurrency': self.max_concurrency,
             'weight': self.weight,
             'status': self.status,
@@ -149,3 +166,32 @@ class ApiKey(db.Model):
             result['key_secret_preview'] = f"{self.key_secret[:10]}...{self.key_secret[-4:]}" if len(self.key_secret) > 14 else "***"
 
         return result
+
+
+class ApiKeyModel(db.Model):
+    """API密钥与模型关联表（多对多中间表）"""
+    __tablename__ = 'api_key_models'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    api_key_id = db.Column(db.Integer, db.ForeignKey('api_keys.id', ondelete='CASCADE'), nullable=False)
+    model = db.Column(db.String(50), db.ForeignKey('models.key', ondelete='CASCADE'), nullable=False)
+    api_base = db.Column(db.String(512), nullable=False, default='')  # 该模型的API端点地址
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    # 索引
+    __table_args__ = (
+        db.UniqueConstraint('api_key_id', 'model', name='uk_key_model'),
+        db.Index('idx_model', 'model'),
+        db.Index('idx_api_key_id', 'api_key_id'),
+    )
+
+    def to_dict(self):
+        """转换为字典"""
+        return {
+            'model': self.model,
+            'api_base': self.api_base
+        }
+
+    def __repr__(self):
+        return f'<ApiKeyModel key_id={self.api_key_id} model={self.model} api_base={self.api_base}>'
+

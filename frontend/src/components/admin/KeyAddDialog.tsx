@@ -1,11 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
 import { CreateModelDialog } from '@/components/admin/CreateModelDialog';
+import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -24,28 +26,31 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from "@/components/ui/switch";
 import { useAddKey, useBatchAddKeys, useModels } from '@/hooks/useKeys';
-import type { ModelType } from '@/types/key';
+import type { ModelType, ModelConfig } from '@/types/key';
 
 interface KeyAddDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+// 详细配置 Schema
+const modelConfigSchema = z.object({
+  model: z.string(),
+  api_base: z.string().url('请输入有效的 URL').optional().or(z.literal('')),
+});
+
 // 单个添加表单 Schema（动态验证模型）
 const singleSchema = z.object({
-  model: z.string().min(1, '请选择模型'),
+  models: z.array(z.string()).min(1, '请至少选择一个模型'),
+  use_advanced_config: z.boolean().default(false), // 是否启用高级配置（分模型配置 api_base）
+  model_configs: z.array(modelConfigSchema).optional(), // 高级配置
   api_base: z.string().url('请输入有效的 URL').optional().or(z.literal('')),
   key_secret: z.string().min(10, '密钥长度至少10个字符'),
   max_concurrency: z.coerce.number().min(1).max(100),
@@ -54,7 +59,9 @@ const singleSchema = z.object({
 
 // 批量添加表单 Schema（动态验证模型）
 const batchSchema = z.object({
-  model: z.string().min(1, '请选择模型'),
+  models: z.array(z.string()).min(1, '请至少选择一个模型'),
+  use_advanced_config: z.boolean().default(false),
+  model_configs: z.array(modelConfigSchema).optional(),
   api_base: z.string().url('请输入有效的 URL').optional().or(z.literal('')),
   keys: z.string().min(1, '请输入至少一个密钥'),
   max_concurrency: z.coerce.number().min(1).max(100),
@@ -81,6 +88,9 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
   const singleForm = useForm<SingleFormValues>({
     resolver: zodResolver(singleSchema),
     defaultValues: {
+      models: [],
+      use_advanced_config: false,
+      model_configs: [],
       api_base: '',
       max_concurrency: 3,
       weight: 10,
@@ -91,16 +101,43 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
   const batchForm = useForm<BatchFormValues>({
     resolver: zodResolver(batchSchema),
     defaultValues: {
+      models: [],
+      use_advanced_config: false,
+      model_configs: [],
       api_base: '',
       max_concurrency: 3,
       weight: 10,
     },
   });
 
+  // 监听 models 变化，自动更新 model_configs
+  const watchSingleModels = singleForm.watch('models');
+  const watchBatchModels = batchForm.watch('models');
+  const watchSingleAdvanced = singleForm.watch('use_advanced_config');
+  const watchBatchAdvanced = batchForm.watch('use_advanced_config');
+
   // 单个添加提交
   const onSingleSubmit = async (values: SingleFormValues) => {
     try {
-      const result = await addMutation.mutateAsync(values);
+      let finalModels: string[] | ModelConfig[] = values.models;
+
+      // 如果启用了高级配置，构造 ModelConfig 数组
+      if (values.use_advanced_config && values.model_configs) {
+        // 确保 model_configs 里的 api_base 有值才使用
+        finalModels = values.models.map(modelKey => {
+          const config = values.model_configs?.find(c => c.model === modelKey);
+          return {
+            model: modelKey,
+            api_base: config?.api_base || values.api_base || '' // 优先使用具体配置，否则使用全局，最后为空
+          };
+        });
+      }
+
+      const result = await addMutation.mutateAsync({
+        ...values,
+        models: finalModels,
+      });
+
       if (result.code === 0) {
         toast.success('密钥添加成功');
         singleForm.reset();
@@ -130,11 +167,25 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
         return;
       }
 
+      let finalModels: string[] | ModelConfig[] = values.models;
+
+      // 如果启用了高级配置，构造 ModelConfig 数组
+      if (values.use_advanced_config && values.model_configs) {
+        finalModels = values.models.map(modelKey => {
+          const config = values.model_configs?.find(c => c.model === modelKey);
+          return {
+            model: modelKey,
+            api_base: config?.api_base || values.api_base || ''
+          };
+        });
+      }
+
       const result = await batchAddMutation.mutateAsync({
-        model: values.model,
+        models: finalModels,
         keys,
         max_concurrency: values.max_concurrency,
         weight: values.weight,
+        api_base: values.api_base, // 仍然传递全局 api_base 作为回退
       });
 
       if (result.success) {
@@ -156,58 +207,144 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
 
   // 创建模型成功后的回调
   const handleModelCreated = (modelKey: string) => {
-    // 自动选择新创建的模型
-    singleForm.setValue('model', modelKey);
-    batchForm.setValue('model', modelKey);
+    // 自动追加新创建的模型
+    const currentSingle = singleForm.getValues('models');
+    singleForm.setValue('models', [...currentSingle, modelKey]);
+
+    const currentBatch = batchForm.getValues('models');
+    batchForm.setValue('models', [...currentBatch, modelKey]);
   };
 
-  // 渲染模型选择器
+  // 渲染模型多选器
   const renderModelSelect = (field: any, form: any) => {
-    const handleValueChange = (value: string) => {
-      if (value === '__add_new__') {
-        setShowCreateModelDialog(true);
-      } else {
-        field.onChange(value);
-      }
-    };
+    return (
+      <div className="space-y-3">
+        <div className="mb-2 flex flex-wrap gap-2">
+          {field.value.map((modelKey: string) => {
+            const model = enabledModels.find(m => m.key === modelKey);
+            return (
+              <Badge key={modelKey} variant="secondary" className="flex items-center gap-1">
+                {model?.name || modelKey}
+                <span 
+                  className="ml-1 cursor-pointer text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    field.onChange(field.value.filter((k: string) => k !== modelKey));
+                  }}
+                >
+                  ×
+                </span>
+              </Badge>
+            );
+          })}
+        </div>
+        
+        <ScrollArea className="h-[120px] w-full rounded-md border p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {modelsLoading ? (
+              <div className="text-sm text-muted-foreground">加载中...</div>
+            ) : (
+              <>
+                {enabledModels.map((model) => (
+                  <div key={model.key} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`model-${model.key}-${mode}`}
+                      checked={field.value.includes(model.key)}
+                      onCheckedChange={(checked) => {
+                        let newModels;
+                        if (checked) {
+                          newModels = [...field.value, model.key];
+                        } else {
+                          newModels = field.value.filter((k: string) => k !== model.key);
+                        }
+                        field.onChange(newModels);
+
+                        // 同步更新 model_configs
+                        const currentConfigs = form.getValues('model_configs') || [];
+                        // 移除不在 newModels 里的配置
+                        const validConfigs = currentConfigs.filter((c: any) => newModels.includes(c.model));
+                        // 为新添加的模型添加默认空配置（如果不存在）
+                        newModels.forEach((m: string) => {
+                          if (!validConfigs.find((c: any) => c.model === m)) {
+                            validConfigs.push({ model: m, api_base: '' });
+                          }
+                        });
+                        form.setValue('model_configs', validConfigs);
+                      }}
+                    />
+                    <label
+                      htmlFor={`model-${model.key}-${mode}`}
+                      className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {model.name}
+                    </label>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </ScrollArea>
+        
+        <Button 
+          type="button" 
+          variant="ghost" 
+          size="sm" 
+          className="h-auto p-0 text-primary hover:text-primary/80"
+          onClick={() => setShowCreateModelDialog(true)}
+        >
+          + 添加新模型
+        </Button>
+      </div>
+    );
+  };
+
+  // 渲染高级配置（每个模型的 API Base）
+  const renderAdvancedConfig = (form: any) => {
+    const models = form.watch('models');
+    const modelConfigs = form.watch('model_configs') || [];
+
+    if (!models || models.length === 0) return null;
 
     return (
-      <Select onValueChange={handleValueChange} value={field.value}>
-        <FormControl>
-          <SelectTrigger>
-            <SelectValue placeholder="选择模型" />
-          </SelectTrigger>
-        </FormControl>
-        <SelectContent>
-          {modelsLoading ? (
-            <SelectItem value="loading" disabled>
-              加载中...
-            </SelectItem>
-          ) : (
-            <>
-              {enabledModels.map((model) => (
-                <SelectItem key={model.key} value={model.key}>
-                  {model.name}
-                </SelectItem>
-              ))}
-              <Separator className="my-1" />
-              <SelectItem value="__add_new__" className="font-medium text-primary">
-                + 添加新模型
-              </SelectItem>
-            </>
-          )}
-        </SelectContent>
-      </Select>
+      <div className="space-y-4 rounded-md border p-4 bg-muted/30">
+        <div className="text-sm font-medium mb-2">分模型 API Base 配置</div>
+        <div className="space-y-3">
+          {models.map((modelKey: string, index: number) => {
+            const modelName = enabledModels.find(m => m.key === modelKey)?.name || modelKey;
+            // 找到对应的 config index
+            const configIndex = modelConfigs.findIndex((c: any) => c.model === modelKey);
+            
+            return (
+              <div key={modelKey} className="grid grid-cols-[120px_1fr] items-center gap-4">
+                <span className="text-sm text-muted-foreground truncate" title={modelName}>{modelName}</span>
+                <Input 
+                  placeholder="特定 API Base URL (可选)" 
+                  className="h-8 text-xs font-mono"
+                  value={modelConfigs[configIndex]?.api_base || ''}
+                  onChange={(e) => {
+                    const newConfigs = [...modelConfigs];
+                    if (configIndex >= 0) {
+                      newConfigs[configIndex] = { ...newConfigs[configIndex], api_base: e.target.value };
+                    } else {
+                      newConfigs.push({ model: modelKey, api_base: e.target.value });
+                    }
+                    form.setValue('model_configs', newConfigs);
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
     );
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>添加 API 密钥</DialogTitle>
           <DialogDescription>
-            支持单个添加或批量导入密钥
+            支持单个添加或批量导入密钥，可同时关联多个模型
           </DialogDescription>
         </DialogHeader>
 
@@ -223,11 +360,13 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
               <form onSubmit={singleForm.handleSubmit(onSingleSubmit)} className="space-y-4">
                 <FormField
                   control={singleForm.control}
-                  name="model"
+                  name="models"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>模型 *</FormLabel>
-                      {renderModelSelect(field, singleForm)}
+                      <FormLabel>适用模型 *</FormLabel>
+                      <FormControl>
+                        {renderModelSelect(field, singleForm)}
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -238,7 +377,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                   name="api_base"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>API Base URL (可选)</FormLabel>
+                      <FormLabel>默认 API Base URL (可选)</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="例如: https://api.openai.com/v1"
@@ -246,11 +385,36 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                           className="font-mono text-sm"
                         />
                       </FormControl>
-                      <FormDescription>如果不填，则默认使用该模型的官方地址</FormDescription>
+                      <FormDescription>
+                        如果不填，则默认使用该模型的官方地址。
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={singleForm.control}
+                  name="use_advanced_config"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>高级配置</FormLabel>
+                        <FormDescription>
+                          为每个模型单独配置 API Base URL
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {watchSingleAdvanced && renderAdvancedConfig(singleForm)}
 
                 <FormField
                   control={singleForm.control}
@@ -351,11 +515,13 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
               <form onSubmit={batchForm.handleSubmit(onBatchSubmit)} className="space-y-4">
                 <FormField
                   control={batchForm.control}
-                  name="model"
+                  name="models"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>模型 *</FormLabel>
-                      {renderModelSelect(field, batchForm)}
+                      <FormLabel>适用模型 *</FormLabel>
+                      <FormControl>
+                        {renderModelSelect(field, batchForm)}
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -366,7 +532,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                   name="api_base"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>API Base URL (可选)</FormLabel>
+                      <FormLabel>默认 API Base URL (可选)</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="例如: https://api.openai.com/v1"
@@ -379,6 +545,29 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={batchForm.control}
+                  name="use_advanced_config"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>高级配置</FormLabel>
+                        <FormDescription>
+                          为每个模型单独配置 API Base URL
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {watchBatchAdvanced && renderAdvancedConfig(batchForm)}
 
                 <FormField
                   control={batchForm.control}

@@ -65,13 +65,27 @@ def create_key_endpoint():
     添加密钥
     POST /api/admin/keys
 
-    Request Body:
+    Request Body (支持两种格式):
+
+        格式1 - 简单格式（所有模型使用同一个 api_base）:
         {
-            "model": "gpt-4",
+            "models": ["gpt-4", "gpt-4-turbo"],
             "api_base": "https://api.openai.com/v1",
             "key_secret": "sk-proj-abc123...",
             "max_concurrency": 3,
             "weight": 10
+        }
+
+        格式2 - 详细格式（每个模型独立的 api_base）:
+        {
+            "models": [
+                {"model": "sora-video", "api_base": "https://ai.t8star.cn/v2/videos/generations"},
+                {"model": "sora-image", "api_base": "https://ai.t8star.cn/v1/images/generations"}
+            ],
+            "key_secret": "sk-proj-abc123...",
+            "max_concurrency": 3,
+            "weight": 10,
+            "api_base": ""  // 可选，作为兜底默认值
         }
 
     Returns:
@@ -92,13 +106,21 @@ def create_key_endpoint():
             }), 400
 
         # 必填参数
-        model = data.get('model')
+        models = data.get('models')
         key_secret = data.get('key_secret')
 
-        if not model or not key_secret:
+        if not models or not key_secret:
             return jsonify({
                 "code": 400,
-                "message": "model and key_secret are required",
+                "message": "models and key_secret are required",
+                "data": None
+            }), 400
+
+        # 验证 models 是数组
+        if not isinstance(models, list) or not models:
+            return jsonify({
+                "code": 400,
+                "message": "models must be a non-empty array",
                 "data": None
             }), 400
 
@@ -109,7 +131,7 @@ def create_key_endpoint():
 
         # 调用服务层
         result = create_key(
-            model=model,
+            models=models,
             api_base=api_base,
             key_secret=key_secret,
             max_concurrency=max_concurrency,
@@ -145,10 +167,23 @@ def batch_create_keys_endpoint():
     批量添加密钥
     POST /api/admin/keys/batch
 
-    Request Body:
+    Request Body (支持两种格式):
+
+        格式1 - 简单格式:
         {
-            "model": "gpt-4",
+            "models": ["gpt-4", "gpt-4-turbo"],
             "api_base": "https://api.openai.com/v1",
+            "keys": ["sk-proj-abc123...", "sk-proj-def456..."],
+            "max_concurrency": 3,
+            "weight": 10
+        }
+
+        格式2 - 详细格式:
+        {
+            "models": [
+                {"model": "sora-video", "api_base": "https://ai.t8star.cn/v2/videos/generations"},
+                {"model": "sora-image", "api_base": "https://ai.t8star.cn/v1/images/generations"}
+            ],
             "keys": ["sk-proj-abc123...", "sk-proj-def456..."],
             "max_concurrency": 3,
             "weight": 10
@@ -176,13 +211,21 @@ def batch_create_keys_endpoint():
             }), 400
 
         # 必填参数
-        model = data.get('model')
+        models = data.get('models')
         keys = data.get('keys')
 
-        if not model or not keys:
+        if not models or not keys:
             return jsonify({
                 "code": 400,
-                "message": "model and keys are required",
+                "message": "models and keys are required",
+                "data": None
+            }), 400
+
+        # 验证参数类型
+        if not isinstance(models, list) or not models:
+            return jsonify({
+                "code": 400,
+                "message": "models must be a non-empty array",
                 "data": None
             }), 400
 
@@ -200,7 +243,7 @@ def batch_create_keys_endpoint():
 
         # 调用服务层
         result = batch_create_keys(
-            model=model,
+            models=models,
             api_base=api_base,
             keys=keys,
             max_concurrency=max_concurrency,
@@ -236,8 +279,14 @@ def update_key_endpoint(key_id):
     更新密钥配置
     PATCH /api/admin/keys/{id}
 
-    Request Body:
+    Request Body (所有字段可选):
         {
+            "models": ["gpt-4", "gpt-4-turbo"],  // 简单格式
+            // 或
+            "models": [  // 详细格式
+                {"model": "sora-video", "api_base": "https://ai.t8star.cn/v2/videos/generations"},
+                {"model": "sora-image", "api_base": "https://ai.t8star.cn/v1/images/generations"}
+            ],
             "max_concurrency": 5,
             "weight": 20,
             "status": 1
@@ -260,9 +309,10 @@ def update_key_endpoint(key_id):
                 "data": None
             }), 400
 
-        # 调用服务层
+        # 调用服务层（新增 models 参数）
         update_key(
             key_id=key_id,
+            models=data.get('models'),  # 可选
             max_concurrency=data.get('max_concurrency'),
             weight=data.get('weight'),
             status=data.get('status')

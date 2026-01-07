@@ -125,8 +125,11 @@ def delete_model(key):
     if not model:
         raise ValueError(f"Model '{key}' not found")
 
-    # 检查是否有关联的密钥
-    key_count = ApiKey.query.filter_by(model=key).count()
+    # 检查是否有关联的密钥（改为 JOIN 查询）
+    key_count = db.session.query(ApiKey)\
+        .join(ApiKey.models)\
+        .filter(Model.key == key)\
+        .count()
 
     # 检查是否有关联的任务
     task_count = Task.query.filter_by(model=key).count()

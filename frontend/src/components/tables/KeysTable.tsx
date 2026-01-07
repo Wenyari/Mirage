@@ -148,22 +148,58 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
       cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>,
     },
     {
-      accessorKey: 'model',
+      accessorKey: 'models',
       header: '模型',
       cell: ({ row }) => (
-        <Badge variant="outline">
-          {modelMap.get(row.original.model) || row.original.model}
-        </Badge>
+        <div className="flex flex-wrap gap-1 max-w-[200px]">
+          {row.original.models.map((modelKey) => (
+            <Badge key={modelKey} variant="outline" className="text-xs">
+              {modelMap.get(modelKey) || modelKey}
+            </Badge>
+          ))}
+        </div>
       ),
     },
     {
       accessorKey: 'api_base',
       header: 'API Base',
-      cell: ({ row }) => (
-        <div className="max-w-[150px] truncate text-xs text-muted-foreground" title={row.original.api_base || '默认'}>
-          {row.original.api_base || '默认'}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const key = row.original;
+        // 如果有 detailed config，显示 "多端点" 提示
+        if (key.model_configs && key.model_configs.length > 0) {
+          return (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center gap-1">
+                    <Badge variant="secondary" className="font-normal text-xs">
+                      {key.model_configs.length} 个配置
+                    </Badge>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[300px] p-0">
+                  <div className="p-2 space-y-2">
+                    <div className="text-xs font-semibold border-b pb-1">详细配置</div>
+                    {key.model_configs.map((config) => (
+                      <div key={config.model} className="text-xs grid grid-cols-[80px_1fr] gap-2">
+                        <span className="font-medium truncate">{modelMap.get(config.model) || config.model}</span>
+                        <span className="text-muted-foreground truncate font-mono">{config.api_base || '默认'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        }
+
+        // 否则显示全局 api_base
+        return (
+          <div className="max-w-[150px] truncate text-xs text-muted-foreground" title={row.original.api_base || '默认'}>
+            {row.original.api_base || '默认'}
+          </div>
+        );
+      },
     },
     {
       accessorKey: 'key_secret',

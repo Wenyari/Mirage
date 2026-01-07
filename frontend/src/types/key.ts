@@ -55,12 +55,21 @@ export interface UpdateModelRequest {
 }
 
 /**
+ * 模型配置（包含模型标识和对应的 API Base）
+ */
+export interface ModelConfig {
+  model: ModelType;
+  api_base?: string;
+}
+
+/**
  * 密钥实体（完整信息）
  */
 export interface Key {
   id: number;
-  model: ModelType;
-  api_base: string;                // API 基础地址
+  models: ModelType[];              // 简单格式：模型列表
+  model_configs?: ModelConfig[];    // 详细格式：包含每个模型的 api_base
+  api_base: string;                // 全局默认 API 基础地址
   key_secret: string;              // 密钥（前端会脱敏显示）
   max_concurrency: number;         // 最大并发限制（核心配置）
   weight: number;                  // 权重（1-100，用于负载均衡）
@@ -83,8 +92,8 @@ export interface Key {
  * 添加密钥请求参数
  */
 export interface AddKeyRequest {
-  model: ModelType;
-  api_base?: string;
+  models: ModelType[] | ModelConfig[]; // 支持简单列表或详细配置列表
+  api_base?: string;               // 全局默认 api_base
   key_secret: string;
   max_concurrency?: number;        // 默认 3
   weight?: number;                 // 默认 10
@@ -94,7 +103,7 @@ export interface AddKeyRequest {
  * 批量添加密钥请求参数
  */
 export interface BatchAddKeysRequest {
-  model: ModelType;
+  models: ModelType[] | ModelConfig[]; // 支持简单列表或详细配置列表
   api_base?: string;               // 默认为官方地址
   keys: string[];                  // 密钥数组
   max_concurrency?: number;        // 统一的最大并发
@@ -117,6 +126,7 @@ export interface BatchAddKeysResponse {
  * 更新密钥配置请求参数
  */
 export interface UpdateKeyRequest {
+  models?: ModelType[] | ModelConfig[]; // 可选：修改关联模型（支持简单或详细格式）
   max_concurrency?: number;
   weight?: number;
   status?: KeyStatus;
