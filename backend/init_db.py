@@ -85,8 +85,18 @@ def init_models():
                 'color': 'bg-blue-500',
                 'icon_url': None,
                 'max_concurrency_limit': 10,
-                'tags': ['videoGeneration']
+                'tags': ['video', 'generation']
             },
+            {
+                'key': 'nano-banana',
+                'name': 'nano-banana',
+                'enabled': 1,
+                'description': '',
+                'color': 'bg-red-500',
+                'icon_url': None,
+                'max_concurrency_limit': 10,
+                'tags': ['image, generation']
+            }
         ]
 
         print("Initializing models...")
@@ -112,7 +122,27 @@ def init_model_configs():
                 'allowed_tiers': ["T3", "T4", "T5"],
                 'cost_per_call': 100.00,
                 # params 用于存放模型特定的可配置项（如 durations、hd 等）
-                'params': {"durations": [10, 15], "hd_supported": True},
+                'params': {"durations": [10, 15], "hd_supported": True
+                    "aspect_ratio": [
+                        "16:9",
+                        "9:16"
+                    ]},
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'Sora 视频生成配置'
+            },
+            {
+                'model': 'nano-banana',
+                'allowed_tiers': ["T3", "T4", "T5"],
+                'cost_per_call': 20.00,
+                # params 用于存放模型特定的可配置项（如 durations、hd 等）
+                'params': {
+                    "aspect_ratio": [
+                        "16:9",
+                        "1:1",
+                        "9:16"
+                    ]
+                },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
                 'description': 'Sora 视频生成配置'
@@ -148,14 +178,36 @@ def init_api_keys():
         print("       Example: https://api.openai.com/v1/videos/generations")
 
         keys = [
-            {
-                'model': 'sora-2',
-                'key_secret': '***REMOVED***',
-                'api_base': 'https://ai.t8star.cn/v2/videos/generations',
-                'max_concurrency': 2,
-                'weight': 10,
-                'status': 1
-            },
+                {
+                    "api_base": "https://ai.t8star.cn/v2/videos/generations",
+                    "cooling_until": null,
+                    "created_at": "2026-01-06T05:54:55",
+                    "current_usage": 0,
+                    "id": 1,
+                    "is_cooling": false,
+                    "key_secret": "***REMOVED***",
+                    "last_used_at": null,
+                    "max_concurrency": 2,
+                    "model_configs": [
+                        {
+                        "api_base": "https://ai.t8star.cn/v1/images/generations",
+                        "model": "nano-banana"
+                        },
+                        {
+                        "api_base": "https://ai.t8star.cn/v2/videos/generations",
+                        "model": "sora-2"
+                        }
+                    ],
+                    "models": [
+                        "nano-banana",
+                        "sora-2"
+                    ],
+                    "status": 1,
+                    "total_calls": 1,
+                    "total_errors": 0,
+                    "updated_at": "2026-01-07T06:32:55",
+                    "weight": 10
+            }
         ]
 
         for key_data in keys:

@@ -6,20 +6,22 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription,DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskResponse, TaskStatusResponse } from '@/services/tasks';
 import { taskService } from '@/services/tasks';
 
 export default function VideoGeneration() {
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState('');
-  const [duration, setDuration] = useState('5');
+  // 使用 taskParams 存储动态参数
+  const [taskParams, setTaskParams] = useState<Record<string, any>>({});
   const [taskId, setTaskId] = useState<string | null>(null);
   const [taskStatus, setTaskStatus] = useState<TaskStatusResponse | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +40,14 @@ export default function VideoGeneration() {
           taskService.getTaskHistory(1, 20)
         ]);
 
-        const modelsData = modelsResponse as unknown as ModelOption[] || [];
+        const allModels = modelsResponse as unknown as ModelOption[] || [];
+        // 筛选包含 'video' 和 'generation' 标签的模型
+        const modelsData = allModels.filter(m => 
+          m.tags && 
+          m.tags.includes('video') && 
+          m.tags.includes('generation')
+        );
+
         const historyData = historyResponse as unknown as TaskHistoryResponse;
 
         setModels(modelsData);
@@ -124,7 +133,7 @@ export default function VideoGeneration() {
       const response = await taskService.createTask({
         model,
         prompt,
-        params: { duration }
+        params: taskParams
       });
 
       const taskData = response as unknown as TaskResponse;
@@ -220,16 +229,136 @@ export default function VideoGeneration() {
   };
 
   const selectedModelInfo = models.find(m => m.key === model);
-  
-  // available durations for selected model (seconds)
-  const availableDurations: number[] = (selectedModelInfo?.params as any)?.durations || [5, 10];
 
-  // when model changes, set default duration to first available
+  // 初始化动态参数
   useEffect(() => {
-    if (availableDurations && availableDurations.length > 0) {
-      setDuration(String(availableDurations[0]));
+    if (selectedModelInfo?.params) {
+      const defaultParams: Record<string, any> = {};
+      Object.entries(selectedModelInfo.params).forEach(([key, value]) => {
+        // 映射参数名: durations -> duration
+        const paramName = key === 'durations' ? 'duration' : key;
+
+        if (Array.isArray(value) && value.length > 0) {
+          defaultParams[paramName] = value[0];
+        } else if (typeof value === 'boolean') {
+          defaultParams[paramName] = false; // 默认关闭？或者根据业务逻辑设为 value 本身如果它是默认值
+          // 通常 params 定义的是 capability，例如 "hd_supported": true 表示支持 HD。
+          // 此时默认值应该设为 false (不开启 HD) 或者 true? 
+          // 假设 params 定义的是 capability，那么默认值设为 false 比较安全。
+          // 如果 params 定义的是默认值，那就取 value。
+          // 根据 "hd_supported": true 这种命名，它只是 capability。所以默认选 false。
+          defaultParams[paramName] = false;
+        } else {
+          // 其他类型直接使用
+          defaultParams[paramName] = value;
+        }
+      });
+      setTaskParams(defaultParams);
+    } else {
+      setTaskParams({});
     }
-  }, [model]);
+  }, [model, selectedModelInfo]);
+
+  // 渲染动态参数面板
+  const renderDynamicParams = () => {
+    if (!selectedModelInfo?.params) return null;
+
+    const entries = Object.entries(selectedModelInfo.params);
+    
+    // 排序逻辑：布尔值 (Switch) -> 列表 (Select) -> Durations (Special)
+    const sortedEntries = entries.sort(([keyA, valueA], [keyB, valueB]) => {
+      // 1. Boolean 优先
+      const isBoolA = typeof valueA === 'boolean';
+      const isBoolB = typeof valueB === 'boolean';
+      if (isBoolA && !isBoolB) return -1;
+      if (!isBoolA && isBoolB) return 1;
+
+      // 2. Select (非 duration 的数组) 其次
+      const isSelectA = Array.isArray(valueA) && keyA !== 'durations';
+      const isSelectB = Array.isArray(valueB) && keyB !== 'durations';
+      if (isSelectA && !isSelectB) return -1;
+      if (!isSelectA && isSelectB) return 1;
+
+      // 3. Durations 最后 (或其他特殊UI)
+      const isDurationA = keyA === 'durations';
+      const isDurationB = keyB === 'durations';
+      if (isDurationA && !isDurationB) return 1; // Duration 放后面
+      if (!isDurationA && isDurationB) return -1;
+
+      return 0;
+    });
+
+    return sortedEntries.map(([key, value]) => {
+       // 参数名映射
+       const paramName = key === 'durations' ? 'duration' : key;
+       const currentValue = taskParams[paramName];
+
+       // 1. Durations 特殊处理 (保持原有 UI 风格)
+       if (key === 'durations' && Array.isArray(value)) {
+         return (
+          <div key={key} className="space-y-2">
+            <Label>时长</Label>
+            <div className="flex gap-2">
+              {value.map((d: any) => (
+                <Button
+                  key={d}
+                  variant={String(currentValue) === String(d) ? 'default' : 'outline'}
+                  onClick={() => setTaskParams(prev => ({ ...prev, [paramName]: d }))}
+                  className="flex-1"
+                >
+                  {d}s
+                </Button>
+              ))}
+            </div>
+          </div>
+         );
+       }
+
+       // 2. 列表 -> Select
+       if (Array.isArray(value)) {
+         return (
+          <div key={key} className="space-y-2">
+            <Label className="capitalize">{key.replace(/_/g, ' ')}</Label>
+            <Select 
+              value={String(currentValue)} 
+              onValueChange={(val) => setTaskParams(prev => ({ ...prev, [paramName]: val }))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {value.map((opt: any) => (
+                  <SelectItem key={String(opt)} value={String(opt)}>
+                    {String(opt)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+         );
+       }
+
+       // 3. 布尔值 -> Switch
+       if (typeof value === 'boolean') {
+         if (!value) return null; // 如果 capability 为 false，不显示
+
+         return (
+          <div key={key} className="flex items-center justify-between rounded-lg border p-4">
+            <Label className="cursor-pointer capitalize" htmlFor={`param-${key}`}>
+              {key.replace(/_/g, ' ').replace('supported', '')}
+            </Label>
+            <Switch
+              id={`param-${key}`}
+              checked={Boolean(currentValue)}
+              onCheckedChange={(checked) => setTaskParams(prev => ({ ...prev, [paramName]: checked }))}
+            />
+          </div>
+         );
+       }
+
+       return null;
+    });
+  };
 
   return (
     <div className="flex gap-6 px-6 pt-6">
@@ -343,21 +472,8 @@ export default function VideoGeneration() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>时长</Label>
-            <div className="flex gap-2">
-              {availableDurations.map((d) => (
-                <Button
-                  key={d}
-                  variant={duration === String(d) ? 'default' : 'outline'}
-                  onClick={() => setDuration(String(d))}
-                  className="flex-1"
-                >
-                  {d}s
-                </Button>
-              ))}
-            </div>
-          </div>
+          {/* 动态参数面板 */}
+          {renderDynamicParams()}
 
           <Button 
             className="h-12 w-full text-lg" 
@@ -380,15 +496,15 @@ export default function VideoGeneration() {
       </div>
 
       {/* 右侧预览区 */}
-      <div className="flex flex-1 min-w-[480px] flex-col items-start rounded-xl border border-dashed bg-muted/30 p-6 overflow-y-auto">
-         <div className="w-full max-w-3xl space-y-6 mx-auto">
+      <div className="flex min-w-[480px] flex-1 flex-col items-start overflow-y-auto rounded-xl border border-dashed bg-muted/30 p-6">
+         <div className="mx-auto w-full max-w-3xl space-y-6">
            {!taskStatus ? (
-             <div className="flex flex-col items-center justify-center w-full h-[60vh] rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
+             <div className="flex h-[60vh] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
                <div className="mb-4 inline-block rounded-full bg-muted p-6">
                  <Play className="ml-1 size-12" />
                </div>
                <h3 className="text-lg font-semibold">预览区域</h3>
-               <p className="text-sm text-muted-foreground mt-2">生成的内容将显示在这里。</p>
+               <p className="mt-2 text-sm text-muted-foreground">生成的内容将显示在这里。</p>
              </div>
            ) : (
             <>
@@ -433,7 +549,7 @@ export default function VideoGeneration() {
                         </div>
                         <div>
                           <div className="text-sm text-muted-foreground">提示词</div>
-                          <div className="break-words whitespace-pre-wrap bg-muted/10 p-3 rounded">{(taskStatus as any)?.prompt || '-'}</div>
+                          <div className="whitespace-pre-wrap break-words rounded bg-muted/10 p-3">{(taskStatus as any)?.prompt || '-'}</div>
                         </div>
                         <div>
                           <div className="text-sm text-muted-foreground">参数</div>
@@ -442,7 +558,7 @@ export default function VideoGeneration() {
                         {(taskStatus as any)?.input_file_url && (
                           <div>
                             <div className="text-sm text-muted-foreground">输入文件</div>
-                            <img src={(taskStatus as any).input_file_url} alt="input" className="max-w-full max-h-48 object-contain rounded" />
+                            <img src={(taskStatus as any).input_file_url} alt="input" className="max-h-48 max-w-full rounded object-contain" />
                           </div>
                         )}
                         <div>
@@ -492,7 +608,7 @@ export default function VideoGeneration() {
               <div className="w-full overflow-hidden rounded-lg bg-black shadow-xl">
                 <video
                   src={taskStatus.result_url}
-                  className="w-full h-auto max-h-[65vh] object-contain"
+                  className="h-auto max-h-[65vh] w-full object-contain"
                   controls
                   autoPlay
                   loop
