@@ -37,6 +37,10 @@ export const USER_NAVIGATION = {
         label: '生成视频',
         path: '/playground/video',
       },
+      IMAGE_GENERATION: {
+        label: '生成图片',
+        path: '/playground/image',
+      },
     },
   },
   SETTINGS: {

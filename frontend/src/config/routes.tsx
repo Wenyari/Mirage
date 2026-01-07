@@ -24,6 +24,7 @@ import Events from '@/pages/user/more/Events';
 import Updates from '@/pages/user/more/Updates';
 import Chat from '@/pages/user/playground/Chat';
 import VideoGeneration from '@/pages/user/playground/VideoGeneration';
+import ImageGeneration from '@/pages/user/playground/ImageGeneration';
 import Credits from '@/pages/user/settings/Credits';
 import Account from '@/pages/user/settings/Account';
 import ApiKey from '@/pages/user/settings/ApiKey';
@@ -137,6 +138,10 @@ export const router = createBrowserRouter([
           {
             path: 'video',
             element: <VideoGeneration />,
+          },
+          {
+            path: 'image',
+            element: <ImageGeneration />,
           },
         ],
       },

@@ -9,7 +9,7 @@
 """
 from app import create_app
 from app.extensions import db
-from app.models import User, MembershipConfig, Model, ModelConfig, ApiKey, Task
+from app.models import User, MembershipConfig, Model, ModelConfig, ApiKey, ApiKeyModel, Task
 import bcrypt
 
 app = create_app()
@@ -91,11 +91,11 @@ def init_models():
                 'key': 'nano-banana',
                 'name': 'nano-banana',
                 'enabled': 1,
-                'description': '',
-                'color': 'bg-red-500',
+                'description': 'Nano Banana 图片生成模型',
+                'color': 'bg-purple-500',
                 'icon_url': None,
                 'max_concurrency_limit': 10,
-                'tags': ['image, generation']
+                'tags': ['image', 'generation']
             }
         ]
 
@@ -122,7 +122,7 @@ def init_model_configs():
                 'allowed_tiers': ["T3", "T4", "T5"],
                 'cost_per_call': 100.00,
                 # params 用于存放模型特定的可配置项（如 durations、hd 等）
-                'params': {"durations": [10, 15], "hd_supported": True
+                'params': {"durations": [10, 15], "hd_supported": True,
                     "aspect_ratio": [
                         "16:9",
                         "9:16"
@@ -135,7 +135,7 @@ def init_model_configs():
                 'model': 'nano-banana',
                 'allowed_tiers': ["T3", "T4", "T5"],
                 'cost_per_call': 20.00,
-                # params 用于存放模型特定的可配置项（如 durations、hd 等）
+                # params 用于存放模型特定的可配置项（如 aspect_ratio 等）
                 'params': {
                     "aspect_ratio": [
                         "16:9",
@@ -145,7 +145,7 @@ def init_model_configs():
                 },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
-                'description': 'Sora 视频生成配置'
+                'description': 'Nano Banana 图片生成配置'
             }
         ]
 
@@ -174,46 +174,64 @@ def init_api_keys():
 
         print("Initializing sample API keys...")
         print("  ⚠️  Please replace these with your actual API keys!")
-        print("  Note: api_base should be the complete endpoint URL including path")
-        print("       Example: https://api.openai.com/v1/videos/generations")
+        print("  Note: api_base is the default base URL, each model can have its own endpoint")
 
         keys = [
-                {
-                    "api_base": "https://ai.t8star.cn/v2/videos/generations",
-                    "cooling_until": null,
-                    "created_at": "2026-01-06T05:54:55",
-                    "current_usage": 0,
-                    "id": 1,
-                    "is_cooling": false,
-                    "key_secret": "***REMOVED***",
-                    "last_used_at": null,
-                    "max_concurrency": 2,
-                    "model_configs": [
-                        {
-                        "api_base": "https://ai.t8star.cn/v1/images/generations",
-                        "model": "nano-banana"
-                        },
-                        {
-                        "api_base": "https://ai.t8star.cn/v2/videos/generations",
-                        "model": "sora-2"
-                        }
-                    ],
-                    "models": [
-                        "nano-banana",
-                        "sora-2"
-                    ],
-                    "status": 1,
-                    "total_calls": 1,
-                    "total_errors": 0,
-                    "updated_at": "2026-01-07T06:32:55",
-                    "weight": 10
+            {
+                "api_base": "https://ai.t8star.cn",  # 默认基础地址
+                "key_secret": "***REMOVED***",
+                "max_concurrency": 5,
+                "status": 1,
+                "weight": 10,
+                # 模型配置：每个模型可以有独立的 api_base
+                "model_configs": [
+                    {
+                        "model": "nano-banana",
+                        "api_base": "https://ai.t8star.cn/v1/images/generations"
+                    },
+                    {
+                        "model": "sora-2",
+                        "api_base": "https://ai.t8star.cn/v2/videos/generations"
+                    }
+                ]
             }
         ]
 
         for key_data in keys:
-            api_key = ApiKey(**key_data)
+            # 提取 model_configs（不能直接传给 ApiKey 构造函数）
+            model_configs = key_data.pop('model_configs', [])
+
+            # 创建 ApiKey 对象（只包含基本字段）
+            api_key = ApiKey(
+                api_base=key_data['api_base'],
+                key_secret=key_data['key_secret'],
+                max_concurrency=key_data['max_concurrency'],
+                status=key_data['status'],
+                weight=key_data['weight']
+            )
+
+            # 添加到 session 并 flush，以获取 api_key.id
             db.session.add(api_key)
-            print(f"  ✓ Created API key for {key_data['model']} (DISABLED)")
+            db.session.flush()
+
+            # 为每个模型创建关联记录
+            for config in model_configs:
+                # 检查模型是否存在
+                model = Model.query.filter_by(key=config['model']).first()
+                if not model:
+                    print(f"  ⚠️  Model '{config['model']}' not found, skipping...")
+                    continue
+
+                # 创建 ApiKeyModel 关联记录
+                api_key_model = ApiKeyModel(
+                    api_key_id=api_key.id,
+                    model=config['model'],
+                    api_base=config['api_base']
+                )
+                db.session.add(api_key_model)
+
+            models_str = ', '.join([c['model'] for c in model_configs])
+            print(f"  ✓ Created API key for models: {models_str}")
 
         db.session.commit()
         print("✓ Sample API keys initialized")

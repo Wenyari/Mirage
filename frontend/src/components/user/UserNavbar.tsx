@@ -128,6 +128,12 @@ export function UserNavbar() {
                   >
                     {USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.label}
                   </Link>
+                  <Link
+                    to={USER_NAVIGATION.PLAYGROUND.children.IMAGE_GENERATION.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.PLAYGROUND.children.IMAGE_GENERATION.label}
+                  </Link>
                 </div>
               </HoverCardContent>
             </HoverCard>
