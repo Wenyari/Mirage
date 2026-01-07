@@ -1,26 +1,27 @@
 import api from '@/lib/api';
 import type {
-  Key,
   AddKeyRequest,
   BatchAddKeysRequest,
   BatchAddKeysResponse,
-  UpdateKeyRequest,
   CooldownRequest,
   CooldownResponse,
-  HealthCheckResponse,
-  KeyStats,
-  ModelType,
-  Model,
-  GetModelsResponse,
   CreateModelRequest,
+  GetModelsResponse,
+  HealthCheckResponse,
+  Key,
+  KeyStats,
+  Model,
+  ModelType,
+  UpdateKeyRequest,
   UpdateModelRequest,
 } from '@/types/key';
 
 /**
  * 获取模型列表
  */
-export async function getModels(): Promise<GetModelsResponse> {
-  return api.get('/admin/models');
+export async function getModels(tags?: string[]): Promise<GetModelsResponse> {
+  const params = tags && tags.length > 0 ? { tags: tags.join(',') } : {};
+  return api.get('/admin/models', { params });
 }
 
 /**

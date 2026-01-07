@@ -1,9 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { toast } from 'sonner';
+import * as z from 'zod';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { FancyMultiSelect } from '@/components/ui/fancy-multi-select';
 import {
   Form,
   FormControl,
@@ -22,18 +24,31 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-
-import type { Model } from '@/types/key';
+import { Textarea } from '@/components/ui/textarea';
 import { useUpdateModel } from '@/hooks/useKeys';
+import type { Model } from '@/types/key';
 
 interface EditModelDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   model?: Model;
 }
+
+// 预定义常用标签 (与 CreateModelDialog 保持一致)
+const SUGGESTED_TAGS = [
+  { value: 'video', label: '视频 (video)' },
+  { value: 'image', label: '图片 (image)' },
+  { value: 'text', label: '文本 (text)' },
+  { value: 'audio', label: '音频 (audio)' },
+  { value: 'generation', label: '生成 (generation)' },
+  { value: 'edit', label: '编辑 (edit)' },
+  { value: 'chat', label: '对话 (chat)' },
+  { value: 'transcription', label: '转录 (transcription)' },
+  { value: 'hd', label: '高清 (hd)' },
+  { value: 'realtime', label: '实时 (realtime)' },
+  { value: 'multimodal', label: '多模态 (multimodal)' },
+];
 
 // 表单 Schema
 const formSchema = z.object({
@@ -43,6 +58,7 @@ const formSchema = z.object({
   color: z.string().optional(),
   icon_url: z.string().url('请输入有效的URL').or(z.literal('')).optional(),
   max_concurrency_limit: z.coerce.number().min(1).max(100).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -59,6 +75,7 @@ export function EditModelDialog({ open, onOpenChange, model }: EditModelDialogPr
       color: 'bg-blue-500',
       icon_url: '',
       max_concurrency_limit: 20,
+      tags: [],
     },
   });
 
@@ -67,11 +84,12 @@ export function EditModelDialog({ open, onOpenChange, model }: EditModelDialogPr
     if (model) {
       form.reset({
         name: model.name,
-        enabled: model.enabled,
+        enabled: Boolean(model.enabled),
         description: model.description || '',
         color: model.color || 'bg-blue-500',
         icon_url: model.icon_url || model.icon || '',
         max_concurrency_limit: model.max_concurrency_limit || 20,
+        tags: model.tags || [],
       });
     }
   }, [model, form]);
@@ -103,7 +121,7 @@ export function EditModelDialog({ open, onOpenChange, model }: EditModelDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>编辑模型</DialogTitle>
           <DialogDescription>
@@ -117,7 +135,7 @@ export function EditModelDialog({ open, onOpenChange, model }: EditModelDialogPr
             {model && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">模型标识</label>
-                <Input value={model.key} disabled className="font-mono bg-muted" />
+                <Input value={model.key} disabled className="bg-muted font-mono" />
                 <p className="text-xs text-muted-foreground">模型标识不可修改</p>
               </div>
             )}
@@ -152,6 +170,27 @@ export function EditModelDialog({ open, onOpenChange, model }: EditModelDialogPr
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Tags */}
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>标签</FormLabel>
+                  <FormControl>
+                    <FancyMultiSelect
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      options={SUGGESTED_TAGS}
+                      placeholder="选择或输入标签..."
+                    />
+                  </FormControl>
+                  <FormDescription>用于模型分类和筛选</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

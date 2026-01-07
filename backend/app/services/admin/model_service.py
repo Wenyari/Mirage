@@ -8,18 +8,35 @@ from app.extensions import db
 from app.models import Model, ModelConfig, ApiKey, Task
 
 
-def get_model_list():
+def get_model_list(tags_filter=None):
     """
     获取所有模型列表
+
+    Args:
+        tags_filter: 标签筛选（逗号分隔的标签，如 "video,generation"）
+                    满足任一标签即返回（OR逻辑）
 
     Returns:
         list: 模型列表
     """
-    models = Model.query.all()
+    query = Model.query
+
+    # 标签筛选（如果提供）
+    if tags_filter:
+        tags = [t.strip() for t in tags_filter.split(',')]
+        # 使用Python过滤（简单实现）
+        all_models = query.all()
+        filtered_models = []
+        for model in all_models:
+            if model.tags and any(tag in model.tags for tag in tags):
+                filtered_models.append(model.to_dict())
+        return filtered_models
+
+    models = query.all()
     return [model.to_dict() for model in models]
 
 
-def create_model(key, name, enabled=True, description=None, color=None, icon_url=None, max_concurrency_limit=20):
+def create_model(key, name, enabled=True, description=None, color=None, icon_url=None, max_concurrency_limit=20, tags=None):
     """
     创建新模型
 
@@ -31,6 +48,7 @@ def create_model(key, name, enabled=True, description=None, color=None, icon_url
         color: UI颜色标识
         icon_url: 模型图标URL
         max_concurrency_limit: 建议的最大并发限制
+        tags: 模型分类标签（字符串数组）
 
     Returns:
         dict: 创建的模型数据
@@ -48,6 +66,13 @@ def create_model(key, name, enabled=True, description=None, color=None, icon_url
     if existing:
         raise ValueError(f"Model with key '{key}' already exists")
 
+    # 验证tags格式（如果提供）
+    if tags is not None:
+        if not isinstance(tags, list):
+            raise ValueError("tags must be a list")
+        if not all(isinstance(tag, str) for tag in tags):
+            raise ValueError("All tags must be strings")
+
     # 创建模型
     model = Model(
         key=key,
@@ -56,7 +81,8 @@ def create_model(key, name, enabled=True, description=None, color=None, icon_url
         description=description,
         color=color,
         icon_url=icon_url,
-        max_concurrency_limit=max_concurrency_limit
+        max_concurrency_limit=max_concurrency_limit,
+        tags=tags
     )
 
     db.session.add(model)
@@ -65,7 +91,7 @@ def create_model(key, name, enabled=True, description=None, color=None, icon_url
     return model.to_dict()
 
 
-def update_model(key, name=None, enabled=None, description=None, color=None, icon_url=None, max_concurrency_limit=None):
+def update_model(key, name=None, enabled=None, description=None, color=None, icon_url=None, max_concurrency_limit=None, tags=None):
     """
     更新模型配置
 
@@ -77,6 +103,7 @@ def update_model(key, name=None, enabled=None, description=None, color=None, ico
         color: UI颜色标识
         icon_url: 模型图标URL
         max_concurrency_limit: 建议的最大并发限制
+        tags: 模型分类标签（字符串数组）
 
     Returns:
         dict: 更新后的模型数据
@@ -101,6 +128,13 @@ def update_model(key, name=None, enabled=None, description=None, color=None, ico
         model.icon_url = icon_url
     if max_concurrency_limit is not None:
         model.max_concurrency_limit = max_concurrency_limit
+    if tags is not None:
+        # 验证tags格式
+        if not isinstance(tags, list):
+            raise ValueError("tags must be a list")
+        if not all(isinstance(tag, str) for tag in tags):
+            raise ValueError("All tags must be strings")
+        model.tags = tags
 
     model.updated_at = datetime.utcnow()
     db.session.commit()

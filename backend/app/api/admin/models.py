@@ -21,7 +21,10 @@ bp = Blueprint('admin_models', __name__)
 def list_models():
     """
     获取模型列表
-    GET /api/admin/models
+    GET /api/admin/models?tags=video,generation
+
+    Query Parameters:
+        tags (str): 标签筛选（逗号分隔，可选）
 
     Returns:
         JSON: {
@@ -31,7 +34,11 @@ def list_models():
         }
     """
     try:
-        models = get_model_list()
+        # 获取查询参数
+        tags_filter = request.args.get('tags', None, type=str)
+
+        # 调用服务层
+        models = get_model_list(tags_filter=tags_filter)
 
         return jsonify({
             "code": 0,
@@ -63,7 +70,8 @@ def create_model_endpoint():
             "description": "Anthropic Claude 3 Sonnet 模型",
             "color": "bg-orange-400",
             "icon_url": "https://example.com/icon.png",
-            "max_concurrency_limit": 20
+            "max_concurrency_limit": 20,
+            "tags": ["text", "chat", "multimodal"]
         }
 
     Returns:
@@ -100,6 +108,7 @@ def create_model_endpoint():
         color = data.get('color')
         icon_url = data.get('icon_url')
         max_concurrency_limit = data.get('max_concurrency_limit', 20)
+        tags = data.get('tags')
 
         # 调用服务层
         result = create_model(
@@ -109,7 +118,8 @@ def create_model_endpoint():
             description=description,
             color=color,
             icon_url=icon_url,
-            max_concurrency_limit=max_concurrency_limit
+            max_concurrency_limit=max_concurrency_limit,
+            tags=tags
         )
 
         return jsonify({
@@ -148,7 +158,8 @@ def update_model_endpoint(key):
             "description": "Updated description",
             "color": "bg-indigo-500",
             "icon_url": "https://new-icon.png",
-            "max_concurrency_limit": 30
+            "max_concurrency_limit": 30,
+            "tags": ["text", "chat"]
         }
 
     Returns:
@@ -176,7 +187,8 @@ def update_model_endpoint(key):
             description=data.get('description'),
             color=data.get('color'),
             icon_url=data.get('icon_url'),
-            max_concurrency_limit=data.get('max_concurrency_limit')
+            max_concurrency_limit=data.get('max_concurrency_limit'),
+            tags=data.get('tags')
         )
 
         return jsonify({

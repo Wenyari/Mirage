@@ -25,6 +25,7 @@ export interface Model {
   icon?: string;                 // 图标 URL（可选）
   icon_url?: string;             // 图标 URL（与icon同义，数据库字段）
   max_concurrency_limit?: number; // 该模型建议的最大并发限制
+  tags?: string[];               // 模型标签（分类、功能等）
   created_at?: string;           // 创建时间
   updated_at?: string;           // 更新时间
 }
@@ -40,6 +41,7 @@ export interface CreateModelRequest {
   color?: string;
   icon_url?: string;
   max_concurrency_limit?: number;
+  tags?: string[];               // 模型标签
 }
 
 /**
@@ -52,6 +54,7 @@ export interface UpdateModelRequest {
   color?: string;
   icon_url?: string;
   max_concurrency_limit?: number;
+  tags?: string[];               // 模型标签
 }
 
 /**

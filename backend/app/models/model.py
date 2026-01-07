@@ -17,6 +17,7 @@ class Model(db.Model):
     color = db.Column(db.String(50), nullable=True)  # UI 颜色标识
     icon_url = db.Column(db.String(255), nullable=True)  # 模型图标 URL
     max_concurrency_limit = db.Column(db.Integer, default=20, nullable=False)  # 最大并发限制
+    tags = db.Column(db.JSON, nullable=True)  # 模型分类标签（如 ["video", "generation"]）
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
@@ -43,6 +44,7 @@ class Model(db.Model):
             'color': self.color,
             'icon_url': self.icon_url,
             'max_concurrency_limit': self.max_concurrency_limit,
+            'tags': self.tags if self.tags else [],  # 确保返回空列表而非null
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

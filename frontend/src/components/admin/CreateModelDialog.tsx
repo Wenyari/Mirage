@@ -1,8 +1,9 @@
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import * as z from 'zod';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { FancyMultiSelect } from '@/components/ui/fancy-multi-select'; // 假设有这个组件，如果没有我会创建
 import {
   Form,
   FormControl,
@@ -21,10 +23,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-
+import { Textarea } from '@/components/ui/textarea';
 import { useCreateModel } from '@/hooks/useKeys';
 
 interface CreateModelDialogProps {
@@ -32,6 +32,21 @@ interface CreateModelDialogProps {
   onOpenChange: (open: boolean) => void;
   onSuccess?: (modelKey: string) => void;
 }
+
+// 预定义常用标签
+const SUGGESTED_TAGS = [
+  { value: 'video', label: '视频 (video)' },
+  { value: 'image', label: '图片 (image)' },
+  { value: 'text', label: '文本 (text)' },
+  { value: 'audio', label: '音频 (audio)' },
+  { value: 'generation', label: '生成 (generation)' },
+  { value: 'edit', label: '编辑 (edit)' },
+  { value: 'chat', label: '对话 (chat)' },
+  { value: 'transcription', label: '转录 (transcription)' },
+  { value: 'hd', label: '高清 (hd)' },
+  { value: 'realtime', label: '实时 (realtime)' },
+  { value: 'multimodal', label: '多模态 (multimodal)' },
+];
 
 // 表单 Schema
 const formSchema = z.object({
@@ -46,6 +61,7 @@ const formSchema = z.object({
   color: z.string().optional(),
   icon_url: z.string().url('请输入有效的URL').or(z.literal('')).optional(),
   max_concurrency_limit: z.coerce.number().min(1).max(100).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -60,9 +76,10 @@ export function CreateModelDialog({ open, onOpenChange, onSuccess }: CreateModel
       name: '',
       enabled: true,
       description: '',
-      color: 'bg-blue-500',
+      color: '',
       icon_url: '',
       max_concurrency_limit: 20,
+      tags: [],
     },
   });
 
@@ -90,7 +107,7 @@ export function CreateModelDialog({ open, onOpenChange, onSuccess }: CreateModel
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>添加新模型</DialogTitle>
           <DialogDescription>创建一个新的AI模型配置</DialogDescription>
@@ -150,6 +167,27 @@ export function CreateModelDialog({ open, onOpenChange, onSuccess }: CreateModel
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Tags */}
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>标签</FormLabel>
+                  <FormControl>
+                    <FancyMultiSelect
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      options={SUGGESTED_TAGS}
+                      placeholder="选择或输入标签..."
+                    />
+                  </FormControl>
+                  <FormDescription>用于模型分类和筛选</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

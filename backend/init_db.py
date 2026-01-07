@@ -84,7 +84,8 @@ def init_models():
                 'description': 'OpenAI Sora 视频生成模型',
                 'color': 'bg-blue-500',
                 'icon_url': None,
-                'max_concurrency_limit': 10
+                'max_concurrency_limit': 10,
+                'tags': ['videoGeneration']
             },
         ]
 

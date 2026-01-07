@@ -1,17 +1,11 @@
+import { Edit, Filter,MoreVertical, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
-import { Edit, Trash2, Plus, MoreVertical } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { CreateModelDialog } from '@/components/admin/CreateModelDialog';
+import { EditModelDialog } from '@/components/admin/EditModelDialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,9 +16,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import {
   Table,
   TableBody,
@@ -33,11 +36,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
+import { useDeleteModel,useModels, useUpdateModel } from '@/hooks/useKeys';
 import type { Model } from '@/types/key';
-import { useModels, useUpdateModel, useDeleteModel } from '@/hooks/useKeys';
-import { CreateModelDialog } from '@/components/admin/CreateModelDialog';
-import { EditModelDialog } from '@/components/admin/EditModelDialog';
 
 export default function ModelManager() {
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; model?: Model }>({
@@ -47,6 +47,9 @@ export default function ModelManager() {
     open: false,
   });
   const [createDialog, setCreateDialog] = useState(false);
+  
+  // 筛选状态
+  const [tagFilter, setTagFilter] = useState('');
 
   const { data, isLoading, isError, error } = useModels();
   const updateMutation = useUpdateModel();
@@ -90,13 +93,21 @@ export default function ModelManager() {
   if (isError) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="size-4" />
         <AlertDescription>{(error as any)?.message || '加载失败'}</AlertDescription>
       </Alert>
     );
   }
 
-  const models = data?.data || [];
+  let models = data?.data || [];
+
+  // 前端筛选逻辑 (API 也支持 tags 参数，但这里为了简单直接在前端筛选，除非数据量很大)
+  if (tagFilter) {
+    const filterTag = tagFilter.toLowerCase().trim();
+    models = models.filter(m => 
+      m.tags && m.tags.some(t => t.toLowerCase().includes(filterTag))
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -104,20 +115,31 @@ export default function ModelManager() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">模型管理</h1>
         <p className="mt-2 text-muted-foreground">
-          管理所有AI模型配置，包括模型信息、图标和并发限制
+          管理所有AI模型配置，包括模型信息、图标、标签和并发限制
         </p>
       </div>
 
       {/* 操作栏 */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold">模型列表</h2>
-          <p className="text-sm text-muted-foreground mt-1">共 {models.length} 个模型</p>
+          <p className="mt-1 text-sm text-muted-foreground">共 {models.length} 个模型</p>
         </div>
-        <Button onClick={() => setCreateDialog(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          添加模型
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Filter className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              placeholder="按标签筛选..."
+              value={tagFilter}
+              onChange={(e) => setTagFilter(e.target.value)}
+              className="w-[200px] pl-9"
+            />
+          </div>
+          <Button onClick={() => setCreateDialog(true)}>
+            <Plus className="mr-2 size-4" />
+            添加模型
+          </Button>
+        </div>
       </div>
 
       {/* 模型列表表格 */}
@@ -127,6 +149,7 @@ export default function ModelManager() {
             <TableRow>
               <TableHead>模型</TableHead>
               <TableHead>描述</TableHead>
+              <TableHead>标签</TableHead>
               <TableHead>图标</TableHead>
               <TableHead>颜色</TableHead>
               <TableHead>并发限制</TableHead>
@@ -137,7 +160,7 @@ export default function ModelManager() {
           <TableBody>
             {models.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   暂无模型数据
                 </TableCell>
               </TableRow>
@@ -151,16 +174,29 @@ export default function ModelManager() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="block max-w-[200px] truncate text-sm text-muted-foreground" title={model.description || ''}>
                       {model.description || '-'}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex max-w-[200px] flex-wrap gap-1">
+                      {model.tags && model.tags.length > 0 ? (
+                        model.tags.map(tag => (
+                          <Badge key={tag} variant="outline" className="px-1.5 py-0 text-xs">
+                            {tag}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     {model.icon_url || model.icon ? (
                       <img
                         src={model.icon_url || model.icon}
                         alt={model.name}
-                        className="h-8 w-8 object-contain"
+                        className="size-8 object-contain"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                         }}
@@ -196,15 +232,15 @@ export default function ModelManager() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="size-8">
+                          <MoreVertical className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() => setEditDialog({ open: true, model })}
                         >
-                          <Edit className="h-4 w-4 mr-2" />
+                          <Edit className="mr-2 size-4" />
                           编辑
                         </DropdownMenuItem>
 
@@ -214,7 +250,7 @@ export default function ModelManager() {
                           className="text-red-600"
                           onClick={() => setDeleteDialog({ open: true, model })}
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
+                          <Trash2 className="mr-2 size-4" />
                           删除
                         </DropdownMenuItem>
                       </DropdownMenuContent>
