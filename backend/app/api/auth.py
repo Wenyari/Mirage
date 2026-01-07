@@ -167,21 +167,39 @@ def get_current_user():
     try:
         user_id = get_jwt_identity()
 
-        # TODO: 从数据库查询用户信息
-        # from app.models import User
-        # user = User.query.get(user_id)
-        # if not user:
-        #     return jsonify({"code": 404, "msg": "User not found", "data": None}), 404
+        # 从数据库查询用户信息并返回真实数据
+        from app.models.user import User
+        from app.models.user import MembershipConfig
+
+        try:
+            uid = int(user_id)
+        except Exception:
+            uid = user_id
+
+        user = User.query.get(uid)
+        if not user:
+            return jsonify({"code": 404, "msg": "User not found", "data": None}), 404
+
+        # 获取会员描述（如 T1/T2..）
+        try:
+            membership = MembershipConfig.query.filter_by(level=user.level).first()
+            vip_desc = membership.name if membership else f"T{user.level}"
+        except Exception:
+            vip_desc = f"T{user.level}"
 
         return jsonify({
             "code": 200,
             "msg": "Success",
             "data": {
-                "id": user_id,
-                "email": "user@example.com",
-                "balance": 100.00,
-                "level": 1,
-                "vip_desc": "T1"
+                "id": user.id,
+                "email": user.email,
+                "balance": float(user.balance),
+                "level": user.level,
+                "vip_desc": vip_desc,
+                "role": user.role,
+                "status": user.status,
+                "created_at": user.created_at.isoformat() if user.created_at else None,
+                "last_active": getattr(user, 'last_active', None)
             }
         }), 200
 

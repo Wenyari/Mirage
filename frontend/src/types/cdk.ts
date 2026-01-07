@@ -37,6 +37,7 @@ export interface CDKGenerateRequest {
   count: number;
   batch_no?: string; // 前端表单字段，实际对应后端的 batch_name
   expire_at?: string;
+  grant_level?: number;
 }
 
 /**
@@ -75,6 +76,14 @@ export interface CDKListResponse {
     page: number;
     limit: number;
   };
+}
+
+/**
+ * 作废 CDK 请求参数
+ */
+export interface CDKVoidRequest {
+  batch_no?: string;
+  ids?: number[];
 }
 
 /**

@@ -49,7 +49,7 @@ def generate_batch_no():
     return f'BATCH{date_part}{seq}'
 
 
-def generate_cdk_batch(amount, count, type='once', batch_name=None):
+def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=None):
     """
     批量生成CDK
 
@@ -108,7 +108,8 @@ def generate_cdk_batch(amount, count, type='once', batch_name=None):
             points=amount,
             type=db_type,
             batch_no=batch_no,
-            status=0  # 未使用
+            status=0,  # 未使用
+            grant_level=grant_level
         )
         db.session.add(cdk)
         cdks.append(cdk)
@@ -272,5 +273,6 @@ def _cdk_to_api_dict(cdk):
         'type': type_display,
         'status': status,
         'used_at': cdk.used_at.isoformat() if cdk.used_at else None,
+        'grant_level': cdk.grant_level,
         'created_at': cdk.created_at.isoformat() if cdk.created_at else None,
     }

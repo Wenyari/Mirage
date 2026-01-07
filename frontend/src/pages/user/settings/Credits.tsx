@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/dialog';
 // Link not used in this page; sidebar is provided by SettingsLayout
 import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
+import { authService } from '@/services/auth';
 
 export default function Credits() {
   const [code, setCode] = useState('');
@@ -23,6 +25,8 @@ export default function Credits() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMsg, setDialogMsg] = useState('');
   const [dialogSuccess, setDialogSuccess] = useState(false);
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const { user, setUser } = useAuthStore();
 
   const translateFailure = (msg: string) => {
     if (!msg) return '兑换失败';
@@ -55,11 +59,25 @@ export default function Credits() {
       if (res && res.code === 200) {
         const added = res.data?.added_points;
         const current = res.data?.current_balance;
-        const successMsg = `兑换成功，获得 ${added ?? '0'} 积分`;
+        const upgraded = res.data?.upgraded_to;
+        let successMsg = `兑换成功，获得 ${added ?? '0'} 积分`;
+        if (upgraded) {
+          successMsg += `，并升级至 T${upgraded}`;
+        }
         setDialogMsg(successMsg);
         setDialogSuccess(true);
         setDialogOpen(true);
-        if (current !== undefined && current !== null) setBalance(Number(current));
+        if (current !== undefined && current !== null) {
+          setBalance(Number(current));
+        }
+
+        // 刷新全局用户信息（余额/等级等）
+        try {
+          const me = await authService.me();
+          if (me) setUser(me);
+        } catch (err) {
+          // ignore
+        }
       } else {
         const msg = res?.msg || '兑换失败';
         const zh = translateFailure(String(msg));
@@ -118,10 +136,73 @@ export default function Credits() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex-1">
+      <div className="flex-1">
           <Card className="p-6">
             <h3 className="font-semibold mb-2">充值积分</h3>
-            <Button onClick={() => window.open('/pay', '_blank')}>立即充值</Button>
+            <Button onClick={() => setPurchaseOpen(true)}>立即充值</Button>
+            <Dialog open={purchaseOpen} onOpenChange={setPurchaseOpen}>
+            <DialogContent className="max-w-6xl w-[95vw]">
+                <DialogTitle>选择充值套餐</DialogTitle>
+                <DialogDescription>请选择适合你的充值包。</DialogDescription>
+                <div className="mt-4 grid grid-cols-4 gap-6">
+                  {[
+                    {
+                      title: '体验包',
+                      price: '¥9.9',
+                      bullets: ['100 积分', '解锁T2权限'],
+                    },
+                    {
+                      title: 'T3体验包',
+                      price: '¥29.9',
+                      bullets: ['360 积分 (送60)', '解锁T3权限', '解锁电影级 Pro 模型','Sora-2可享8折优惠'],
+                      limited: true,
+                    },
+                    {
+                      title: '标准包',
+                      price: '¥49.9',
+                      bullets: ['550 积分 (送50)', '解锁T3权限','解锁电影级 Pro 模型','Sora-2可享8折优惠'],
+                    },
+                    {
+                      title: '专业包',
+                      price: '¥199',
+                      bullets: ['2300 积分 (送300)', '解锁T4权限','Sora-2低至6折优惠'],
+                    },
+                  ].map((pkg) => (
+                    <div
+                      key={pkg.title}
+                      className="relative border rounded-xl p-6 text-center flex flex-col justify-between min-w-[260px]"
+                    >
+                      {pkg.limited && (
+                        <div className="absolute -top-3 right-3">
+                          <span className="bg-orange-400 text-white text-xs px-2 py-1 rounded-full">用户每周限购一次！</span>
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-sm text-muted-foreground">{pkg.title}</div>
+                        <div className="text-2xl font-bold my-4">{pkg.price}</div>
+                        <ul className="text-sm text-left list-inside space-y-1 text-muted-foreground">
+                          {pkg.bullets.map((b: string) => (
+                            <li key={b} className="flex items-start gap-2">
+                              <span className="text-green-500">✔</span>
+                              <span>{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="mt-4">
+                        <Button className="w-full">立即购买</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button onClick={() => setPurchaseOpen(false)}>关闭</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </Card>
         </div>
         <div className="w-64">

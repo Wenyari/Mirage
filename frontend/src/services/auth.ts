@@ -53,7 +53,12 @@ export const authService = {
   // 4. 获取当前用户信息
   me: async () => {
     const response = await api.get<ApiResponse<MeResponse>>('/auth/me');
-    return response.data;
+    // api interceptor may already return the whole server payload or the inner data;
+    // normalize to return the actual user object.
+    if (response && (response as any).data) {
+      return (response as any).data;
+    }
+    return response;
   },
 
   // 5. 用户登出

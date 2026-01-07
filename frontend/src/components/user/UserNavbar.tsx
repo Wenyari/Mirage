@@ -18,7 +18,23 @@ import { LEVEL_COLORS,USER_LEVEL_LABELS } from '@/types/user';
 
 export function UserNavbar() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, setUser } = useAuthStore();
+ 
+  // ensure we refresh current user on mount when authenticated
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        if (isAuthenticated) {
+          const me = await authService.me();
+          if (mounted && me) setUser(me);
+        }
+      } catch (e) {
+        // ignore
+      }
+    })();
+    return () => { mounted = false; };
+  }, [isAuthenticated, setUser]);
   const [exploreOpen, setExploreOpen] = React.useState(false);
   const [playgroundOpen, setPlaygroundOpen] = React.useState(false);
   const [moreOpen, setMoreOpen] = React.useState(false);

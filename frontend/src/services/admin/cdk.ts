@@ -16,6 +16,7 @@ export async function generateCDK(data: CDKGenerateRequest): Promise<CDKGenerate
     count: data.count,
     type: data.type,
     batch_name: data.batch_no || undefined, // 后端字段名为 batch_name
+    grant_level: data.grant_level,
   };
   return api.post('/admin/cdk/generate', payload);
 }
@@ -30,7 +31,7 @@ export async function getCDKList(params: CDKListParams = {}): Promise<CDKListRes
   };
   delete queryParams.page_size;
 
-  const res = await api.get<CDKListResponse>('/admin/cdk', { params: queryParams });
+  const res: any = await api.get('/admin/cdk', { params: queryParams });
   return res.data;
 }
 

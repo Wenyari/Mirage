@@ -38,6 +38,7 @@ const formSchema = z.object({
   type: z.enum(['once', 'universal'], {
     required_error: '请选择CDK类型',
   }),
+  grant_level: z.coerce.number().optional(),
   count: z.coerce.number().min(1, '生成数量必须大于0').max(1000, '单次最多生成1000个'),
   batch_no: z.string().optional(),
   expire_at: z.string().optional(),
@@ -54,6 +55,7 @@ export function CDKGenerateForm() {
     defaultValues: {
       points: 100,
       type: 'once',
+      grant_level: undefined,
       count: 10,
       batch_no: '',
       expire_at: '',
@@ -94,11 +96,19 @@ export function CDKGenerateForm() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>生成 CDK 兑换码</CardTitle>
-        <CardDescription>
-          批量生成兑换码，生成后自动下载 Excel 文件
-        </CardDescription>
+      <CardHeader className="flex items-center justify-between">
+        <div>
+          <CardTitle>生成 CDK 兑换码</CardTitle>
+          <CardDescription>
+            批量生成兑换码，生成后自动下载 Excel 文件
+          </CardDescription>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 100); form.setValue('grant_level', 2); }}>9.9 体验包</Button>
+          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 360); form.setValue('grant_level', 3); }}>29.9 T3体验包</Button>
+          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 550); form.setValue('grant_level', 3); }}>49.9 标准包</Button>
+          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 2300); form.setValue('grant_level', 4); }}>199 专业包</Button>
+        </div>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -148,6 +158,38 @@ export function CDKGenerateForm() {
                     <FormDescription>
                       一次性：单个用户只能使用一次；通用码：多个用户可使用
                     </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 授予等级（可选） */}
+              <FormField
+                control={form.control}
+                name="grant_level"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>授予等级 (可选)</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(v) => field.onChange(Number(v))}
+                        value={field.value ? String(field.value) : undefined}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="不授予等级" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="1">T1</SelectItem>
+                          <SelectItem value="2">T2</SelectItem>
+                          <SelectItem value="3">T3</SelectItem>
+                          <SelectItem value="4">T4</SelectItem>
+                          <SelectItem value="5">T5</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>兑换该 CDK 后将把用户等级提升到此等级（如果当前等级低于此值）</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

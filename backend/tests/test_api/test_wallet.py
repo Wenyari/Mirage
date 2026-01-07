@@ -9,6 +9,12 @@ def test_redeem_cdk_api_success(app, client, db_session, redis_db, test_user, te
         redis_db.setex(f"auth:token:{test_user.id}", 3600, token)
 
         # call redeem endpoint
+        # set CDK to grant higher level to test upgrade
+        from app.models.wallet import CDK
+        db_cdk = CDK.query.filter_by(code=test_cdk.code).first()
+        db_cdk.grant_level = 4
+        db_session.session.commit()
+
         response = client.post(
             '/api/wallet/redeem',
             headers={'Authorization': f'Bearer {token}'},
@@ -33,6 +39,9 @@ def test_redeem_cdk_api_success(app, client, db_session, redis_db, test_user, te
         tx = Transaction.query.filter_by(related_id=str(db_cdk.id)).first()
         assert tx is not None
         assert tx.type == 'recharge'
+        # user should be upgraded to level 4
+        db_session.session.refresh(test_user)
+        assert test_user.level == 4
 
 
 def test_redeem_cdk_api_invalid_code(app, client, db_session, redis_db, test_user):

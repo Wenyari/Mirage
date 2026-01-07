@@ -76,6 +76,21 @@ def redeem_cdk(user_id: int, code: str) -> dict:
     )
     db.session.add(transaction)
 
+    # 6.5 如果 CDK 指定了 grant_level，且用户当前等级低于该等级，则升级用户等级
+    upgraded_to = None
+    try:
+        if getattr(cdk, 'grant_level', None):
+            grant = int(cdk.grant_level)
+            if user.level is None or user.level < grant:
+                user.level = grant
+                upgraded_to = grant
+                # 可在 remark 中追加升级信息
+                transaction.remark = f"{transaction.remark}; upgraded_to_T{grant}"
+                db.session.add(transaction)
+    except Exception:
+        # 忽略升级失败，继续完成兑换（不会阻塞兑换）
+        upgraded_to = None
+
     # 7. 提交事务
     try:
         db.session.commit()
@@ -83,10 +98,13 @@ def redeem_cdk(user_id: int, code: str) -> dict:
         db.session.rollback()
         raise ValueError(f"Failed to redeem CDK: {str(e)}")
 
-    return {
+    result = {
         "added_points": points,
         "current_balance": float(new_balance)
     }
+    if upgraded_to:
+        result['upgraded_to'] = upgraded_to
+    return result
 
 
 def check_and_deduct_balance(user_id: int, amount: float, task_id: str):

@@ -19,6 +19,7 @@ class CDK(db.Model):
     used_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # 使用者
     used_at = db.Column(db.DateTime, nullable=True)  # 使用时间
     expire_at = db.Column(db.DateTime, nullable=True)  # 过期时间
+    grant_level = db.Column(db.SmallInteger, nullable=True)  # 可授予的会员等级 (1-5)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     def __repr__(self):
@@ -36,6 +37,7 @@ class CDK(db.Model):
             'used_by': self.used_by,
             'used_at': self.used_at.isoformat() if self.used_at else None,
             'expire_at': self.expire_at.isoformat() if self.expire_at else None,
+            'grant_level': self.grant_level,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 
