@@ -52,6 +52,7 @@ export interface CreateModelConfigRequest {
   allowed_tiers: MembershipTier[];
   cost_per_call: number;
   token_cost_config: TokenCostConfig;
+  params?: Record<string, any>;
   is_active: boolean;
   description?: string;
 }
@@ -63,6 +64,7 @@ export interface UpdateModelConfigRequest {
   allowed_tiers?: MembershipTier[];
   cost_per_call?: number;
   token_cost_config?: TokenCostConfig;
+  params?: Record<string, any>;
   is_active?: boolean;
   description?: string;
 }

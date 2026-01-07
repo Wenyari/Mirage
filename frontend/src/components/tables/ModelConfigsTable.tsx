@@ -137,6 +137,21 @@ export function ModelConfigsTable() {
       },
     },
     {
+      accessorKey: 'params',
+      header: '自定义参数',
+      cell: ({ row }) => {
+        const params = row.original.params;
+        if (!params) {
+          return <span className="text-xs text-muted-foreground">-</span>;
+        }
+        return (
+          <div className="max-w-[150px] truncate text-xs font-mono text-muted-foreground" title={JSON.stringify(params, null, 2)}>
+            {JSON.stringify(params)}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: 'is_active',
       header: '状态',
       cell: ({ row }) => {

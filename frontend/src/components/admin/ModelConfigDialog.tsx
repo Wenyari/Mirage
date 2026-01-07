@@ -1,9 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { toast } from 'sonner';
+import * as z from 'zod';
 
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -29,18 +31,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
-
-import type { ModelConfig, MembershipTier } from '@/types/modelConfig';
-import { ALL_MEMBERSHIP_TIERS, MEMBERSHIP_TIER_LABELS } from '@/types/modelConfig';
+import { Textarea } from '@/components/ui/textarea';
 import {
+  useAvailableModels,
   useCreateModelConfig,
   useUpdateModelConfig,
-  useAvailableModels,
 } from '@/hooks/useModelConfigs';
+import type { MembershipTier,ModelConfig } from '@/types/modelConfig';
+import { ALL_MEMBERSHIP_TIERS, MEMBERSHIP_TIER_LABELS } from '@/types/modelConfig';
 
 interface ModelConfigDialogProps {
   open: boolean;
@@ -57,6 +56,15 @@ const formSchema = z.object({
   token_cost_enabled: z.boolean(),
   token_input_cost: z.coerce.number().min(0).optional(),
   token_output_cost: z.coerce.number().min(0).optional(),
+  params: z.string().optional().refine((val) => {
+    if (!val) return true;
+    try {
+      JSON.parse(val);
+      return true;
+    } catch {
+      return false;
+    }
+  }, '必须是有效的 JSON 格式'),
   is_active: z.boolean(),
   description: z.string().optional(),
 });
@@ -77,6 +85,7 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
       token_cost_enabled: false,
       token_input_cost: 0.03,
       token_output_cost: 0.06,
+      params: '',
       is_active: true,
       description: '',
     },
@@ -94,11 +103,22 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
         token_cost_enabled: config.token_cost_config.enabled,
         token_input_cost: config.token_cost_config.input_cost || 0,
         token_output_cost: config.token_cost_config.output_cost || 0,
-        is_active: config.is_active,
+        params: config.params ? JSON.stringify(config.params, null, 2) : '',
+        is_active: Boolean(config.is_active),
         description: config.description || '',
       });
     } else {
-      form.reset();
+      form.reset({
+        model: '',
+        allowed_tiers: ['T1', 'T2', 'T3', 'T4', 'T5'],
+        cost_per_call: 10,
+        token_cost_enabled: false,
+        token_input_cost: 0.03,
+        token_output_cost: 0.06,
+        params: '',
+        is_active: true,
+        description: '',
+      });
     }
   }, [mode, config, form]);
 
@@ -115,6 +135,7 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
             output_cost: values.token_output_cost || 0,
           }),
         },
+        params: values.params ? JSON.parse(values.params) : null,
         is_active: values.is_active,
         description: values.description || '',
       };
@@ -142,7 +163,7 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{mode === 'create' ? '添加模型配置' : '编辑模型配置'}</DialogTitle>
           <DialogDescription>
@@ -198,7 +219,7 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
               render={() => (
                 <FormItem>
                   <FormLabel>允许使用的等级 *</FormLabel>
-                  <div className="grid grid-cols-5 gap-4 mt-2">
+                  <div className="mt-2 grid grid-cols-5 gap-4">
                     {ALL_MEMBERSHIP_TIERS.map((tier) => (
                       <FormField
                         key={tier}
@@ -219,7 +240,7 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
                                 }}
                               />
                             </FormControl>
-                            <FormLabel className="text-sm font-normal cursor-pointer">
+                            <FormLabel className="cursor-pointer text-sm font-normal">
                               {MEMBERSHIP_TIER_LABELS[tier]}
                             </FormLabel>
                           </FormItem>
@@ -314,6 +335,29 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
                 />
               </div>
             )}
+
+            {/* 自定义参数 */}
+            <FormField
+              control={form.control}
+              name="params"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>自定义参数 (JSON)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='例如: {"durations":[10,15], "hd_supported": true}'
+                      className="font-mono text-xs"
+                      rows={4}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    用于前端渲染的可选参数，必须是有效的 JSON 格式
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* 启用状态 */}
             <FormField

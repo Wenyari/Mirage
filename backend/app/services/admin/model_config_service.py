@@ -128,7 +128,7 @@ def create_model_config(model, allowed_tiers, cost_per_call, token_cost_config, 
     return result
 
 
-def update_model_config(config_id, allowed_tiers=None, cost_per_call=None, token_cost_config=None, is_active=None, description=None):
+def update_model_config(config_id, allowed_tiers=None, cost_per_call=None, token_cost_config=None, is_active=None, description=None, params=None):
     """
     更新模型配置
 
@@ -139,6 +139,7 @@ def update_model_config(config_id, allowed_tiers=None, cost_per_call=None, token
         token_cost_config: Token 计费配置
         is_active: 是否启用
         description: 描述
+        params: 可选参数
 
     Returns:
         dict: 操作结果
@@ -182,6 +183,9 @@ def update_model_config(config_id, allowed_tiers=None, cost_per_call=None, token
 
     if description is not None:
         config.description = description
+
+    if params is not None:
+        config.params = params
 
     config.updated_at = datetime.utcnow()
     db.session.commit()

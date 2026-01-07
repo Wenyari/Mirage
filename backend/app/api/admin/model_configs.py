@@ -212,7 +212,8 @@ def update_model_config_endpoint(config_id):
             cost_per_call=data.get('cost_per_call'),
             token_cost_config=data.get('token_cost_config'),
             is_active=data.get('is_active'),
-            description=data.get('description')
+            description=data.get('description'),
+            params=data.get('params')
         )
 
         return jsonify({
