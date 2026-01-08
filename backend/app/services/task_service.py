@@ -6,7 +6,7 @@
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from app.extensions import db
 from app.models.task import Task
@@ -58,6 +58,18 @@ class TaskService:
         prompt = task_data.get('prompt')
         params = task_data.get('params', {})
         input_file_url = task_data.get('input_file_url')
+
+        # 确保 input_file_url 是列表格式
+        if input_file_url is not None:
+            if isinstance(input_file_url, str):
+                # 如果是单个字符串，转换为列表
+                input_file_url = [input_file_url] if input_file_url else None
+            elif isinstance(input_file_url, list):
+                # 如果是列表，过滤掉空字符串
+                input_file_url = [url for url in input_file_url if url] or None
+            else:
+                input_file_url = None
+
         print("task-dat::::::::::", task_data)
         # 1. 验证用户和模型配置
         user = User.query.get(user_id)
@@ -402,4 +414,107 @@ class TaskService:
         result_models.sort(key=lambda x: (not x['is_available'], x['cost_per_call']))
 
         return result_models
+
+    @classmethod
+    def cleanup_old_tasks(cls, days: int = 3) -> dict:
+        """
+        清理已完成超过指定天数的任务
+
+        Args:
+            days: 保留天数，默认3天
+
+        Returns:
+            dict: {
+                'deleted': 删除的任务数量,
+                'deleted_files': 删除的文件数量,
+                'errors': 错误列表
+            }
+        """
+        from app.services.storage_service import storage_service
+
+        cutoff_time = datetime.utcnow() - timedelta(days=days)
+
+        # 查询需要清理的任务（已完成且超过保留期）
+        old_tasks = Task.query.filter(
+            Task.finished_at.isnot(None),
+            Task.finished_at < cutoff_time,
+            Task.status.in_(['success', 'failed', 'cancelled'])
+        ).all()
+
+        deleted_count = 0
+        deleted_files_count = 0
+        errors = []
+
+        logger.info(f"Found {len(old_tasks)} tasks to cleanup (older than {days} days)")
+
+        for task in old_tasks:
+            try:
+                # 删除关联的文件（如果有）
+                files_to_delete = []
+
+                # 收集 input_file_url 中的文件
+                if task.input_file_url and isinstance(task.input_file_url, list):
+                    for url in task.input_file_url:
+                        if url and isinstance(url, str):
+                            # 从 URL 中提取对象键（假设 URL 格式为 domain/key）
+                            try:
+                                object_key = url.split('/', 3)[-1] if '/' in url else None
+                                if object_key:
+                                    files_to_delete.append(object_key)
+                            except Exception as e:
+                                logger.warning(f"Failed to parse URL {url}: {e}")
+
+                # 收集 result_url 中的文件
+                if task.result_url:
+                    try:
+                        object_key = task.result_url.split('/', 3)[-1] if '/' in task.result_url else None
+                        if object_key:
+                            files_to_delete.append(object_key)
+                    except Exception as e:
+                        logger.warning(f"Failed to parse result URL {task.result_url}: {e}")
+
+                # 删除文件
+                if files_to_delete:
+                    delete_result = storage_service.delete_multiple_files(files_to_delete)
+                    deleted_files_count += delete_result.get('deleted', 0)
+
+                    if delete_result.get('errors'):
+                        for error in delete_result['errors']:
+                            errors.append({
+                                'task_id': task.id,
+                                'type': 'file_deletion',
+                                'error': error
+                            })
+
+                # 删除任务记录
+                db.session.delete(task)
+                deleted_count += 1
+
+            except Exception as e:
+                error_msg = f"Failed to cleanup task {task.id}: {str(e)}"
+                logger.error(error_msg)
+                errors.append({
+                    'task_id': task.id,
+                    'type': 'task_deletion',
+                    'error': str(e)
+                })
+
+        # 提交删除
+        try:
+            db.session.commit()
+            logger.info(f"Cleanup completed: {deleted_count} tasks and {deleted_files_count} files deleted")
+        except Exception as e:
+            db.session.rollback()
+            error_msg = f"Failed to commit cleanup: {str(e)}"
+            logger.error(error_msg)
+            errors.append({
+                'type': 'commit',
+                'error': str(e)
+            })
+
+        return {
+            'deleted': deleted_count,
+            'deleted_files': deleted_files_count,
+            'errors': errors
+        }
 

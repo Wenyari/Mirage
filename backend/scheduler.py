@@ -8,12 +8,14 @@
 维护任务：
 1. 统计同步 (每 5 分钟): 将 Redis 中的统计数据同步到 MySQL
 2. 看门狗 (每 1 分钟): 检测并修复队列死锁
+3. 任务清理 (每天凌晨 2 点): 清理超过 3 天的已完成任务
 """
 import time
 import logging
 import schedule
 from app import create_app
 from app.services.key_manager import KeyManager
+from app.services.task_service import TaskService
 
 # 创建 Flask 应用上下文
 app = create_app()
@@ -50,6 +52,22 @@ def watchdog_job():
             logger.error(f"Watchdog failed: {str(e)}", exc_info=True)
 
 
+def cleanup_tasks_job():
+    """任务清理任务"""
+    logger.info("Running task cleanup job...")
+    with app.app_context():
+        try:
+            result = TaskService.cleanup_old_tasks(days=3)
+            logger.info(
+                f"Task cleanup completed: {result['deleted']} tasks and "
+                f"{result['deleted_files']} files deleted"
+            )
+            if result['errors']:
+                logger.warning(f"Cleanup encountered {len(result['errors'])} errors")
+        except Exception as e:
+            logger.error(f"Task cleanup failed: {str(e)}", exc_info=True)
+
+
 def main():
     """主循环"""
     logger.info("=" * 60)
@@ -66,13 +84,15 @@ def main():
             logger.info("Redis client connected successfully")
 
     logger.info("Scheduled jobs:")
-    logger.info("  - Stats sync: Every 5 minutes")
-    logger.info("  - Watchdog:   Every 1 minute")
+    logger.info("  - Stats sync:     Every 5 minutes")
+    logger.info("  - Watchdog:       Every 1 minute")
+    logger.info("  - Task cleanup:   Daily at 02:00")
     logger.info("=" * 60)
 
     # 注册定时任务
     schedule.every(5).minutes.do(sync_stats_job)
     schedule.every(1).minutes.do(watchdog_job)
+    schedule.every().day.at("02:00").do(cleanup_tasks_job)
 
     # 启动时立即执行一次
     logger.info("Running initial jobs...")

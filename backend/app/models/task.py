@@ -15,7 +15,7 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     model = db.Column(db.String(50), db.ForeignKey('models.key'), nullable=False)  # 模型标识 (外键关联 models.key)
     prompt = db.Column(db.Text, nullable=True)  # 用户提示词
-    input_file_url = db.Column(db.Text, nullable=True)  # 参考图/视频
+    input_file_url = db.Column(db.JSON, nullable=True)  # 参考图/视频 URL 列表（str list）
     params = db.Column(db.JSON, nullable=True)  # 动态参数 (时长、比例等)
     status = db.Column(db.Enum('pending', 'processing', 'success', 'failed', 'cancelled'),
                        default='pending', nullable=False, index=True)

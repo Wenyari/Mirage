@@ -62,3 +62,10 @@ class Config:
     # RQ 队列配置
     RQ_REDIS_URL = REDIS_URL
     RQ_QUEUES = ['high_priority', 'default']  # 高优先级队列、普通队列
+
+    # Cloudflare R2 对象存储配置
+    R2_ACCOUNT_ID = os.getenv('R2_ACCOUNT_ID')
+    R2_ACCESS_KEY_ID = os.getenv('R2_ACCESS_KEY_ID')
+    R2_SECRET_ACCESS_KEY = os.getenv('R2_SECRET_ACCESS_KEY')
+    R2_BUCKET_NAME = os.getenv('R2_BUCKET_NAME')
+    R2_PUBLIC_URL = os.getenv('R2_PUBLIC_URL')  # R2 自定义域名（如 https://files.yourdomain.com）

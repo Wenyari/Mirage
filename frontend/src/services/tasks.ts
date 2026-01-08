@@ -29,6 +29,12 @@ export interface TaskStatusResponse {
   queue_info?: QueueInfo;
   result_url?: string;
   fail_reason?: string;
+  model?: string;
+  prompt?: string;
+  params?: Record<string, any>;
+  input_file_url?: string;
+  created_at?: string;
+  cost_points?: number;
 }
 
 export interface ModelOption {

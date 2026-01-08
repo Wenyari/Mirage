@@ -48,12 +48,14 @@ def create_app(config_class=Config):
 def register_blueprints(app):
     """注册所有蓝图"""
     from app.api import auth_bp, users_bp, tasks_bp, wallet_bp, admin_bp
+    from app.api.upload import bp as upload_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(tasks_bp)
     app.register_blueprint(wallet_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(upload_bp)
 
 
 def register_error_handlers(app):

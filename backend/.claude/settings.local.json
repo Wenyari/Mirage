@@ -24,7 +24,8 @@
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile F:/Mirage/backend/app/services/admin/model_config_service.py)",
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile F:/Mirage/backend/app/services/admin/model_service.py)",
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile F:/Mirage/backend/app/services/task_service.py)",
-      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile F:/Mirage/backend/migrations/add_api_base_to_api_key_models.py)"
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile F:/Mirage/backend/migrations/add_api_base_to_api_key_models.py)",
+      "Bash(cat:*)"
     ]
   }
 }

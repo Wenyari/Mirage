@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { AlertCircle, Clock, History, Loader2, Lock, Image as ImageIcon, Upload, XCircle } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight,Clock, History, Image as ImageIcon, Loader2, Lock, Upload, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -28,6 +28,7 @@ export default function ImageGeneration() {
   const [models, setModels] = useState<ModelOption[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [history, setHistory] = useState<TaskHistoryItem[]>([]);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(true);
   const pollingTimerRef = useRef<number | null>(null);
 
   // 加载模型列表和历史记录
@@ -203,6 +204,18 @@ export default function ImageGeneration() {
       if (status) {
         setTaskStatus(status);
 
+        // 填充参数到当前面板
+        if (status.model) setModel(status.model);
+        if (status.prompt) setPrompt(status.prompt);
+        // 注意：params 设置需要在 model 变化之后生效，或者在 useEffect 中处理
+        // 这里直接设置 taskParams，但要小心 useEffect([model]) 的重置逻辑
+        if (status.params) {
+          // 使用 setTimeout 确保在 useEffect 重置之后执行
+          setTimeout(() => {
+            setTaskParams(status.params || {});
+          }, 100);
+        }
+
         // 若任务仍在运行，启动轮询以获取实时进度
         if (['pending', 'processing'].includes(status.status)) {
           startPolling(item.id);
@@ -235,15 +248,12 @@ export default function ImageGeneration() {
     if (selectedModelInfo?.params) {
       const defaultParams: Record<string, any> = {};
       Object.entries(selectedModelInfo.params).forEach(([key, value]) => {
-        // 映射参数名
         const paramName = key;
-
         if (Array.isArray(value) && value.length > 0) {
           defaultParams[paramName] = value[0];
         } else if (typeof value === 'boolean') {
           defaultParams[paramName] = false; 
         } else {
-          // 其他类型直接使用
           defaultParams[paramName] = value;
         }
       });
@@ -251,7 +261,7 @@ export default function ImageGeneration() {
     } else {
       setTaskParams({});
     }
-  }, [model, selectedModelInfo]);
+  }, [model]); // 移除 selectedModelInfo 依赖
 
   // 渲染动态参数面板
   const renderDynamicParams = () => {
@@ -306,7 +316,7 @@ export default function ImageGeneration() {
 
        // 布尔值 -> Switch
        if (typeof value === 'boolean') {
-         if (!value) return null; // 如果 capability 为 false，不显示
+         if (!value) return null;
 
          return (
           <div key={key} className="flex items-center justify-between rounded-lg border p-4">
@@ -326,63 +336,103 @@ export default function ImageGeneration() {
     });
   };
 
+  // 过滤历史记录：只显示当前页面可用模型的记录
+  const filteredHistory = history.filter(item => 
+    models.some(m => m.key === item.model)
+  );
+
   return (
-    <div className="flex gap-6 px-6 pt-6">
-      {/* 历史记录列表 */}
-      <div className="flex h-[calc(100vh-3.5rem-3rem)] w-[300px] shrink-0 flex-col gap-4 overflow-hidden rounded-xl border bg-muted/20">
-        <div className="flex items-center gap-2 border-b p-4">
-          <History className="size-5 text-muted-foreground" />
-          <h3 className="font-semibold">历史记录</h3>
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
+      {/* 历史记录侧边栏 */}
+      <div 
+        className={cn(
+          "flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
+          isHistoryOpen ? "w-[300px]" : "w-0 opacity-0 overflow-hidden"
+        )}
+      >
+        <div className="flex items-center justify-between border-b p-4">
+          <div className="flex items-center gap-2">
+            <History className="size-5 text-muted-foreground" />
+            <h3 className="font-semibold">历史记录</h3>
+          </div>
+          <Button variant="ghost" size="icon" className="size-8" onClick={() => setIsHistoryOpen(false)}>
+            <ChevronLeft className="size-4" />
+          </Button>
         </div>
-        <ScrollArea className="flex-1 p-4 pt-0">
+        <ScrollArea className="flex-1 p-4">
           <div className="flex flex-col gap-3">
-            {(!history || history.length === 0) ? (
+            {(!filteredHistory || filteredHistory.length === 0) ? (
               <div className="py-8 text-center text-sm text-muted-foreground">
-                暂无生成记录
+                暂无相关记录
               </div>
             ) : (
-              history.map((item) => (
-                <button
+              filteredHistory.map((item) => (
+                <div
                   key={item.id}
                   onClick={() => handleSelectTask(item)}
                   className={cn(
-                    "flex w-full flex-col gap-2 rounded-lg border p-3 text-left transition-colors hover:bg-muted",
-                    taskId === item.id ? "border-primary bg-muted" : "bg-background"
+                    "group relative w-full cursor-pointer overflow-hidden rounded-xl border-[1.5px] p-4 transition-all duration-200 ease-in-out",
+                    "bg-[#f2f3f7]",
+                    "hover:border-[#1677ff]",
+                    taskId === item.id ? "border-[#1677ff]" : "border-[#f2f3f7]"
                   )}
                 >
-                  <div className="flex w-full items-center justify-between">
-                    <span className={cn(
-                      "rounded-full px-2 py-0.5 text-[10px] font-medium uppercase",
-                      item.status === 'success' && "bg-green-100 text-green-700",
-                      item.status === 'failed' && "bg-red-100 text-red-700",
-                      item.status === 'pending' && "bg-yellow-100 text-yellow-700",
-                      item.status === 'processing' && "bg-blue-100 text-blue-700",
-                      item.status === 'cancelled' && "bg-gray-100 text-gray-700",
-                    )}>
-                      {item.status}
-                    </span>
-                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Clock className="size-3" />
-                      {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: zhCN })}
-                    </span>
+                  <div className="relative z-10 flex gap-3">
+                    <div className="pt-1.5">
+                      <div className={cn(
+                        "size-2.5 rounded-full",
+                        item.status === 'success' && "bg-green-500",
+                        item.status === 'failed' && "bg-red-500",
+                        item.status === 'pending' && "bg-yellow-500",
+                        item.status === 'processing' && "bg-blue-500",
+                        item.status === 'cancelled' && "bg-gray-400"
+                      )} />
+                    </div>
+                    <div className="flex flex-1 flex-col gap-1 pr-16">
+                      <div className="text-sm text-[#333]">
+                        <span className="font-semibold text-black">{item.model}</span>
+                        <p className="mt-1 line-clamp-2 text-xs text-[#555]">{item.prompt}</p>
+                      </div>
+                      
+                      <p className="text-xs text-[#777]">
+                        {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: zhCN })}
+                      </p>
+                    </div>
                   </div>
-                  <p className="line-clamp-2 text-xs text-muted-foreground">
-                    {item.prompt}
-                  </p>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground/70">
-                    <span>{item.model}</span>
-                  </div>
-                </button>
+
+                  {item.status === 'success' && (item.thumbnail_url || item.result_url) && (
+                    <div className="absolute inset-y-0 right-0 w-28">
+                       <img src={item.thumbnail_url || item.result_url} className="size-full object-cover" alt="" />
+                       <div className="absolute inset-0 bg-gradient-to-r from-[#f2f3f7] to-transparent" />
+                    </div>
+                  )}
+                </div>
               ))
             )}
           </div>
         </ScrollArea>
       </div>
 
-      {/* 中间配置区 */}
-      <div className="flex h-[calc(100vh-3.5rem-3rem)] w-[400px] shrink-0 flex-col gap-6 overflow-y-auto pb-6">
-        <div className="space-y-4">
+      {/* 展开历史记录按钮 (当侧边栏关闭时显示) */}
+      {!isHistoryOpen && (
+        <div className="absolute left-4 top-20 z-10">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8 rounded-full shadow-md"
+            onClick={() => setIsHistoryOpen(true)}
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* 主内容区域 */}
+      <div className={cn("flex flex-1 gap-6 overflow-hidden p-6", !isHistoryOpen && "pl-16")}>
+        {/* 中间配置区 */}
+        <div className="flex w-[400px] shrink-0 flex-col gap-6">
           <h2 className="text-xl font-bold">Generate Image</h2>
+          <div className="flex-1 space-y-4 overflow-y-auto pb-6 pl-1 pr-4">
           
           <div className="space-y-2">
             <Label>模型</Label>
@@ -462,7 +512,7 @@ export default function ImageGeneration() {
       </div>
 
       {/* 右侧预览区 */}
-      <div className="flex min-w-[480px] flex-1 flex-col items-start overflow-y-auto rounded-xl border border-dashed bg-muted/30 p-6">
+      <div className="flex min-w-[480px] flex-1 flex-col items-start overflow-y-auto rounded-xl border border-dashed bg-background p-6">
          <div className="mx-auto w-full max-w-3xl space-y-6">
            {!taskStatus ? (
              <div className="flex h-[60vh] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
@@ -582,6 +632,7 @@ export default function ImageGeneration() {
             </>
            )}
           </div>
+      </div>
       </div>
     </div>
   );
