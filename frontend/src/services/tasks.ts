@@ -6,7 +6,7 @@ export interface CreateTaskRequest {
   model: string;
   prompt: string;
   params?: Record<string, any>;
-  input_file_url?: string;
+  input_file_url?: string | string[];
 }
 
 // Response Types
@@ -32,7 +32,7 @@ export interface TaskStatusResponse {
   model?: string;
   prompt?: string;
   params?: Record<string, any>;
-  input_file_url?: string;
+  input_file_url?: string | string[];
   created_at?: string;
   cost_points?: number;
 }

@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ImageUploader } from '@/components/ui/image-uploader';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,6 +21,7 @@ import { taskService } from '@/services/tasks';
 export default function ImageGeneration() {
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   // 使用 taskParams 存储动态参数
   const [taskParams, setTaskParams] = useState<Record<string, any>>({});
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -134,7 +136,8 @@ export default function ImageGeneration() {
       const response = await taskService.createTask({
         model,
         prompt,
-        params: taskParams
+        params: taskParams,
+        input_file_url: uploadedFiles
       });
 
       const taskData = response as unknown as TaskResponse;
@@ -353,7 +356,10 @@ export default function ImageGeneration() {
         <div className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
             <History className="size-5 text-muted-foreground" />
-            <h3 className="font-semibold">历史记录</h3>
+            <div className="flex flex-col">
+              <h3 className="font-semibold leading-none">历史记录</h3>
+              <span className="text-[10px] text-muted-foreground">最多保存3天！</span>
+            </div>
           </div>
           <Button variant="ghost" size="icon" className="size-8" onClick={() => setIsHistoryOpen(false)}>
             <ChevronLeft className="size-4" />
@@ -471,12 +477,14 @@ export default function ImageGeneration() {
           </div>
 
           <div className="space-y-2">
-            <Label>上传参考图 (可选)</Label>
-            <div className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-muted-foreground transition-colors hover:bg-muted/50">
-              <Upload className="mb-2 size-8" />
-              <span className="text-sm">点击或拖拽上传</span>
+              <Label>上传参考图 (可选；最多1张, &lt; 1MB)</Label>
+              <ImageUploader 
+                value={uploadedFiles} 
+                onChange={setUploadedFiles} 
+                maxFiles={1} 
+                maxSizeMB={1} 
+              />
             </div>
-          </div>
 
           <div className="space-y-2">
             <Label>提示词</Label>

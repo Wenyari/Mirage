@@ -465,13 +465,13 @@ class TaskService:
                                 logger.warning(f"Failed to parse URL {url}: {e}")
 
                 # 收集 result_url 中的文件
-                if task.result_url:
-                    try:
-                        object_key = task.result_url.split('/', 3)[-1] if '/' in task.result_url else None
-                        if object_key:
-                            files_to_delete.append(object_key)
-                    except Exception as e:
-                        logger.warning(f"Failed to parse result URL {task.result_url}: {e}")
+                # if task.result_url:
+                #     try:
+                #         object_key = task.result_url.split('/', 3)[-1] if '/' in task.result_url else None
+                #         if object_key:
+                #             files_to_delete.append(object_key)
+                #     except Exception as e:
+                #         logger.warning(f"Failed to parse result URL {task.result_url}: {e}")
 
                 # 删除文件
                 if files_to_delete:
