@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import Logo from '@/assets/logo.svg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -59,7 +60,8 @@ export function UserNavbar() {
       <div className="mx-auto flex h-14 max-w-none items-center px-4 sm:px-6 lg:px-8">
         <div className="mr-4 hidden md:flex">
           <Link to="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">Mirage</span>
+            <img src={Logo} alt="GoGen Logo" className="size-8" />
+            <span className="hidden text-xl font-bold sm:inline-block">GoGen</span>
           </Link>
           <div className="flex items-center space-x-1">
             {/* Model Square */}
