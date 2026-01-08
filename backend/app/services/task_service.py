@@ -126,6 +126,7 @@ class TaskService:
             status='pending',
             progress=0,
             cost_points=cost,
+            created_at=datetime.now()
         )
 
         db.session.add(task)
