@@ -5,6 +5,7 @@ import { ApiResponse } from '@/types/api';
 // Request Types
 export interface SendCodeRequest {
   email: string;
+  cf_token: string;
 }
 
 export interface RegisterRequest {

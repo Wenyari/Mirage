@@ -5,6 +5,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.utils.auth import jwt_and_redis_required
+from app.utils.turnstile import verify_turnstile
 # avoid name collision with route function 'send_verify_code'
 from app.services import send_verify_code as send_verify_code_service, register_user, login_user
 
@@ -16,15 +17,25 @@ def send_verify_code():
     """
     发送邮箱验证码
     POST /api/auth/code
-    Body: {"email": "user@example.com"}
+    Body: {"email": "user@example.com", "cf_token": "TURNSTILE_TOKEN_STRING"}
     """
     try:
         data = request.get_json(silent=True) or {}
         # 支持 JSON body 或 query string 两种方式传参
         email = data.get('email') or request.args.get('email')
+        cf_token = data.get('cf_token') or request.args.get('cf_token')
 
         if not email:
             return jsonify({"code": 400, "msg": "Email is required", "data": None}), 400
+
+        if not cf_token:
+            return jsonify({"code": 400, "msg": "Captcha token is required", "data": None}), 400
+
+        # 验证 Cloudflare Turnstile Token
+        user_ip = request.remote_addr
+        if not verify_turnstile(cf_token, user_ip):
+            current_app.logger.warning(f"Turnstile verification failed for {email} from IP {user_ip}")
+            return jsonify({"code": 400, "msg": "Captcha verification failed", "data": None}), 400
 
         try:
             # 调用服务层发送验证码
