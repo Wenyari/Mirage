@@ -104,9 +104,9 @@ def register():
 @bp.route('/login', methods=['POST'])
 def login():
     """
-    用户登录 (临时简化实现，用于测试)
+    用户登录
     POST /api/auth/login
-    Body: {"email": "...", "password": "..."}
+    Body: {"email": "...", "password": "...", "cf_token": "TURNSTILE_TOKEN_STRING"}
     """
     try:
         # 支持JSON body和URL参数两种方式
@@ -117,9 +117,19 @@ def login():
 
         email = data.get('email')
         password = data.get('password')
+        cf_token = data.get('cf_token')
 
         if not all([email, password]):
             return jsonify({"code": 400, "msg": "Email and password are required", "data": None}), 400
+
+        if not cf_token:
+            return jsonify({"code": 400, "msg": "Captcha token is required", "data": None}), 400
+
+        # 验证 Cloudflare Turnstile Token
+        user_ip = request.remote_addr
+        if not verify_turnstile(cf_token, user_ip):
+            current_app.logger.warning(f"Turnstile verification failed for login attempt from IP {user_ip}")
+            return jsonify({"code": 400, "msg": "Captcha verification failed", "data": None}), 400
 
         # 使用服务层登录逻辑（验证数据库并生成 token）
         result = login_user(email, password, request.remote_addr)
