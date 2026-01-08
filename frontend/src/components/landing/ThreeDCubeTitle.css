@@ -1,0 +1,157 @@
+.landing-title-wrapper {
+  --animation-duration: 2.1s;
+  --cube-color: rgba(0, 0, 0, 0);
+  --highlight-color: #FF6633;
+  --cube-width: 48px;
+  --cube-height: 48px;
+  --font-size: 1.8em;
+
+  position: relative;
+  inset: 0;
+
+  display: grid;
+  /* 11 columns for "GO GENERATE" */
+  grid-template-columns: repeat(11, var(--cube-width));
+  grid-template-rows: auto;
+  grid-gap: 0;
+
+  width: calc(11 * var(--cube-width));
+  height: var(--cube-height);
+  perspective: 500px; /* Slightly increased perspective for wider text */
+
+  font-family: "Poppins", sans-serif;
+  font-size: var(--font-size);
+  font-weight: 800;
+  color: transparent;
+}
+
+.landing-title-cube {
+  position: relative;
+  transform-style: preserve-3d;
+  animation: translate-z var(--animation-duration) ease-in-out infinite;
+}
+
+.landing-title-face {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cube-width);
+  height: var(--cube-height);
+  background-color: var(--cube-color);
+}
+
+/* Adjusted shadows for white background: using dark shadows instead of white */
+.landing-title-face-left,
+.landing-title-face-right,
+.landing-title-face-back,
+.landing-title-face-front {
+  box-shadow: 
+    inset 0 0 2px 1px rgba(0, 0, 0, 0.1), 
+    inset 0 0 12px 1px rgba(0, 0, 0, 0.05);
+}
+
+.landing-title-face-front {
+  transform: rotateY(0deg) translateZ(calc(var(--cube-width) / 2));
+}
+.landing-title-face-back {
+  transform: rotateY(180deg) translateZ(calc(var(--cube-width) / 2));
+  opacity: 0.6;
+}
+.landing-title-face-left {
+  transform: rotateY(-90deg) translateZ(calc(var(--cube-width) / 2));
+  opacity: 0.6;
+}
+.landing-title-face-right {
+  transform: rotateY(90deg) translateZ(calc(var(--cube-width) / 2));
+  opacity: 0.6;
+}
+.landing-title-face-top {
+  height: var(--cube-width);
+  transform: rotateX(90deg) translateZ(calc(var(--cube-width) / 2));
+  opacity: 0.8;
+}
+.landing-title-face-bottom {
+  height: var(--cube-width);
+  transform: rotateX(-90deg) 
+    translateZ(calc(var(--cube-height) - var(--cube-width) * 0.5));
+  opacity: 0.8;
+}
+
+/* Animation Delays and Z-Indices for 11 items */
+/* Pattern: 0 1 2 3 4 5 4 3 2 1 0 */
+.landing-title-cube:nth-child(1) { z-index: 0; animation-delay: 0s; }
+.landing-title-cube:nth-child(2) { z-index: 1; animation-delay: 0.1s; }
+.landing-title-cube:nth-child(3) { z-index: 2; animation-delay: 0.2s; }
+.landing-title-cube:nth-child(4) { z-index: 3; animation-delay: 0.3s; }
+.landing-title-cube:nth-child(5) { z-index: 4; animation-delay: 0.4s; }
+.landing-title-cube:nth-child(6) { z-index: 5; animation-delay: 0.5s; }
+.landing-title-cube:nth-child(7) { z-index: 4; animation-delay: 0.6s; }
+.landing-title-cube:nth-child(8) { z-index: 3; animation-delay: 0.7s; }
+.landing-title-cube:nth-child(9) { z-index: 2; animation-delay: 0.8s; }
+.landing-title-cube:nth-child(10) { z-index: 1; animation-delay: 0.9s; }
+.landing-title-cube:nth-child(11) { z-index: 0; animation-delay: 1.0s; }
+
+.landing-title-cube .landing-title-face {
+  animation: 
+    face-color var(--animation-duration) ease-in-out infinite, 
+    /* edge-glow var(--animation-duration) ease-in-out infinite; */ /* Keep logic similar to original */
+    edge-glow var(--animation-duration) ease-in-out infinite;
+  animation-delay: inherit;
+}
+
+.landing-title-cube .landing-title-face.landing-title-face-front {
+  animation: 
+    face-color var(--animation-duration) ease-in-out infinite, 
+    face-glow var(--animation-duration) ease-in-out infinite, 
+    edge-glow var(--animation-duration) ease-in-out infinite;
+  animation-delay: inherit;
+}
+
+@keyframes translate-z { 
+  0%, 
+  40%, 
+  100% { 
+    transform: translateZ(-2px); 
+  } 
+  30% { 
+    transform: translateZ(16px) translateY(-1px); 
+  } 
+} 
+
+@keyframes face-color { 
+  0%, 
+  50%, 
+  100% { 
+    background-color: var(--cube-color); 
+  } 
+  10% { 
+    background-color: var(--highlight-color); 
+  } 
+} 
+
+@keyframes face-glow { 
+  0%, 
+  50%, 
+  100% { 
+    color: rgba(0,0,0,0); 
+    filter: none; 
+  } 
+  30% { 
+    color: #fff; /* White text on orange background */
+    filter: drop-shadow(0 14px 10px var(--highlight-color)); 
+  } 
+} 
+
+@keyframes edge-glow { 
+  0%, 
+  40%, 
+  100% { 
+    box-shadow: 
+      inset 0 0 2px 1px rgba(0,0,0,0.1), 
+      inset 0 0 12px 1px rgba(0,0,0,0.05); 
+  } 
+  30% { 
+    box-shadow: 0 0 2px 0px var(--highlight-color); 
+  } 
+}
