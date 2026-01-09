@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
-import { AlertCircle, ChevronLeft, ChevronRight, Clock, History, Loader2, Lock, Play, Upload, XCircle } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight, Clock, FilePlus, History, Loader2, Lock, Play, Upload, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -34,7 +34,8 @@ export default function VideoGeneration() {
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [history, setHistory] = useState<TaskHistoryItem[]>([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
-  const pollingTimerRef = useRef<number | null>(null);
+  const pollingTimersRef = useRef<Map<string, number>>(new Map());
+  const historyRefreshTimerRef = useRef<number | null>(null);
 
   // 加载模型列表和历史记录
   useEffect(() => {
@@ -88,36 +89,82 @@ export default function VideoGeneration() {
   // 清理轮询定时器
   useEffect(() => {
     return () => {
-      if (pollingTimerRef.current) {
-        clearInterval(pollingTimerRef.current);
+      // 清理所有轮询定时器
+      pollingTimersRef.current.forEach((timerId) => {
+        clearInterval(timerId);
+      });
+      pollingTimersRef.current.clear();
+
+      if (historyRefreshTimerRef.current) {
+        clearInterval(historyRefreshTimerRef.current);
+      }
+    };
+  }, []);
+
+  // 定期刷新历史记录（解决多任务并行时状态不更新的问题）
+  useEffect(() => {
+    // 每 10 秒刷新一次历史记录
+    historyRefreshTimerRef.current = setInterval(() => {
+      refreshHistory();
+    }, 10000);
+
+    return () => {
+      if (historyRefreshTimerRef.current) {
+        clearInterval(historyRefreshTimerRef.current);
       }
     };
   }, []);
 
   // 轮询任务状态
   const startPolling = (id: string) => {
-    if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
+    // 如果已经在轮询，不重复启动
+    if (pollingTimersRef.current.has(id)) {
+      return;
+    }
 
-    pollingTimerRef.current = setInterval(async () => {
+    const timerId = setInterval(async () => {
       try {
         const statusResponse = await taskService.getTaskStatus(id);
         const status = statusResponse as unknown as TaskStatusResponse;
         if (status) {
-          setTaskStatus(status);
+          // 如果是当前选中的任务，更新显示状态
+          if (taskId === id) {
+            setTaskStatus(status);
+          }
 
-          // 任务结束，停止轮询并刷新历史
+          // 任务结束，停止该任务的轮询
           if (['success', 'failed', 'cancelled'].includes(status.status)) {
-            if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
+            const timer = pollingTimersRef.current.get(id);
+            if (timer) {
+              clearInterval(timer);
+              pollingTimersRef.current.delete(id);
+            }
+
+            // 刷新历史记录
             refreshHistory();
 
-            if (status.status === 'success') toast.success('视频生成成功！');
-            if (status.status === 'failed') toast.error(`生成失败: ${status.fail_reason}`);
+            // 只有当前选中的任务才显示 toast
+            if (taskId === id) {
+              if (status.status === 'success') toast.success('视频生成成功！');
+              if (status.status === 'failed') toast.error(`生成失败: ${status.fail_reason}`);
+            }
           }
         }
       } catch (error) {
         console.error('Failed to poll task status:', error);
       }
-    }, 3000); // 3秒轮询一次
+    }, 3000);
+
+    pollingTimersRef.current.set(id, timerId);
+  };
+
+  // 停止轮询某个任务
+  const stopPolling = (id: string) => {
+    const timer = pollingTimersRef.current.get(id);
+    if (timer) {
+      clearInterval(timer);
+      pollingTimersRef.current.delete(id);
+    }
   };
 
   // 提交任务
@@ -191,8 +238,8 @@ export default function VideoGeneration() {
         setTaskStatus(status);
       }
       refreshHistory();
-      refreshHistory();
-      if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
+      // 停止该任务的轮询
+      stopPolling(taskId);
 
       // Invalidate user balance to reflect refund
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
@@ -206,10 +253,7 @@ export default function VideoGeneration() {
   const handleSelectTask = async (item: TaskHistoryItem) => {
     setTaskId(item.id);
 
-    // 清理之前的轮询
-    if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
-
-    // 直接从后端拉取该任务的完整详情（包含 prompt/input_file_url/params 等）
+    // 直接从后端拉取该任务的完整详情
     try {
       const statusResponse = await taskService.getTaskStatus(item.id);
       const status = statusResponse as unknown as TaskStatusResponse;
@@ -220,26 +264,17 @@ export default function VideoGeneration() {
         // 填充参数到当前面板
         if (status.model) setModel(status.model);
         if (status.prompt) setPrompt(status.prompt);
-        // 注意：params 设置需要在 model 变化之后生效，或者在 useEffect 中处理
-        // 这里直接设置 taskParams，但要小心 useEffect([model]) 的重置逻辑
-        // 我们需要一个机制来避免重置，或者在重置后重新覆盖
-        // 由于 useEffect 是异步的，这里先设置，如果 useEffect 执行了重置，会覆盖掉
-        // 简单的方案：在 setTaskParams 时合并，或者延迟设置
-        // 实际上 useEffect 依赖 model，如果 model 变了，会重置 params
-        // 我们可以在设置 model 后，setTimeout 设置 params，虽然不太优雅但有效
         if (status.params) {
-          // 使用 setTimeout 确保在 useEffect 重置之后执行
           setTimeout(() => {
             setTaskParams(status.params || {});
           }, 100);
         }
 
-        // 若任务仍在运行，启动轮询以获取实时进度
+        // 若任务仍在运行，确保已启动轮询
         if (['pending', 'processing'].includes(status.status)) {
           startPolling(item.id);
         }
       } else {
-        // 回退：使用历史记录的简略信息
         setTaskStatus({
           id: item.id,
           status: item.status,
@@ -249,7 +284,6 @@ export default function VideoGeneration() {
       }
     } catch (error) {
       console.error('Failed to fetch task status:', error);
-      // 回退到历史记录信息
       setTaskStatus({
         id: item.id,
         status: item.status,
@@ -257,6 +291,27 @@ export default function VideoGeneration() {
         result_url: item.result_url,
       } as TaskStatusResponse);
     }
+  };
+
+  // 创建新任务
+  const handleNewTask = () => {
+    // 清除选中状态
+    setTaskId(null);
+    setTaskStatus(null);
+
+    // 重置表单
+    setPrompt('');
+    setUploadedFiles([]);
+
+    // 重置为默认模型
+    const firstAvailable = models.find((m: ModelOption) => m.is_available);
+    if (firstAvailable) {
+      setModel(firstAvailable.key);
+    }
+
+    // 清理所有轮询
+    pollingTimersRef.current.forEach(timer => clearInterval(timer));
+    pollingTimersRef.current.clear();
   };
 
   const selectedModelInfo = models.find(m => m.key === model);
@@ -402,17 +457,29 @@ export default function VideoGeneration() {
           isHistoryOpen ? "w-[300px]" : "w-0 opacity-0 overflow-hidden"
         )}
       >
-        <div className="flex items-center justify-between border-b p-4">
-          <div className="flex items-center gap-2">
-            <History className="size-5 text-muted-foreground" />
-            <div className="flex flex-col">
-              <h3 className="font-semibold leading-none">历史记录</h3>
-              <span className="text-[10px] text-muted-foreground">最多保存3天！</span>
+        <div className="flex flex-col border-b">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-2">
+              <History className="size-5 text-muted-foreground" />
+              <div className="flex flex-col">
+                <h3 className="font-semibold leading-none">历史记录</h3>
+                <span className="text-[10px] text-muted-foreground">最多保存3天！</span>
+              </div>
             </div>
+            <Button variant="ghost" size="icon" className="size-8" onClick={() => setIsHistoryOpen(false)}>
+              <ChevronLeft className="size-4" />
+            </Button>
           </div>
-          <Button variant="ghost" size="icon" className="size-8" onClick={() => setIsHistoryOpen(false)}>
-            <ChevronLeft className="size-4" />
-          </Button>
+          <div className="px-4 pb-3">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleNewTask}
+            >
+              <FilePlus className="mr-2 size-4" />
+              New
+            </Button>
+          </div>
         </div>
         <ScrollArea className="flex-1 p-4">
           <div className="flex flex-col gap-3">
