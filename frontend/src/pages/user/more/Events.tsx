@@ -1,12 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Calendar, CheckCircle, Clock, Gift, Loader2 } from 'lucide-react';
-
-import { Badge } from '@/components/ui/badge';
-
+import { toast } from 'sonner';
 
 import { ActivityCard } from '@/components/activity/ActivityCard';
-import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
 import { checkin, claimActivity, getActivities, getCheckinStatus } from '@/services/activity';
 import { Activity } from '@/types/activity';
@@ -38,7 +36,7 @@ export default function Events() {
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
     },
     onError: (error: any) => {
-      toast.error(error.message || '签到失败，请稍后重试');
+      toast.error(error.data.msg || '签到失败，请稍后重试');
     },
   });
 
@@ -50,7 +48,7 @@ export default function Events() {
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
     },
     onError: (error: any) => {
-      toast.error(error.message || '领取失败，请稍后重试');
+      toast.error(error.data.msg || '领取失败，请稍后重试');
     },
   });
 
@@ -73,15 +71,15 @@ export default function Events() {
   return (
     <div className="container max-w-6xl py-12">
       <div className="mb-10 space-y-4 pl-6">
-        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+        <h1 className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent lg:text-5xl">
           活动中心
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl">
+        <p className="max-w-2xl text-lg text-muted-foreground">
           每日签到、限时挑战，赢取海量积分奖励。
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 p-6 my-8 bg-muted/20 rounded-2xl border border-muted/50">
+      <div className="my-8 grid gap-6 rounded-2xl border border-muted/50 bg-muted/20 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {/* 1. Daily Check-in Card (Always First) */}
         <ActivityCard
           variant="checkin"
@@ -105,7 +103,7 @@ export default function Events() {
           }
           footer={
             <div className="flex items-center gap-1">
-              <span className="text-orange-500 font-bold">
+              <span className="font-bold text-orange-500">
                 {status?.consecutive_days || 0}
               </span>
               <span>天连签</span>
