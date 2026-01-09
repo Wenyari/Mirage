@@ -1,12 +1,12 @@
 import {
+  Gift,
   Key,
+  Layers,
   LayoutDashboard,
   Microscope,
   Settings,
-  Users,
-  Layers,
-  Gift,
-} from 'lucide-react';
+  Ticket,
+  Users} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 import { cn } from '@/lib/utils';
