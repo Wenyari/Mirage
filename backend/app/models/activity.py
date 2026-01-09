@@ -4,6 +4,7 @@
 """
 from app.extensions import db
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 class Activity(db.Model):
@@ -35,8 +36,8 @@ class Activity(db.Model):
         comment='活动状态'
     )
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=datetime.now(ZoneInfo("Asia/Shanghai")))
 
     # 关系
     claims = db.relationship('ActivityClaim', backref='activity', lazy='dynamic')
@@ -87,7 +88,7 @@ class ActivityClaim(db.Model):
         comment='领取状态'
     )
 
-    claimed_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    claimed_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
     expired_at = db.Column(db.DateTime, nullable=True, comment='实际过期时间（系统扣除时填写）')
 
     # 关系
@@ -123,8 +124,8 @@ class CheckinConfig(db.Model):
     day = db.Column(db.Integer, unique=True, nullable=False, comment='连续签到天数(1-7)')
     points = db.Column(db.Numeric(10, 2), nullable=False, comment='奖励积分')
     is_active = db.Column(db.SmallInteger, default=1, nullable=False, comment='是否启用')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")))
+    updated_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=datetime.now(ZoneInfo("Asia/Shanghai")))
 
     def __repr__(self):
         return f'<CheckinConfig Day{self.day}>'

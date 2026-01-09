@@ -4,6 +4,7 @@
 """
 from app.extensions import db
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 class User(db.Model):
@@ -22,7 +23,7 @@ class User(db.Model):
     last_login_at = db.Column(db.DateTime, nullable=True)
     last_checkin_at = db.Column(db.DateTime, nullable=True, comment='最后签到时间')
     total_checkin_days = db.Column(db.Integer, default=0, nullable=False, comment='累计签到天数')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
     # 关系映射
     tasks = db.relationship('Task', backref='user', lazy='dynamic')

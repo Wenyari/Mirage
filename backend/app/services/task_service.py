@@ -129,7 +129,7 @@ class TaskService:
             status='pending',
             progress=0,
             cost_points=cost
-            # created_at 使用模型默认值 datetime.utcnow
+            # created_at 使用模型默认值 datetime.now(ZoneInfo("Asia/Shanghai"))
         )
 
         db.session.add(task)
