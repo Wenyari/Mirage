@@ -71,9 +71,10 @@ export function ActivityCard({
                     </p>
                 </div>
 
-                <div className="mt-auto pt-4 border-t border-border/50">
+                {/* Footer positioned at bottom-right */}
+                <div className="absolute bottom-6 right-6 text-right">
                     {points !== undefined && (
-                        <div className="mb-2 flex items-center gap-1.5 font-medium">
+                        <div className="mb-1 flex items-center justify-end gap-1.5 font-medium">
                             <span className={cn("text-lg font-bold", colors.text)}>{points}</span>
                             <span className="text-xs text-muted-foreground">积分</span>
                         </div>
