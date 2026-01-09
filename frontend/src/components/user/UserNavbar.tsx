@@ -12,6 +12,7 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
 import { USER_NAVIGATION } from '@/config/user-navigation';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 import { authService } from '@/services/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -19,23 +20,11 @@ import { LEVEL_COLORS,USER_LEVEL_LABELS } from '@/types/user';
 
 export function UserNavbar() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout, setUser } = useAuthStore();
- 
-  // ensure we refresh current user on mount when authenticated
-  React.useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        if (isAuthenticated) {
-          const me = await authService.me();
-          if (mounted && me) setUser(me);
-        }
-      } catch (e) {
-        // ignore
-      }
-    })();
-    return () => { mounted = false; };
-  }, [isAuthenticated, setUser]);
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
+  
+  const displayUser = currentUser || user;
+
   const [exploreOpen, setExploreOpen] = React.useState(false);
   const [playgroundOpen, setPlaygroundOpen] = React.useState(false);
   const [moreOpen, setMoreOpen] = React.useState(false);
@@ -206,8 +195,8 @@ export function UserNavbar() {
                 <HoverCardTrigger asChild>
                   <Button variant="ghost" className="relative size-8 rounded-full">
                     <Avatar className="size-8">
-                      <AvatarImage src={user?.avatar} alt={user?.name || user?.email} />
-                      <AvatarFallback>{(user?.name || user?.email || 'U').charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarImage src={displayUser?.avatar} alt={displayUser?.name || displayUser?.email} />
+                      <AvatarFallback>{(displayUser?.name || displayUser?.email || 'U').charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </HoverCardTrigger>
@@ -216,12 +205,12 @@ export function UserNavbar() {
                     {/* User Info Header */}
                     <div className="flex items-center gap-4">
                       <Avatar className="size-12">
-                        <AvatarImage src={user?.avatar} alt={user?.name || user?.email} />
-                        <AvatarFallback>{(user?.name || user?.email || 'U').charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarImage src={displayUser?.avatar} alt={displayUser?.name || displayUser?.email} />
+                        <AvatarFallback>{(displayUser?.name || displayUser?.email || 'U').charAt(0).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div className="space-y-1">
-                        <h4 className="text-sm font-semibold">{user?.name || '用户'}</h4>
-                        <p className="text-xs text-muted-foreground">{user?.email}</p>
+                        <h4 className="text-sm font-semibold">{displayUser?.name || '用户'}</h4>
+                        <p className="text-xs text-muted-foreground">{displayUser?.email}</p>
                       </div>
                     </div>
                     
@@ -233,17 +222,17 @@ export function UserNavbar() {
                           积分余额
                         </div>
                         <p className="text-lg font-bold text-primary">
-                          {(user?.balance_detail?.total_balance ?? user?.balance ?? 0).toFixed(2)}
+                          {(displayUser?.balance_detail?.total_balance ?? displayUser?.balance ?? 0).toFixed(2)}
                         </p>
-                        {user?.balance_detail && (
+                        {displayUser?.balance_detail && (
                           <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Coins className="size-3 text-yellow-500" />
-                              <span>{user.balance_detail.recharge_balance.toFixed(0)}</span>
+                              <span>{displayUser.balance_detail.recharge_balance.toFixed(0)}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Zap className="size-3 text-blue-500" />
-                              <span>{user.balance_detail.activity_balance.toFixed(0)}</span>
+                              <span>{displayUser.balance_detail.activity_balance.toFixed(0)}</span>
                             </div>
                           </div>
                         )}
@@ -256,9 +245,9 @@ export function UserNavbar() {
                         <div className="flex items-center pt-1">
                           <span className={cn(
                             "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                            user?.level ? LEVEL_COLORS[user.level] : "bg-gray-100 text-gray-800"
+                            displayUser?.level ? LEVEL_COLORS[displayUser.level] : "bg-gray-100 text-gray-800"
                           )}>
-                            {user?.level ? USER_LEVEL_LABELS[user.level] : 'T1'}
+                            {displayUser?.level ? USER_LEVEL_LABELS[displayUser.level] : 'T1'}
                           </span>
                         </div>
                       </div>
@@ -266,7 +255,7 @@ export function UserNavbar() {
 
                     {/* Actions */}
                     <div className="space-y-2">
-                      {user?.role === 'admin' && (
+                      {displayUser?.role === 'admin' && (
                         <Button 
                           variant="outline" 
                           className="w-full justify-start" 
