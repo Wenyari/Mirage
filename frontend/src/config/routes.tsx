@@ -5,6 +5,7 @@ import AdminGuard from '@/components/auth/AdminGuard';
 import AdminLayout from '@/layouts/AdminLayout';
 import UserLayout from '@/layouts/UserLayout';
 import CDKManager from '@/pages/admin/CDKManager';
+import ActivityManager from '@/pages/admin/ActivityManager';
 import Dashboard from '@/pages/admin/Dashboard';
 import KeyPool from '@/pages/admin/KeyPool';
 import Login from '@/pages/admin/Login';
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
       {
         path: 'users',
         element: <UserManager />,
+      },
+      {
+        path: 'activities',
+        element: <ActivityManager />,
       },
       {
         path: 'cdk',

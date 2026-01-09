@@ -1,5 +1,5 @@
 import { LogOut, Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
@@ -7,7 +7,8 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbSeparator,
+  BreadcrumbList,
+  BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -20,6 +21,7 @@ const routeNames: Record<string, string> = {
   '/wadminw/cdk': 'CDK管理',
   '/wadminw/keys': '密钥池',
   '/wadminw/models': '模型配置',
+  '/wadminw/activities': '营销活动',
   '/wadminw/playground': '测试沙箱',
 };
 

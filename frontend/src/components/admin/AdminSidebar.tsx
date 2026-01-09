@@ -3,9 +3,9 @@ import {
   LayoutDashboard,
   Microscope,
   Settings,
-  Ticket,
   Users,
   Layers,
+  Gift,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
@@ -16,6 +16,11 @@ const menuItems = [
     path: '/wadminw/dashboard',
     label: '仪表盘',
     icon: LayoutDashboard,
+  },
+  {
+    path: '/wadminw/activities',
+    label: '营销活动',
+    icon: Gift,
   },
   {
     path: '/wadminw/users',
