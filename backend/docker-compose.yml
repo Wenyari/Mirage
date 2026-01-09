@@ -66,7 +66,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # RQ Worker (异步任务处理)
+  # Gevent 异步任务 Worker
   worker:
     build: .
     container_name: sora_worker
@@ -82,7 +82,27 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: python worker.py
+    command: python worker_gevent.py --workers 100
+    volumes:
+      - .:/app
+
+  # 定时任务调度器
+  scheduler:
+    build: .
+    container_name: sora_scheduler
+    restart: always
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python scheduler.py
     volumes:
       - .:/app
 
