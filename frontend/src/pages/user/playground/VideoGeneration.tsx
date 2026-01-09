@@ -127,10 +127,15 @@ export default function VideoGeneration() {
         const statusResponse = await taskService.getTaskStatus(id);
         const status = statusResponse as unknown as TaskStatusResponse;
         if (status) {
-          // 如果是当前选中的任务，更新显示状态
-          if (taskId === id) {
-            setTaskStatus(status);
-          }
+          // 直接更新状态，如果是当前任务则显示
+          setTaskStatus(prevStatus => {
+            // 如果当前显示的是该任务，则更新
+            if (!prevStatus || prevStatus.id === id) {
+              return status;
+            }
+            // 否则保持不变
+            return prevStatus;
+          });
 
           // 任务结束，停止该任务的轮询
           if (['success', 'failed', 'cancelled'].includes(status.status)) {
@@ -143,11 +148,14 @@ export default function VideoGeneration() {
             // 刷新历史记录
             refreshHistory();
 
-            // 只有当前选中的任务才显示 toast
-            if (taskId === id) {
-              if (status.status === 'success') toast.success('视频生成成功！');
-              if (status.status === 'failed') toast.error(`生成失败: ${status.fail_reason}`);
-            }
+            // toast 通知（只有当前显示的任务才通知）
+            setTaskStatus(currentStatus => {
+              if (currentStatus && currentStatus.id === id) {
+                if (status.status === 'success') toast.success('视频生成成功！');
+                if (status.status === 'failed') toast.error(`生成失败: ${status.fail_reason}`);
+              }
+              return currentStatus;
+            });
           }
         }
       } catch (error) {
