@@ -136,7 +136,7 @@ class TestClaimActivity:
             code='FUTURE-ACTIVITY',
             name='未来的活动',
             points=50.00,
-            start_at=datetime.utcnow() + timedelta(days=1),
+            start_at=datetime.now() + timedelta(days=1),
             status='active'
         )
         db_session.session.add(activity)
@@ -153,7 +153,7 @@ class TestClaimActivity:
             code='PAST-ACTIVITY',
             name='过去的活动',
             points=50.00,
-            end_at=datetime.utcnow() - timedelta(days=1),
+            end_at=datetime.now() - timedelta(days=1),
             status='active'
         )
         db_session.session.add(activity)
@@ -191,7 +191,7 @@ class TestDailyCheckin:
         user = test_user
 
         # 第一天签到
-        user.last_checkin_at = datetime.utcnow() - timedelta(days=1)
+        user.last_checkin_at = datetime.now() - timedelta(days=1)
         user.total_checkin_days = 1
         db_session.session.commit()
 
@@ -208,7 +208,7 @@ class TestDailyCheckin:
         user = test_user
 
         # 模拟第6天签到
-        user.last_checkin_at = datetime.utcnow() - timedelta(days=1)
+        user.last_checkin_at = datetime.now() - timedelta(days=1)
         user.total_checkin_days = 6
         db_session.session.commit()
 
@@ -219,7 +219,7 @@ class TestDailyCheckin:
 
         # 模拟第7天后再签到（应该重置为第1天）
         db_session.session.refresh(user)
-        user.last_checkin_at = datetime.utcnow() - timedelta(days=1)
+        user.last_checkin_at = datetime.now() - timedelta(days=1)
         db_session.session.commit()
 
         result2 = daily_checkin(user.id)
@@ -231,7 +231,7 @@ class TestDailyCheckin:
         user = test_user
 
         # 模拟3天前签到过
-        user.last_checkin_at = datetime.utcnow() - timedelta(days=3)
+        user.last_checkin_at = datetime.now() - timedelta(days=3)
         user.total_checkin_days = 5
         db_session.session.commit()
 
@@ -305,7 +305,7 @@ class TestGetCheckinStatus:
         user = test_user
 
         # 模拟昨天签到过
-        user.last_checkin_at = datetime.utcnow() - timedelta(days=1)
+        user.last_checkin_at = datetime.now() - timedelta(days=1)
         user.total_checkin_days = 3
         db_session.session.commit()
 
@@ -333,7 +333,7 @@ class TestExpireActivityPoints:
 
         # 手动设置过期时间（过去时间）
         claim = ActivityClaim.query.filter_by(user_id=user.id).first()
-        claim.expire_at = datetime.utcnow() - timedelta(days=1)
+        claim.expire_at = datetime.now() - timedelta(days=1)
         db_session.session.commit()
 
         # 执行过期处理
@@ -375,7 +375,7 @@ class TestExpireActivityPoints:
 
         # 设置过期时间
         claim = ActivityClaim.query.filter_by(user_id=user.id).first()
-        claim.expire_at = datetime.utcnow() - timedelta(days=1)
+        claim.expire_at = datetime.now() - timedelta(days=1)
         db_session.session.commit()
 
         # 执行过期处理
@@ -445,7 +445,7 @@ class TestGetActiveActivities:
 
     def test_time_filter(self, db_session):
         """测试：时间范围过滤"""
-        now = datetime.utcnow()
+        now = datetime.now()
 
         activities = [
             Activity(

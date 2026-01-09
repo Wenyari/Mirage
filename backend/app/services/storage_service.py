@@ -59,7 +59,7 @@ class StorageService:
         unique_id = str(uuid.uuid4())[:8]
 
         # 按日期分目录
-        date_path = datetime.utcnow().strftime('%Y/%m/%d')
+        date_path = datetime.now().strftime('%Y/%m/%d')
 
         # 拼接文件名
         name, ext = os.path.splitext(safe_filename)

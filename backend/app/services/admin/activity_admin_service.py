@@ -129,7 +129,7 @@ def update_activity(activity_id: int, data: dict) -> dict:
         else:
             activity.end_at = None
 
-    activity.updated_at = datetime.utcnow()
+    activity.updated_at = datetime.now()
 
     try:
         db.session.commit()
@@ -330,7 +330,7 @@ def update_checkin_config(configs: list) -> dict:
             # 更新现有配置
             config.points = config_data['points']
             config.is_active = config_data.get('is_active', 1)
-            config.updated_at = datetime.utcnow()
+            config.updated_at = datetime.now()
         else:
             # 创建新配置
             config = CheckinConfig(

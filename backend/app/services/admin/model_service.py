@@ -136,7 +136,7 @@ def update_model(key, name=None, enabled=None, description=None, color=None, ico
             raise ValueError("All tags must be strings")
         model.tags = tags
 
-    model.updated_at = datetime.utcnow()
+    model.updated_at = datetime.now()
     db.session.commit()
 
     return model.to_dict()

@@ -48,7 +48,7 @@ def claim_activity(user_id: int, activity_code: str) -> dict:
         raise ValueError(f"Activity is {activity.status}")
 
     # 验证时间范围
-    now = datetime.utcnow()
+    now = datetime.now()
     if activity.start_at and activity.start_at > now:
         raise ValueError("Activity has not started")
     if activity.end_at and activity.end_at < now:
@@ -78,7 +78,7 @@ def claim_activity(user_id: int, activity_code: str) -> dict:
     # 计算过期时间
     expire_at = None
     if activity.expire_days:
-        expire_at = datetime.utcnow() + timedelta(days=activity.expire_days)
+        expire_at = datetime.now() + timedelta(days=activity.expire_days)
 
     # 创建领取记录
     claim = ActivityClaim(
@@ -147,7 +147,7 @@ def daily_checkin(user_id: int) -> dict:
     if not user:
         raise ValueError("User not found")
 
-    now = datetime.utcnow()
+    now = datetime.now()
     today_date = now.strftime('%Y-%m-%d')
 
     # 检查今天是否已签到
@@ -234,7 +234,7 @@ def expire_activity_points() -> dict:
 
     while True:
         expired_claims = ActivityClaim.query.filter(
-            ActivityClaim.expire_at <= datetime.utcnow(),
+            ActivityClaim.expire_at <= datetime.now(),
             ActivityClaim.status == 'active'
         ).limit(BATCH_SIZE).with_for_update().all()
 
@@ -266,7 +266,7 @@ def expire_activity_points() -> dict:
 
             # 更新状态
             claim.status = 'expired'
-            claim.expired_at = datetime.utcnow()
+            claim.expired_at = datetime.now()
 
             expired_count += 1
             total_points_expired += deduct_amount
@@ -305,7 +305,7 @@ def get_checkin_status(user_id: int) -> dict:
     if not user:
         raise ValueError("User not found")
 
-    now = datetime.utcnow()
+    now = datetime.now()
     today_date = now.strftime('%Y-%m-%d')
 
     # 检查今天是否已签到
@@ -360,7 +360,7 @@ def get_active_activities() -> list:
             }
         ]
     """
-    now = datetime.utcnow()
+    now = datetime.now()
 
     activities = Activity.query.filter(
         Activity.status == 'active',

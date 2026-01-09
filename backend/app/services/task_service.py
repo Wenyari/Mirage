@@ -127,8 +127,8 @@ class TaskService:
             params=params,
             status='pending',
             progress=0,
-            cost_points=cost,
-            created_at=datetime.now()
+            cost_points=cost
+            # created_at 使用模型默认值 datetime.utcnow
         )
 
         db.session.add(task)
@@ -445,7 +445,7 @@ class TaskService:
         """
         from app.services.storage_service import storage_service
 
-        cutoff_time = datetime.utcnow() - timedelta(days=days)
+        cutoff_time = datetime.now() - timedelta(days=days)
 
         # 查询需要清理的任务（已完成且超过保留期）
         old_tasks = Task.query.filter(

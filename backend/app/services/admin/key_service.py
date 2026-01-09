@@ -359,7 +359,7 @@ def update_key(key_id, models=None, max_concurrency=None, weight=None, status=No
             raise ValueError("status must be 0 or 1")
         api_key.status = status
 
-    api_key.updated_at = datetime.utcnow()
+    api_key.updated_at = datetime.now()
     db.session.commit()
 
     return {'message': 'Key updated successfully'}
@@ -433,7 +433,7 @@ def trigger_cooldown(key_id, action, duration=300):
     try:
         if action == 'trigger':
             # 触发熔断
-            cooling_until = datetime.utcnow() + timedelta(seconds=duration)
+            cooling_until = datetime.now() + timedelta(seconds=duration)
             cooling_until_str = cooling_until.isoformat() + 'Z'
 
             redis_client.setex(

@@ -187,7 +187,7 @@ def update_model_config(config_id, allowed_tiers=None, cost_per_call=None, token
     if params is not None:
         config.params = params
 
-    config.updated_at = datetime.utcnow()
+    config.updated_at = datetime.now()
     db.session.commit()
 
     return {'message': 'Model config updated successfully'}
