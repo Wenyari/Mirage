@@ -3,6 +3,7 @@
 供管理员使用的活动管理功能
 """
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from sqlalchemy import func
 from app.extensions import db
 from app.models.activity import Activity, ActivityClaim, CheckinConfig
@@ -129,7 +130,7 @@ def update_activity(activity_id: int, data: dict) -> dict:
         else:
             activity.end_at = None
 
-    activity.updated_at = datetime.now()
+    activity.updated_at = datetime.now(ZoneInfo("Asia/Shanghai"))
 
     try:
         db.session.commit()
@@ -330,7 +331,7 @@ def update_checkin_config(configs: list) -> dict:
             # 更新现有配置
             config.points = config_data['points']
             config.is_active = config_data.get('is_active', 1)
-            config.updated_at = datetime.now()
+            config.updated_at = datetime.now(ZoneInfo("Asia/Shanghai"))
         else:
             # 创建新配置
             config = CheckinConfig(

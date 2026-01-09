@@ -65,7 +65,7 @@ class TestPayService:
         """测试 CDK 已过期"""
         with app.app_context():
             # 设置为已过期
-            test_cdk.expire_at = datetime.now() - timedelta(days=1)
+            test_cdk.expire_at = datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=1)
             db_session.session.commit()
 
             with pytest.raises(ValueError, match="CDK has expired"):

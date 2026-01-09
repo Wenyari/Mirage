@@ -52,7 +52,7 @@ class TestCDKModel:
         # 标记为已使用
         test_cdk.status = 1
         test_cdk.used_by = test_user.id
-        test_cdk.used_at = datetime.now()
+        test_cdk.used_at = datetime.now(ZoneInfo("Asia/Shanghai"))
         db_session.session.commit()
 
         assert test_cdk.status == 1

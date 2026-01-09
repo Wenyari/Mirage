@@ -3,6 +3,7 @@
 包含 CDK 兑换、积分扣除、退款等核心业务逻辑
 """
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from app.extensions import db
 from app.models import User, CDK, Transaction
@@ -49,7 +50,7 @@ def redeem_cdk(user_id: int, code: str) -> dict:
         raise ValueError("CDK has been invalidated")
 
     # 检查过期时间
-    if cdk.expire_at and cdk.expire_at < datetime.now():
+    if cdk.expire_at and cdk.expire_at < datetime.now(ZoneInfo("Asia/Shanghai")):
         raise ValueError("CDK has expired")
 
     # 4. 根据 CDK 类型处理
@@ -58,7 +59,7 @@ def redeem_cdk(user_id: int, code: str) -> dict:
     if cdk.type == 'once':
         cdk.status = 1
         cdk.used_by = user_id
-        cdk.used_at = datetime.now()
+        cdk.used_at = datetime.now(ZoneInfo("Asia/Shanghai"))
 
     # 5. 更新用户余额（充值到 recharge_balance）
     points = cdk.points

@@ -4,6 +4,7 @@ Sora 任务处理 (异步 Worker)
 """
 import time
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from app import create_app
 from app.extensions import db
 from app.models import Task
@@ -84,7 +85,7 @@ def process_sora_task(task_payload: dict):
                     # 5. 【成功】: 保存结果
                     task.status = 'success'
                     task.result_url = status_result.get('result_url')
-                    task.finished_at = datetime.now()
+                    task.finished_at = datetime.now(ZoneInfo("Asia/Shanghai"))
                     db.session.commit()
 
                     app.logger.info(f"Task {task_id} completed successfully")
@@ -95,7 +96,7 @@ def process_sora_task(task_payload: dict):
                     fail_reason = status_result.get('fail_reason', 'Unknown error')
                     task.status = 'failed'
                     task.fail_reason = fail_reason
-                    task.finished_at = datetime.now()
+                    task.finished_at = datetime.now(ZoneInfo("Asia/Shanghai"))
                     db.session.commit()
 
                     # 执行退款
@@ -125,7 +126,7 @@ def process_sora_task(task_payload: dict):
             if task:
                 task.status = 'failed'
                 task.fail_reason = str(e)
-                task.finished_at = datetime.now()
+                task.finished_at = datetime.now(ZoneInfo("Asia/Shanghai"))
                 db.session.commit()
 
                 # 执行退款

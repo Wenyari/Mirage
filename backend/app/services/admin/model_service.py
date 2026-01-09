@@ -3,6 +3,7 @@
 提供模型的增删改查功能
 """
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from sqlalchemy import or_
 from app.extensions import db
 from app.models import Model, ModelConfig, ApiKey, Task
@@ -136,7 +137,7 @@ def update_model(key, name=None, enabled=None, description=None, color=None, ico
             raise ValueError("All tags must be strings")
         model.tags = tags
 
-    model.updated_at = datetime.now()
+    model.updated_at = datetime.now(ZoneInfo("Asia/Shanghai"))
     db.session.commit()
 
     return model.to_dict()

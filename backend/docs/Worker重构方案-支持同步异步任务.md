@@ -506,7 +506,7 @@ if adapter.is_async_task():
             execute_sql(success_sql, {
                 "task_id": task_id,
                 "result_url": parsed['result_url'],
-                "finished_at": datetime.now()
+                "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
             })
             break
         elif parsed['status'] == 'FAILED':
@@ -529,7 +529,7 @@ else:
     execute_sql(success_sql, {
         "task_id": task_id,
         "result_url": result['result_url'],
-        "finished_at": datetime.now()
+        "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
     })
 
     logger.info(f"Task {task_id} completed synchronously, result: {result['result_url']}")

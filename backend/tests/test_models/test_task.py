@@ -68,7 +68,7 @@ class TestTaskModel:
 
         test_task.status = 'success'
         test_task.result_url = 'https://example.com/result.mp4'
-        test_task.finished_at = datetime.now()
+        test_task.finished_at = datetime.now(ZoneInfo("Asia/Shanghai"))
         db_session.session.commit()
 
         assert test_task.status == 'success'

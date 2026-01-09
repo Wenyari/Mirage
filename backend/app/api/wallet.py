@@ -7,6 +7,7 @@ from flask_jwt_extended import get_jwt_identity
 from datetime import datetime
 from app.utils.auth import jwt_and_redis_required
 from app.services.pay_service import redeem_cdk
+from zoneinfo import ZoneInfo
 
 bp = Blueprint('wallet', __name__, url_prefix='/api/wallet')
 
@@ -36,7 +37,7 @@ def redeem_cdk_route():
             return jsonify({"code": 400, "msg": "CDK has already been used", "data": None}), 400
         if cdk.status == 2:
             return jsonify({"code": 400, "msg": "CDK has been invalidated", "data": None}), 400
-        if cdk.expire_at and cdk.expire_at.isoformat() < datetime.now().isoformat():
+        if cdk.expire_at and cdk.expire_at.isoformat() < datetime.now(ZoneInfo("Asia/Shanghai")).isoformat():
             return jsonify({"code": 400, "msg": "CDK has expired", "data": None}), 400
 
         # 调用 pay_service.redeem_cdk 执行兑换逻辑（服务层会再次使用悲观锁并提交）

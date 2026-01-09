@@ -20,6 +20,7 @@ import os
 import json
 from multiprocessing import Process
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # 必须在导入其他模块前patch
 from gevent import monkey
@@ -236,7 +237,7 @@ class Benchmark:
         print("=" * 60)
         print(f"Worker性能基准测试")
         print(f"测试任务数: {self.num_tasks}")
-        print(f"测试时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"测试时间: {datetime.now(ZoneInfo("Asia/Shanghai")).strftime('%Y-%m-%d %H:%M:%S')}")
         print("=" * 60)
 
         # 运行测试

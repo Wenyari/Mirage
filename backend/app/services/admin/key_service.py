@@ -3,6 +3,7 @@
 提供密钥池的管理、状态监控和统计功能
 """
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from app.extensions import db, redis_client
 from app.models import ApiKey, Model
 
@@ -359,7 +360,7 @@ def update_key(key_id, models=None, max_concurrency=None, weight=None, status=No
             raise ValueError("status must be 0 or 1")
         api_key.status = status
 
-    api_key.updated_at = datetime.now()
+    api_key.updated_at = datetime.now(ZoneInfo("Asia/Shanghai"))
     db.session.commit()
 
     return {'message': 'Key updated successfully'}
@@ -433,7 +434,7 @@ def trigger_cooldown(key_id, action, duration=300):
     try:
         if action == 'trigger':
             # 触发熔断
-            cooling_until = datetime.now() + timedelta(seconds=duration)
+            cooling_until = datetime.now(ZoneInfo("Asia/Shanghai")) + timedelta(seconds=duration)
             cooling_until_str = cooling_until.isoformat() + 'Z'
 
             redis_client.setex(

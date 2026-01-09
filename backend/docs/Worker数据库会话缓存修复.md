@@ -135,7 +135,7 @@ db.session.commit()
 task.status = 'success'
 task.progress = 100
 task.result_url = result_url
-task.finished_at = datetime.now()
+task.finished_at = datetime.now(ZoneInfo("Asia/Shanghai"))
 db.session.commit()
 ```
 
@@ -152,7 +152,7 @@ success_sql = text("""
 db.session.execute(success_sql, {
     "task_id": task_id,
     "result_url": result_url,
-    "finished_at": datetime.now()
+    "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
 })
 db.session.commit()
 ```
@@ -165,7 +165,7 @@ db.session.commit()
 ```python
 task.status = 'failed'
 task.fail_reason = fail_reason
-task.finished_at = datetime.now()
+task.finished_at = datetime.now(ZoneInfo("Asia/Shanghai"))
 
 if should_refund:
     user_obj = User.query.get(task.user_id)

@@ -6,6 +6,7 @@ import random
 import re
 import bcrypt
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from flask import current_app
 from flask_jwt_extended import create_access_token
 from flask_mail import Message
@@ -175,7 +176,7 @@ def login_user(email: str, password: str, login_ip: str = None) -> dict:
     redis_client.setex(auth_token_key, 604800, token)  # 7天过期
 
     # 6. 更新最后登录时间和 IP
-    user.last_login_at = datetime.now()
+    user.last_login_at = datetime.now(ZoneInfo("Asia/Shanghai"))
     if login_ip:
         user.register_ip = login_ip
     db.session.commit()

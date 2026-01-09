@@ -3,6 +3,7 @@
 提供仪表盘数据查询功能
 """
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from sqlalchemy import func, and_
 from app.extensions import db
 from app.models import User, Task, Transaction, CDK
@@ -15,7 +16,7 @@ def get_dashboard_overview():
     Returns:
         dict: 包含今日新增用户、积分消耗、CDK充值和活跃任务数
     """
-    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.now(ZoneInfo("Asia/Shanghai")).replace(hour=0, minute=0, second=0, microsecond=0)
 
     # 1. 今日新增用户数
     today_new_users = User.query.filter(User.created_at >= today_start).count()
@@ -62,7 +63,7 @@ def get_trend_chart_data(days=7):
         days = 7
 
     # 计算起始日期（UTC时间，从今天开始往前推N天）
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.now(ZoneInfo("Asia/Shanghai")).replace(hour=0, minute=0, second=0, microsecond=0)
     start_date = today - timedelta(days=days - 1)
 
     # 查询用户注册数据（按日期分组）

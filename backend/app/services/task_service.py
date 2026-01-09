@@ -7,6 +7,7 @@ import json
 import logging
 import uuid
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from decimal import Decimal
 from app.extensions import db
 from app.models.task import Task
@@ -445,7 +446,7 @@ class TaskService:
         """
         from app.services.storage_service import storage_service
 
-        cutoff_time = datetime.now() - timedelta(days=days)
+        cutoff_time = datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=days)
 
         # 查询需要清理的任务（已完成且超过保留期）
         old_tasks = Task.query.filter(

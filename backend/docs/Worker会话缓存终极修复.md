@@ -103,7 +103,7 @@ success_sql = text("""
 execute_sql(success_sql, {
     "task_id": task_id,
     "result_url": result_url,
-    "finished_at": datetime.now()
+    "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
 })
 ```
 
