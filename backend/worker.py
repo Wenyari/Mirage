@@ -17,6 +17,7 @@ import time
 import logging
 import requests
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from sqlalchemy import text
 from app import create_app
 from app.extensions import db
@@ -301,7 +302,7 @@ def process_task(payload):
                     execute_sql(success_sql, {
                         "task_id": task_id,
                         "result_url": result_url,
-                        "finished_at": datetime.now()
+                        "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
                     })
 
                     # 清理 Redis 进度
@@ -337,7 +338,7 @@ def process_task(payload):
             execute_sql(success_sql, {
                 "task_id": task_id,
                 "result_url": result['result_url'],
-                "finished_at": datetime.now()
+                "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
             })
 
             logger.info(f"Task {task_id} completed synchronously, result: {result['result_url']}")
@@ -372,7 +373,7 @@ def process_task(payload):
                 execute_sql(fail_sql, {
                     "task_id": task_id,
                     "fail_reason": fail_reason,
-                    "finished_at": datetime.now()
+                    "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
                 })
 
                 # 使用统一的 pay_service 进行退款
@@ -396,7 +397,7 @@ def process_task(payload):
             execute_sql(fail_no_refund_sql, {
                 "task_id": task_id,
                 "fail_reason": fail_reason,
-                "finished_at": datetime.now()
+                "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
             })
 
             logger.info(f"No refund for task {task_id} - user responsibility (reason: {fail_reason[:50]})")

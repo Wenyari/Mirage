@@ -230,7 +230,7 @@ class TestTaskServiceCleanup:
                 prompt='old task',
                 input_file_url=['https://cdn.test.com/uploads/input1.jpg'],
                 result_url='https://cdn.test.com/uploads/result.mp4',
-                finished_at=datetime.utcnow() - timedelta(days=4)
+                finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=4)
             )
             db_session.session.add(old_task)
             db_session.session.commit()
@@ -274,7 +274,7 @@ class TestTaskServiceCleanup:
                     'https://cdn.test.com/uploads/input3.jpg'
                 ],
                 result_url='https://cdn.test.com/uploads/result.mp4',
-                finished_at=datetime.utcnow() - timedelta(days=5)
+                finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=5)
             )
             db_session.session.add(old_task)
             db_session.session.commit()
@@ -300,7 +300,7 @@ class TestTaskServiceCleanup:
                 status='success',
                 cost_points=100.00,
                 prompt='recent task',
-                finished_at=datetime.utcnow() - timedelta(days=2)
+                finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=2)
             )
             db_session.session.add(recent_task)
             db_session.session.commit()
@@ -331,7 +331,7 @@ class TestTaskServiceCleanup:
                 status='pending',
                 cost_points=100.00,
                 prompt='pending task',
-                finished_at=datetime.utcnow() - timedelta(days=5)
+                finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=5)
             )
             db_session.session.add(pending_task)
             db_session.session.commit()
@@ -396,7 +396,7 @@ class TestTaskServiceCleanup:
                     status=status,
                     cost_points=100.00,
                     prompt=f'{status} task',
-                    finished_at=datetime.utcnow() - timedelta(days=4)
+                    finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=4)
                 )
                 db_session.session.add(task)
                 db_session.session.commit()
@@ -430,7 +430,7 @@ class TestTaskServiceCleanup:
                 prompt='task with file error',
                 input_file_url=['https://cdn.test.com/uploads/input.jpg'],
                 result_url='https://cdn.test.com/uploads/result.mp4',
-                finished_at=datetime.utcnow() - timedelta(days=4)
+                finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=4)
             )
             db_session.session.add(old_task)
             db_session.session.commit()
@@ -464,7 +464,7 @@ class TestTaskServiceCleanup:
                 status='success',
                 cost_points=100.00,
                 prompt='task',
-                finished_at=datetime.utcnow() - timedelta(days=4)
+                finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=4)
             )
             db_session.session.add(task)
             db_session.session.commit()
@@ -502,7 +502,7 @@ class TestTaskServiceCleanup:
                 prompt='task without files',
                 input_file_url=None,
                 result_url=None,
-                finished_at=datetime.utcnow() - timedelta(days=4)
+                finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=4)
             )
             db_session.session.add(old_task)
             db_session.session.commit()
@@ -539,7 +539,7 @@ class TestTaskServiceCleanup:
                 prompt='task',
                 input_file_url=[],  # 空列表
                 result_url='https://cdn.test.com/uploads/result.mp4',
-                finished_at=datetime.utcnow() - timedelta(days=4)
+                finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=4)
             )
             db_session.session.add(old_task)
             db_session.session.commit()
@@ -573,7 +573,7 @@ class TestTaskServiceCleanup:
                     prompt=f'task {i}',
                     input_file_url=[f'https://cdn.test.com/uploads/input{i}.jpg'],
                     result_url=f'https://cdn.test.com/uploads/result{i}.mp4',
-                    finished_at=datetime.utcnow() - timedelta(days=4)
+                    finished_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=4)
                 )
                 db_session.session.add(task)
             db_session.session.commit()

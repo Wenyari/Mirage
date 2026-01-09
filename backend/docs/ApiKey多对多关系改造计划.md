@@ -112,7 +112,7 @@ class ApiKeyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     api_key_id = db.Column(db.Integer, db.ForeignKey('api_keys.id', ondelete='CASCADE'), nullable=False)
     model = db.Column(db.String(50), db.ForeignKey('models.key', ondelete='CASCADE'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
     __table_args__ = (
         db.UniqueConstraint('api_key_id', 'model', name='uk_key_model'),

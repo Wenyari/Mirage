@@ -28,7 +28,7 @@ class TestDashboardService:
     def test_get_dashboard_overview_with_today_data(self, app, db_session):
         """测试今日数据统计"""
         with app.app_context():
-            today = datetime.utcnow()
+            today = datetime.now(ZoneInfo("Asia/Shanghai"))
 
             # 创建今日新增用户
             for i in range(3):
@@ -90,8 +90,8 @@ class TestDashboardService:
     def test_get_dashboard_overview_excludes_yesterday_data(self, app, db_session):
         """测试不包含昨日数据"""
         with app.app_context():
-            yesterday = datetime.utcnow() - timedelta(days=1)
-            today = datetime.utcnow()
+            yesterday = datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=1)
+            today = datetime.now(ZoneInfo("Asia/Shanghai"))
 
             # 创建昨日用户
             old_user = User(
@@ -137,7 +137,7 @@ class TestDashboardService:
     def test_get_dashboard_overview_only_counts_recharge_transactions(self, app, db_session, test_user):
         """测试只统计充值类型的交易"""
         with app.app_context():
-            today = datetime.utcnow()
+            today = datetime.now(ZoneInfo("Asia/Shanghai"))
 
             # 创建充值记录
             recharge_tx = Transaction(
@@ -179,7 +179,7 @@ class TestDashboardService:
     def test_get_trend_chart_data_7_days(self, app, db_session):
         """测试获取7天趋势数据"""
         with app.app_context():
-            today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            today = datetime.now(ZoneInfo("Asia/Shanghai")).replace(hour=0, minute=0, second=0, microsecond=0)
 
             # 创建不同日期的数据
             for i in range(7):
@@ -253,7 +253,7 @@ class TestDashboardService:
     def test_get_trend_chart_data_fills_missing_days(self, app, db_session):
         """测试填充缺失日期（确保每天都有数据，即使为0）"""
         with app.app_context():
-            today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            today = datetime.now(ZoneInfo("Asia/Shanghai")).replace(hour=0, minute=0, second=0, microsecond=0)
 
             # 只在第3天创建数据
             day3 = today - timedelta(days=3)
@@ -314,7 +314,7 @@ class TestDashboardService:
     def test_get_trend_chart_data_correct_date_range(self, app, db_session):
         """测试日期范围正确"""
         with app.app_context():
-            today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            today = datetime.now(ZoneInfo("Asia/Shanghai")).replace(hour=0, minute=0, second=0, microsecond=0)
             data = get_trend_chart_data(days=7)
 
             # 第一天应该是6天前
@@ -329,7 +329,7 @@ class TestDashboardService:
     def test_get_trend_chart_data_multiple_users_same_day(self, app, db_session):
         """测试同一天多个用户的统计"""
         with app.app_context():
-            today = datetime.utcnow()
+            today = datetime.now(ZoneInfo("Asia/Shanghai"))
 
             # 创建5个同一天的用户
             for i in range(5):

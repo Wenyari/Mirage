@@ -5,6 +5,7 @@ CDK管理服务
 import secrets
 import string
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from sqlalchemy import or_
 from app.extensions import db
 from app.models import CDK, User
@@ -32,11 +33,11 @@ def generate_batch_no():
     Returns:
         str: 批次号
     """
-    date_part = datetime.utcnow().strftime('%Y%m%d')
+    date_part = datetime.now(ZoneInfo("Asia/Shanghai")).strftime('%Y%m%d')
 
     # 查询今天已有的批次数量（需要处理表不存在的情况）
     try:
-        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_start = datetime.now(ZoneInfo("Asia/Shanghai")).replace(hour=0, minute=0, second=0, microsecond=0)
         today_batches = db.session.query(CDK.batch_no).filter(
             CDK.created_at >= today_start,
             CDK.batch_no.like(f'BATCH{date_part}%')

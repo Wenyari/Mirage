@@ -196,7 +196,7 @@ class TestRedeemCDK:
             points=100,
             type='once',
             status=0,
-            expire_at=datetime.utcnow() - timedelta(days=1)
+            expire_at=datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=1)
         )
         db_session.session.add(expired_cdk)
         db_session.session.commit()

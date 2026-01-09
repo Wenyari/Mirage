@@ -330,3 +330,68 @@ class KeyManager:
 
         logger.info(f"Watchdog triggered {dispatched} dispatches")
         return dispatched
+
+    @classmethod
+    def remove_task_from_queue(cls, task_id: str):
+        """
+        从 Redis 队列中移除指定的任务
+
+        检查所有队列（RUNNABLE, VIP, NORMAL），如果找到任务则移除。
+        如果任务在 RUNNABLE 队列中（已分配密钥），返回 key_id 以便释放密钥。
+
+        Args:
+            task_id: 任务 ID
+
+        Returns:
+            dict: {
+                'found': bool,           # 是否找到任务
+                'queue': str,            # 任务所在队列名
+                'key_id': int or None    # 密钥ID（如果已分配）
+            }
+        """
+        redis_client = cls._get_redis()
+
+        # 需要检查的队列列表
+        queues_to_check = [
+            cls.QUEUE_RUNNABLE,
+            cls.QUEUE_VIP,
+            cls.QUEUE_NORMAL
+        ]
+
+        for queue_name in queues_to_check:
+            # 获取队列长度
+            queue_len = redis_client.llen(queue_name)
+
+            # 遍历队列中的所有任务
+            for i in range(queue_len):
+                # 获取队列中的第 i 个元素（但不移除）
+                raw_payload = redis_client.lindex(queue_name, i)
+                if not raw_payload:
+                    continue
+
+                try:
+                    payload = json.loads(raw_payload)
+                    if payload.get('task_id') == task_id:
+                        # 找到任务，从队列中移除
+                        # 使用 LREM 命令移除指定的元素
+                        redis_client.lrem(queue_name, 1, raw_payload)
+
+                        key_id = payload.get('key_id')
+                        logger.info(f"Task {task_id} removed from queue {queue_name}, key_id: {key_id}")
+
+                        return {
+                            'found': True,
+                            'queue': queue_name,
+                            'key_id': key_id
+                        }
+                except (json.JSONDecodeError, KeyError) as e:
+                    logger.warning(f"Failed to parse payload in queue {queue_name}: {e}")
+                    continue
+
+        # 未找到任务
+        logger.info(f"Task {task_id} not found in any queue")
+        return {
+            'found': False,
+            'queue': None,
+            'key_id': None
+        }

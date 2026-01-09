@@ -7,6 +7,7 @@ import json
 import logging
 import uuid
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from decimal import Decimal
 from app.extensions import db
 from app.models.task import Task
@@ -127,8 +128,8 @@ class TaskService:
             params=params,
             status='pending',
             progress=0,
-            cost_points=cost,
-            created_at=datetime.now()
+            cost_points=cost
+            # created_at 使用模型默认值 datetime.now(ZoneInfo("Asia/Shanghai"))
         )
 
         db.session.add(task)
@@ -199,18 +200,29 @@ class TaskService:
         if task.status != 'pending':
             raise ValueError("Only pending tasks can be cancelled")
 
-        # 修改状态为 cancelled（惰性删除）
+        # 1. 尝试从 Redis 队列中移除任务
+        removal_result = KeyManager.remove_task_from_queue(task_id)
+
+        # 2. 如果任务在队列中且已分配密钥，释放密钥
+        if removal_result['found'] and removal_result['key_id']:
+            key_id = removal_result['key_id']
+            logger.info(f"Task {task_id} had allocated key {key_id}, releasing it")
+            # 释放密钥并触发下一个任务的调度
+            KeyManager.release_key_and_dispatch(key_id)
+
+        # 3. 修改任务状态为 cancelled（惰性删除）
         task.status = 'cancelled'
         task.progress = 0
 
-        # 退款（使用统一的 pay_service）
+        # 4. 退款（使用统一的 pay_service）
         execute_refund(user_id, float(task.cost_points), task_id, "User cancelled")
 
         db.session.commit()
 
-        logger.info(f"Task {task_id} cancelled by user {user_id}, refunded {task.cost_points}")
+        logger.info(f"Task {task_id} cancelled by user {user_id}, refunded {task.cost_points}, queue: {removal_result['queue']}")
 
         return {"msg": "Task cancelled successfully"}
+
 
     @classmethod
     def get_task_status(cls, user_id: int, task_id: str):
@@ -434,7 +446,7 @@ class TaskService:
         """
         from app.services.storage_service import storage_service
 
-        cutoff_time = datetime.utcnow() - timedelta(days=days)
+        cutoff_time = datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=days)
 
         # 查询需要清理的任务（已完成且超过保留期）
         old_tasks = Task.query.filter(

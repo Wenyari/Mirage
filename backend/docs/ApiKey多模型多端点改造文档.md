@@ -80,7 +80,7 @@ class ApiKeyModel(db.Model):
     api_key_id = db.Column(db.Integer, db.ForeignKey('api_keys.id', ondelete='CASCADE'), nullable=False)
     model = db.Column(db.String(50), db.ForeignKey('models.key', ondelete='CASCADE'), nullable=False)
     api_base = db.Column(db.String(512), nullable=False, default='')  # 新增
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
     def to_dict(self):
         return {

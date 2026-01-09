@@ -3,6 +3,7 @@
 提供密钥池的管理、状态监控和统计功能
 """
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from app.extensions import db, redis_client
 from app.models import ApiKey, Model
 
@@ -23,7 +24,7 @@ def get_key_list(model_filter=None):
     if model_filter:
         # 支持逗号分隔的多模型筛选
         models = [m.strip() for m in model_filter.split(',')]
-        query = query.join(ApiKey.models).filter(Model.key.in_(models))
+        query = query.join(ApiKey.models).filter(Model.key.in_(models)).distinct()
 
     keys = query.all()
 
@@ -359,7 +360,7 @@ def update_key(key_id, models=None, max_concurrency=None, weight=None, status=No
             raise ValueError("status must be 0 or 1")
         api_key.status = status
 
-    api_key.updated_at = datetime.utcnow()
+    api_key.updated_at = datetime.now(ZoneInfo("Asia/Shanghai"))
     db.session.commit()
 
     return {'message': 'Key updated successfully'}
@@ -433,7 +434,7 @@ def trigger_cooldown(key_id, action, duration=300):
     try:
         if action == 'trigger':
             # 触发熔断
-            cooling_until = datetime.utcnow() + timedelta(seconds=duration)
+            cooling_until = datetime.now(ZoneInfo("Asia/Shanghai")) + timedelta(seconds=duration)
             cooling_until_str = cooling_until.isoformat() + 'Z'
 
             redis_client.setex(
@@ -471,11 +472,15 @@ def get_key_stats():
     models = Model.query.all()
     by_model = []
 
+    # 用于跟踪已统计的密钥，避免在计算总使用量时重复计算
+    all_keys_usage = {}  # {key_id: usage}
+
     for model in models:
         # 使用 JOIN 查询支持该模型的所有密钥
         keys = db.session.query(ApiKey)\
             .join(ApiKey.models)\
             .filter(Model.key == model.key)\
+            .distinct()\
             .all()
 
         if not keys:
@@ -495,21 +500,27 @@ def get_key_stats():
                 if redis_client.exists(f"pool:cooldown:{key.id}"):
                     cooling_keys += 1
 
-                # 累计当前使用量
+                # 累计当前使用量（按模型统计）
                 usage = redis_client.get(f"pool:usage:{key.id}")
-                if usage:
-                    current_usage += int(usage)
+                usage_int = int(usage) if usage else 0
+                if usage_int > 0:
+                    current_usage += usage_int
+                    # 记录到全局字典中（用于计算总使用量，避免重复）
+                    all_keys_usage[key.id] = usage_int
         except Exception:
             pass
 
-        by_model.append({
-            'model': model.key,
-            'total_keys': total_keys,
-            'active_keys': active_keys,
-            'cooling_keys': cooling_keys,
-            'total_concurrency': total_concurrency,
-            'current_usage': current_usage
-        })
+
+    total_current_usage = sum(all_keys_usage.values())
+
+    by_model.append({
+        'model': 'all',
+        'total_keys': len(all_keys_usage.keys()),
+        'active_keys': active_keys,
+        'cooling_keys': cooling_keys,
+        'total_concurrency': 4 * len(all_keys_usage.keys()),
+        'current_usage': total_current_usage
+    })
 
     # 今日统计（简化版，可以后续从数据库聚合）
     total_calls_today = 0
@@ -520,6 +531,7 @@ def get_key_stats():
 
     return {
         'by_model': by_model,
+        'total_current_usage': total_current_usage,  # 新增：总当前使用量（去重后）
         'total_calls_today': total_calls_today,
         'total_errors_today': total_errors_today,
         'error_rate': round(error_rate, 2)

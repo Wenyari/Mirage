@@ -3,6 +3,7 @@
 提供模型计费规则和权限配置的管理功能
 """
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from app.extensions import db
 from app.models import Model, ModelConfig, ApiKey
 
@@ -187,7 +188,7 @@ def update_model_config(config_id, allowed_tiers=None, cost_per_call=None, token
     if params is not None:
         config.params = params
 
-    config.updated_at = datetime.utcnow()
+    config.updated_at = datetime.now(ZoneInfo("Asia/Shanghai"))
     db.session.commit()
 
     return {'message': 'Model config updated successfully'}
