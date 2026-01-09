@@ -1,6 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { AlertCircle, ChevronLeft, ChevronRight,Clock, History, Loader2, Lock, Play, Upload, XCircle } from 'lucide-react';
+import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
+import { AlertCircle, ChevronLeft, ChevronRight, Clock, History, Loader2, Lock, Play, Upload, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -19,6 +21,7 @@ import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskResponse, T
 import { taskService } from '@/services/tasks';
 
 export default function VideoGeneration() {
+  const queryClient = useQueryClient();
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
@@ -45,9 +48,9 @@ export default function VideoGeneration() {
 
         const allModels = modelsResponse as unknown as ModelOption[] || [];
         // 筛选包含 'video' 和 'generation' 标签的模型
-        const modelsData = allModels.filter(m => 
-          m.tags && 
-          m.tags.includes('video') && 
+        const modelsData = allModels.filter(m =>
+          m.tags &&
+          m.tags.includes('video') &&
           m.tags.includes('generation')
         );
 
@@ -132,7 +135,7 @@ export default function VideoGeneration() {
     try {
       setIsSubmitting(true);
       setTaskStatus(null);
-      
+
       const response = await taskService.createTask({
         model,
         prompt,
@@ -160,10 +163,13 @@ export default function VideoGeneration() {
         startPolling(taskData.task_id);
       }
       toast.success('任务已提交');
-      
+
       // 延迟刷新历史记录，确保新任务出现
       setTimeout(refreshHistory, 1000);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      // Invalidate user balance
+      queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.message || '提交失败');
     } finally {
@@ -186,7 +192,7 @@ export default function VideoGeneration() {
       }
       refreshHistory();
       if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.message || '取消失败');
     }
@@ -265,7 +271,7 @@ export default function VideoGeneration() {
         if (Array.isArray(value) && value.length > 0) {
           defaultParams[paramName] = value[0];
         } else if (typeof value === 'boolean') {
-          defaultParams[paramName] = false; 
+          defaultParams[paramName] = false;
         } else {
           // 其他类型直接使用
           defaultParams[paramName] = value;
@@ -282,7 +288,7 @@ export default function VideoGeneration() {
     if (!selectedModelInfo?.params) return null;
 
     const entries = Object.entries(selectedModelInfo.params);
-    
+
     // 排序逻辑：布尔值 (Switch) -> 列表 (Select) -> Durations (Special)
     const sortedEntries = entries.sort(([keyA, valueA], [keyB, valueB]) => {
       // 1. Boolean 优先
@@ -307,13 +313,13 @@ export default function VideoGeneration() {
     });
 
     return sortedEntries.map(([key, value]) => {
-       // 参数名映射
-       const paramName = key === 'durations' ? 'duration' : key;
-       const currentValue = taskParams[paramName];
+      // 参数名映射
+      const paramName = key === 'durations' ? 'duration' : key;
+      const currentValue = taskParams[paramName];
 
-       // 1. Durations 特殊处理 (保持原有 UI 风格)
-       if (key === 'durations' && Array.isArray(value)) {
-         return (
+      // 1. Durations 特殊处理 (保持原有 UI 风格)
+      if (key === 'durations' && Array.isArray(value)) {
+        return (
           <div key={key} className="space-y-2">
             <Label>时长</Label>
             <div className="flex gap-2">
@@ -329,16 +335,16 @@ export default function VideoGeneration() {
               ))}
             </div>
           </div>
-         );
-       }
+        );
+      }
 
-       // 2. 列表 -> Select
-       if (Array.isArray(value)) {
-         return (
+      // 2. 列表 -> Select
+      if (Array.isArray(value)) {
+        return (
           <div key={key} className="space-y-2">
             <Label className="capitalize">{key.replace(/_/g, ' ')}</Label>
-            <Select 
-              value={String(currentValue)} 
+            <Select
+              value={String(currentValue)}
               onValueChange={(val) => setTaskParams(prev => ({ ...prev, [paramName]: val }))}
             >
               <SelectTrigger>
@@ -353,14 +359,14 @@ export default function VideoGeneration() {
               </SelectContent>
             </Select>
           </div>
-         );
-       }
+        );
+      }
 
-       // 3. 布尔值 -> Switch
-       if (typeof value === 'boolean') {
-         if (!value) return null; // 如果 capability 为 false，不显示
+      // 3. 布尔值 -> Switch
+      if (typeof value === 'boolean') {
+        if (!value) return null; // 如果 capability 为 false，不显示
 
-         return (
+        return (
           <div key={key} className="flex items-center justify-between rounded-lg border p-4">
             <Label className="cursor-pointer capitalize" htmlFor={`param-${key}`}>
               {key.replace(/_/g, ' ').replace('supported', '')}
@@ -371,22 +377,22 @@ export default function VideoGeneration() {
               onCheckedChange={(checked) => setTaskParams(prev => ({ ...prev, [paramName]: checked }))}
             />
           </div>
-         );
-       }
+        );
+      }
 
-       return null;
+      return null;
     });
   };
 
   // 过滤历史记录：只显示当前页面可用模型的记录
-  const filteredHistory = history.filter(item => 
+  const filteredHistory = history.filter(item =>
     models.some(m => m.key === item.model)
   );
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
       {/* 历史记录侧边栏 */}
-      <div 
+      <div
         className={cn(
           "flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
           isHistoryOpen ? "w-[300px]" : "w-0 opacity-0 overflow-hidden"
@@ -438,7 +444,7 @@ export default function VideoGeneration() {
                         <span className="font-semibold text-black">{item.model}</span>
                         <p className="mt-1 line-clamp-2 text-xs text-[#555]">{item.prompt}</p>
                       </div>
-                      
+
                       <p className="text-xs text-[#777]">
                         {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: zhCN })}
                       </p>
@@ -450,10 +456,10 @@ export default function VideoGeneration() {
                       {item.thumbnail_url ? (
                         <img src={item.thumbnail_url} className="size-full object-cover" alt="" />
                       ) : (
-                        <video 
+                        <video
                           src={`${item.result_url}#t=0.1`}
-                          className="size-full object-cover" 
-                          muted 
+                          className="size-full object-cover"
+                          muted
                           playsInline
                           preload="metadata"
                         />
@@ -488,7 +494,7 @@ export default function VideoGeneration() {
         <div className="flex w-[400px] shrink-0 flex-col gap-6">
           <h2 className="text-xl font-bold">Generate Video</h2>
           <div className="flex-1 space-y-4 overflow-y-auto pb-6 pl-1 pr-4">
-            
+
             <div className="space-y-2">
               <Label>模型</Label>
               <Select value={model} onValueChange={setModel} disabled={isLoadingModels}>
@@ -497,9 +503,9 @@ export default function VideoGeneration() {
                 </SelectTrigger>
                 <SelectContent>
                   {models.map((m) => (
-                    <SelectItem 
-                      key={m.key} 
-                      value={m.key} 
+                    <SelectItem
+                      key={m.key}
+                      value={m.key}
                       disabled={!m.is_available}
                       className="flex items-center justify-between"
                     >
@@ -527,18 +533,18 @@ export default function VideoGeneration() {
 
             <div className="space-y-2">
               <Label>上传参考图 (可选；最多2张, &lt; 1MB)</Label>
-              <ImageUploader 
-                value={uploadedFiles} 
-                onChange={setUploadedFiles} 
-                maxFiles={2} 
-                maxSizeMB={1} 
+              <ImageUploader
+                value={uploadedFiles}
+                onChange={setUploadedFiles}
+                maxFiles={2}
+                maxSizeMB={1}
               />
             </div>
 
             <div className="space-y-2">
               <Label>提示词</Label>
-              <Textarea 
-                placeholder="描述你想生成的内容..." 
+              <Textarea
+                placeholder="描述你想生成的内容..."
                 className="h-[200px] resize-none"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -548,8 +554,8 @@ export default function VideoGeneration() {
             {/* 动态参数面板 */}
             {renderDynamicParams()}
 
-            <Button 
-              className="h-12 w-full text-lg" 
+            <Button
+              className="h-12 w-full text-lg"
               onClick={handleSubmit}
               disabled={isSubmitting || (taskStatus?.status && ['pending', 'processing'].includes(taskStatus.status))}
             >
@@ -570,130 +576,130 @@ export default function VideoGeneration() {
 
         {/* 右侧预览区 */}
         <div className="flex min-w-[480px] flex-1 flex-col items-start overflow-y-auto rounded-xl border border-dashed bg-background p-6">
-           <div className="mx-auto w-full max-w-3xl space-y-6">
-             {!taskStatus ? (
-               <div className="flex h-[60vh] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
-                 <div className="mb-4 inline-block rounded-full bg-muted p-6">
-                   <Play className="ml-1 size-12" />
-                 </div>
-                 <h3 className="text-lg font-semibold">预览区域</h3>
-                 <p className="mt-2 text-sm text-muted-foreground">生成的内容将显示在这里。</p>
-               </div>
-             ) : (
+          <div className="mx-auto w-full max-w-3xl space-y-6">
+            {!taskStatus ? (
+              <div className="flex h-[60vh] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
+                <div className="mb-4 inline-block rounded-full bg-muted p-6">
+                  <Play className="ml-1 size-12" />
+                </div>
+                <h3 className="text-lg font-semibold">预览区域</h3>
+                <p className="mt-2 text-sm text-muted-foreground">生成的内容将显示在这里。</p>
+              </div>
+            ) : (
               <>
-              {/* 状态展示 */}
-              <Card className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <h3 className="flex items-center gap-2 text-lg font-semibold">
-                        {taskStatus?.status === 'pending' && '排队中...'}
-                        {taskStatus?.status === 'processing' && '正在生成...'}
-                        {taskStatus?.status === 'success' && '生成成功'}
-                        {taskStatus?.status === 'failed' && '生成失败'}
-                        {taskStatus?.status === 'cancelled' && '已取消'}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Task ID: {taskStatus?.id}
-                      </p>
-                    </div>
-                    {taskStatus?.status === 'pending' && (
-                      <Button variant="destructive" size="sm" onClick={handleCancel}>
-                        <XCircle className="mr-2 size-4" />
-                        取消任务
-                      </Button>
-                    )}
-                    {/* Details dialog trigger */}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="ml-2">
-                          任务详情
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogTitle>任务详情</DialogTitle>
-                        <DialogDescription>
-                          以下为该任务的详细信息。
-                        </DialogDescription>
-                        <div className="mt-4 space-y-3">
-                          <div>
-                            <div className="text-sm text-muted-foreground">模型</div>
-                            <div className="font-medium">{(taskStatus as any)?.model || selectedModelInfo?.name || '-'}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground">提示词</div>
-                            <div className="whitespace-pre-wrap break-words rounded bg-muted/10 p-3">{(taskStatus as any)?.prompt || '-'}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground">参数</div>
-                            <div className="font-medium">{JSON.stringify((taskStatus as any)?.params || {})}</div>
-                          </div>
-                          {(taskStatus as any)?.input_file_url && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">输入文件</div>
-                              <img src={(taskStatus as any).input_file_url} alt="input" className="max-h-48 max-w-full rounded object-contain" />
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-sm text-muted-foreground">消耗积分</div>
-                            <div className="font-medium">{(taskStatus as any)?.cost_points ?? '-'}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground">创建时间</div>
-                            <div className="font-medium">{(taskStatus as any)?.created_at || '-'}</div>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-
-                  {/* 进度条 */}
-                  {(taskStatus?.status === 'pending' || taskStatus?.status === 'processing') && (
-                  <div className="space-y-2">
-                      <Progress value={taskStatus?.progress || 0} className="h-2" />
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>
-                          {taskStatus?.status === 'pending' && (
-                            <>
-                              当前排在第 <span className="font-bold text-primary">{taskStatus?.queue_info?.position}</span> 位
-                              (通道: {taskStatus?.queue_info?.user_queue === 'vip' ? '权益通道' : '普通通道'})
-                            </>
-                          )}
-                          {taskStatus?.status === 'processing' && `生成进度: ${taskStatus?.progress}%`}
-                        </span>
-                        <span>{taskStatus?.status === 'pending' ? '等待处理' : '处理中'}</span>
+                {/* 状态展示 */}
+                <Card className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <h3 className="flex items-center gap-2 text-lg font-semibold">
+                          {taskStatus?.status === 'pending' && '排队中...'}
+                          {taskStatus?.status === 'processing' && '正在生成...'}
+                          {taskStatus?.status === 'success' && '生成成功'}
+                          {taskStatus?.status === 'failed' && '生成失败'}
+                          {taskStatus?.status === 'cancelled' && '已取消'}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Task ID: {taskStatus?.id}
+                        </p>
                       </div>
+                      {taskStatus?.status === 'pending' && (
+                        <Button variant="destructive" size="sm" onClick={handleCancel}>
+                          <XCircle className="mr-2 size-4" />
+                          取消任务
+                        </Button>
+                      )}
+                      {/* Details dialog trigger */}
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="ml-2">
+                            任务详情
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogTitle>任务详情</DialogTitle>
+                          <DialogDescription>
+                            以下为该任务的详细信息。
+                          </DialogDescription>
+                          <div className="mt-4 space-y-3">
+                            <div>
+                              <div className="text-sm text-muted-foreground">模型</div>
+                              <div className="font-medium">{(taskStatus as any)?.model || selectedModelInfo?.name || '-'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">提示词</div>
+                              <div className="whitespace-pre-wrap break-words rounded bg-muted/10 p-3">{(taskStatus as any)?.prompt || '-'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">参数</div>
+                              <div className="font-medium">{JSON.stringify((taskStatus as any)?.params || {})}</div>
+                            </div>
+                            {(taskStatus as any)?.input_file_url && (
+                              <div>
+                                <div className="text-sm text-muted-foreground">输入文件</div>
+                                <img src={(taskStatus as any).input_file_url} alt="input" className="max-h-48 max-w-full rounded object-contain" />
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-sm text-muted-foreground">消耗积分</div>
+                              <div className="font-medium">{(taskStatus as any)?.cost_points ?? '-'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">创建时间</div>
+                              <div className="font-medium">{(taskStatus as any)?.created_at || '-'}</div>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
-                  )}
 
-                  {/* 失败原因 */}
-                  {taskStatus?.status === 'failed' && (
-                    <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-4 text-destructive">
-                      <AlertCircle className="size-5" />
-                      <span>{taskStatus?.fail_reason || '未知错误'}</span>
-                    </div>
-                  )}
-                </div>
-              </Card>
+                    {/* 进度条 */}
+                    {(taskStatus?.status === 'pending' || taskStatus?.status === 'processing') && (
+                      <div className="space-y-2">
+                        <Progress value={taskStatus?.progress || 0} className="h-2" />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                          <span>
+                            {taskStatus?.status === 'pending' && (
+                              <>
+                                当前排在第 <span className="font-bold text-primary">{taskStatus?.queue_info?.position}</span> 位
+                                (通道: {taskStatus?.queue_info?.user_queue === 'vip' ? '权益通道' : '普通通道'})
+                              </>
+                            )}
+                            {taskStatus?.status === 'processing' && `生成进度: ${taskStatus?.progress}%`}
+                          </span>
+                          <span>{taskStatus?.status === 'pending' ? '等待处理' : '处理中'}</span>
+                        </div>
+                      </div>
+                    )}
 
-              {/* 视频结果 */}
-              {taskStatus?.status === 'success' && taskStatus?.result_url && (
-                <div className="w-full overflow-hidden rounded-lg bg-black shadow-xl">
-                  <video
-                    src={taskStatus.result_url}
-                    className="h-auto max-h-[65vh] w-full object-contain"
-                    controls
-                    autoPlay
-                    loop
-                  >
-                    <track kind="captions" srcLang="zh" label="中文字幕" default />
-                    您的浏览器不支持 HTML5 视频。
-                  </video>
-                </div>
-              )}
+                    {/* 失败原因 */}
+                    {taskStatus?.status === 'failed' && (
+                      <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-4 text-destructive">
+                        <AlertCircle className="size-5" />
+                        <span>{taskStatus?.fail_reason || '未知错误'}</span>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                {/* 视频结果 */}
+                {taskStatus?.status === 'success' && taskStatus?.result_url && (
+                  <div className="w-full overflow-hidden rounded-lg bg-black shadow-xl">
+                    <video
+                      src={taskStatus.result_url}
+                      className="h-auto max-h-[65vh] w-full object-contain"
+                      controls
+                      autoPlay
+                      loop
+                    >
+                      <track kind="captions" srcLang="zh" label="中文字幕" default />
+                      您的浏览器不支持 HTML5 视频。
+                    </video>
+                  </div>
+                )}
               </>
-             )}
-            </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

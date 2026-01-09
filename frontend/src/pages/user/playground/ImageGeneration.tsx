@@ -1,6 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { AlertCircle, ChevronLeft, ChevronRight,Clock, History, Image as ImageIcon, Loader2, Lock, Upload, XCircle } from 'lucide-react';
+import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
+import { AlertCircle, ChevronLeft, ChevronRight, Clock, History, Image as ImageIcon, Loader2, Lock, Upload, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -19,6 +21,7 @@ import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskResponse, T
 import { taskService } from '@/services/tasks';
 
 export default function ImageGeneration() {
+  const queryClient = useQueryClient();
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
@@ -45,9 +48,9 @@ export default function ImageGeneration() {
 
         const allModels = modelsResponse as unknown as ModelOption[] || [];
         // 筛选包含 'image' 和 'generation' 标签的模型
-        const modelsData = allModels.filter(m => 
-          m.tags && 
-          m.tags.includes('image') && 
+        const modelsData = allModels.filter(m =>
+          m.tags &&
+          m.tags.includes('image') &&
           m.tags.includes('generation')
         );
 
@@ -132,7 +135,7 @@ export default function ImageGeneration() {
     try {
       setIsSubmitting(true);
       setTaskStatus(null);
-      
+
       const response = await taskService.createTask({
         model,
         prompt,
@@ -160,10 +163,13 @@ export default function ImageGeneration() {
         startPolling(taskData.task_id);
       }
       toast.success('任务已提交');
-      
+
       // 延迟刷新历史记录，确保新任务出现
       setTimeout(refreshHistory, 1000);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      // Invalidate user balance
+      queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.message || '提交失败');
     } finally {
@@ -186,7 +192,7 @@ export default function ImageGeneration() {
       }
       refreshHistory();
       if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.message || '取消失败');
     }
@@ -255,7 +261,7 @@ export default function ImageGeneration() {
         if (Array.isArray(value) && value.length > 0) {
           defaultParams[paramName] = value[0];
         } else if (typeof value === 'boolean') {
-          defaultParams[paramName] = false; 
+          defaultParams[paramName] = false;
         } else {
           defaultParams[paramName] = value;
         }
@@ -271,7 +277,7 @@ export default function ImageGeneration() {
     if (!selectedModelInfo?.params) return null;
 
     const entries = Object.entries(selectedModelInfo.params);
-    
+
     // 排序逻辑：布尔值 (Switch) -> 列表 (Select)
     const sortedEntries = entries.sort(([keyA, valueA], [keyB, valueB]) => {
       // 1. Boolean 优先
@@ -290,16 +296,16 @@ export default function ImageGeneration() {
     });
 
     return sortedEntries.map(([key, value]) => {
-       const paramName = key;
-       const currentValue = taskParams[paramName];
+      const paramName = key;
+      const currentValue = taskParams[paramName];
 
-       // 列表 -> Select
-       if (Array.isArray(value)) {
-         return (
+      // 列表 -> Select
+      if (Array.isArray(value)) {
+        return (
           <div key={key} className="space-y-2">
             <Label className="capitalize">{key.replace(/_/g, ' ')}</Label>
-            <Select 
-              value={String(currentValue)} 
+            <Select
+              value={String(currentValue)}
               onValueChange={(val) => setTaskParams(prev => ({ ...prev, [paramName]: val }))}
             >
               <SelectTrigger>
@@ -314,14 +320,14 @@ export default function ImageGeneration() {
               </SelectContent>
             </Select>
           </div>
-         );
-       }
+        );
+      }
 
-       // 布尔值 -> Switch
-       if (typeof value === 'boolean') {
-         if (!value) return null;
+      // 布尔值 -> Switch
+      if (typeof value === 'boolean') {
+        if (!value) return null;
 
-         return (
+        return (
           <div key={key} className="flex items-center justify-between rounded-lg border p-4">
             <Label className="cursor-pointer capitalize" htmlFor={`param-${key}`}>
               {key.replace(/_/g, ' ').replace('supported', '')}
@@ -332,22 +338,22 @@ export default function ImageGeneration() {
               onCheckedChange={(checked) => setTaskParams(prev => ({ ...prev, [paramName]: checked }))}
             />
           </div>
-         );
-       }
+        );
+      }
 
-       return null;
+      return null;
     });
   };
 
   // 过滤历史记录：只显示当前页面可用模型的记录
-  const filteredHistory = history.filter(item => 
+  const filteredHistory = history.filter(item =>
     models.some(m => m.key === item.model)
   );
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
       {/* 历史记录侧边栏 */}
-      <div 
+      <div
         className={cn(
           "flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
           isHistoryOpen ? "w-[300px]" : "w-0 opacity-0 overflow-hidden"
@@ -399,7 +405,7 @@ export default function ImageGeneration() {
                         <span className="font-semibold text-black">{item.model}</span>
                         <p className="mt-1 line-clamp-2 text-xs text-[#555]">{item.prompt}</p>
                       </div>
-                      
+
                       <p className="text-xs text-[#777]">
                         {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: zhCN })}
                       </p>
@@ -408,8 +414,8 @@ export default function ImageGeneration() {
 
                   {item.status === 'success' && (item.thumbnail_url || item.result_url) && (
                     <div className="absolute inset-y-0 right-0 w-28">
-                       <img src={item.thumbnail_url || item.result_url} className="size-full object-cover" alt="" />
-                       <div className="absolute inset-0 bg-gradient-to-r from-[#f2f3f7] to-transparent" />
+                      <img src={item.thumbnail_url || item.result_url} className="size-full object-cover" alt="" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#f2f3f7] to-transparent" />
                     </div>
                   )}
                 </div>
@@ -439,208 +445,208 @@ export default function ImageGeneration() {
         <div className="flex w-[400px] shrink-0 flex-col gap-6">
           <h2 className="text-xl font-bold">Generate Image</h2>
           <div className="flex-1 space-y-4 overflow-y-auto pb-6 pl-1 pr-4">
-          
-          <div className="space-y-2">
-            <Label>模型</Label>
-            <Select value={model} onValueChange={setModel} disabled={isLoadingModels}>
-              <SelectTrigger>
-                <SelectValue placeholder={isLoadingModels ? "加载中..." : "选择模型"} />
-              </SelectTrigger>
-              <SelectContent>
-                {models.map((m) => (
-                  <SelectItem 
-                    key={m.key} 
-                    value={m.key} 
-                    disabled={!m.is_available}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex w-full items-center gap-2">
-                      <span>{m.name}</span>
-                      {!m.is_available && (
-                        <div className="ml-auto flex items-center gap-2">
-                          <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-                            {m.min_tier}
-                          </span>
-                          <Lock className="size-3 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedModelInfo && (
-              <p className="text-xs text-muted-foreground">
-                消耗: {selectedModelInfo.cost_per_call} 积分/次
-              </p>
-            )}
-          </div>
 
-          <div className="space-y-2">
+            <div className="space-y-2">
+              <Label>模型</Label>
+              <Select value={model} onValueChange={setModel} disabled={isLoadingModels}>
+                <SelectTrigger>
+                  <SelectValue placeholder={isLoadingModels ? "加载中..." : "选择模型"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {models.map((m) => (
+                    <SelectItem
+                      key={m.key}
+                      value={m.key}
+                      disabled={!m.is_available}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex w-full items-center gap-2">
+                        <span>{m.name}</span>
+                        {!m.is_available && (
+                          <div className="ml-auto flex items-center gap-2">
+                            <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                              {m.min_tier}
+                            </span>
+                            <Lock className="size-3 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedModelInfo && (
+                <p className="text-xs text-muted-foreground">
+                  消耗: {selectedModelInfo.cost_per_call} 积分/次
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
               <Label>上传参考图 (可选；最多1张, &lt; 1MB)</Label>
-              <ImageUploader 
-                value={uploadedFiles} 
-                onChange={setUploadedFiles} 
-                maxFiles={1} 
-                maxSizeMB={1} 
+              <ImageUploader
+                value={uploadedFiles}
+                onChange={setUploadedFiles}
+                maxFiles={1}
+                maxSizeMB={1}
               />
             </div>
 
-          <div className="space-y-2">
-            <Label>提示词</Label>
-            <Textarea 
-              placeholder="描述你想生成的图片内容..." 
-              className="h-[200px] resize-none"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
+            <div className="space-y-2">
+              <Label>提示词</Label>
+              <Textarea
+                placeholder="描述你想生成的图片内容..."
+                className="h-[200px] resize-none"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+              />
+            </div>
+
+            {/* 动态参数面板 */}
+            {renderDynamicParams()}
+
+            <Button
+              className="h-12 w-full text-lg"
+              onClick={handleSubmit}
+              disabled={isSubmitting || (taskStatus?.status && ['pending', 'processing'].includes(taskStatus.status))}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  提交中...
+                </>
+              ) : (
+                <>
+                  <ImageIcon className="mr-2 size-4 fill-current" />
+                  生成图片 (消耗积分)
+                </>
+              )}
+            </Button>
           </div>
+        </div>
 
-          {/* 动态参数面板 */}
-          {renderDynamicParams()}
-
-          <Button 
-            className="h-12 w-full text-lg" 
-            onClick={handleSubmit}
-            disabled={isSubmitting || (taskStatus?.status && ['pending', 'processing'].includes(taskStatus.status))}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                提交中...
-              </>
+        {/* 右侧预览区 */}
+        <div className="flex min-w-[480px] flex-1 flex-col items-start overflow-y-auto rounded-xl border border-dashed bg-background p-6">
+          <div className="mx-auto w-full max-w-3xl space-y-6">
+            {!taskStatus ? (
+              <div className="flex h-[60vh] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
+                <div className="mb-4 inline-block rounded-full bg-muted p-6">
+                  <ImageIcon className="ml-1 size-12" />
+                </div>
+                <h3 className="text-lg font-semibold">预览区域</h3>
+                <p className="mt-2 text-sm text-muted-foreground">生成的内容将显示在这里。</p>
+              </div>
             ) : (
               <>
-                <ImageIcon className="mr-2 size-4 fill-current" />
-                生成图片 (消耗积分)
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-
-      {/* 右侧预览区 */}
-      <div className="flex min-w-[480px] flex-1 flex-col items-start overflow-y-auto rounded-xl border border-dashed bg-background p-6">
-         <div className="mx-auto w-full max-w-3xl space-y-6">
-           {!taskStatus ? (
-             <div className="flex h-[60vh] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
-               <div className="mb-4 inline-block rounded-full bg-muted p-6">
-                 <ImageIcon className="ml-1 size-12" />
-               </div>
-               <h3 className="text-lg font-semibold">预览区域</h3>
-               <p className="mt-2 text-sm text-muted-foreground">生成的内容将显示在这里。</p>
-             </div>
-           ) : (
-            <>
-            {/* 状态展示 */}
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <h3 className="flex items-center gap-2 text-lg font-semibold">
-                      {taskStatus?.status === 'pending' && '排队中...'}
-                      {taskStatus?.status === 'processing' && '正在生成...'}
-                      {taskStatus?.status === 'success' && '生成成功'}
-                      {taskStatus?.status === 'failed' && '生成失败'}
-                      {taskStatus?.status === 'cancelled' && '已取消'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Task ID: {taskStatus?.id}
-                    </p>
-                  </div>
-                  {taskStatus?.status === 'pending' && (
-                    <Button variant="destructive" size="sm" onClick={handleCancel}>
-                      <XCircle className="mr-2 size-4" />
-                      取消任务
-                    </Button>
-                  )}
-                  {/* Details dialog trigger */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="ml-2">
-                        任务详情
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogTitle>任务详情</DialogTitle>
-                      <DialogDescription>
-                        以下为该任务的详细信息。
-                      </DialogDescription>
-                      <div className="mt-4 space-y-3">
-                        <div>
-                          <div className="text-sm text-muted-foreground">模型</div>
-                          <div className="font-medium">{(taskStatus as any)?.model || selectedModelInfo?.name || '-'}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground">提示词</div>
-                          <div className="whitespace-pre-wrap break-words rounded bg-muted/10 p-3">{(taskStatus as any)?.prompt || '-'}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground">参数</div>
-                          <div className="font-medium">{JSON.stringify((taskStatus as any)?.params || {})}</div>
-                        </div>
-                        {(taskStatus as any)?.input_file_url && (
-                          <div>
-                            <div className="text-sm text-muted-foreground">输入文件</div>
-                            <img src={(taskStatus as any).input_file_url} alt="input" className="max-h-48 max-w-full rounded object-contain" />
+                {/* 状态展示 */}
+                <Card className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <h3 className="flex items-center gap-2 text-lg font-semibold">
+                          {taskStatus?.status === 'pending' && '排队中...'}
+                          {taskStatus?.status === 'processing' && '正在生成...'}
+                          {taskStatus?.status === 'success' && '生成成功'}
+                          {taskStatus?.status === 'failed' && '生成失败'}
+                          {taskStatus?.status === 'cancelled' && '已取消'}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Task ID: {taskStatus?.id}
+                        </p>
+                      </div>
+                      {taskStatus?.status === 'pending' && (
+                        <Button variant="destructive" size="sm" onClick={handleCancel}>
+                          <XCircle className="mr-2 size-4" />
+                          取消任务
+                        </Button>
+                      )}
+                      {/* Details dialog trigger */}
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="ml-2">
+                            任务详情
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogTitle>任务详情</DialogTitle>
+                          <DialogDescription>
+                            以下为该任务的详细信息。
+                          </DialogDescription>
+                          <div className="mt-4 space-y-3">
+                            <div>
+                              <div className="text-sm text-muted-foreground">模型</div>
+                              <div className="font-medium">{(taskStatus as any)?.model || selectedModelInfo?.name || '-'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">提示词</div>
+                              <div className="whitespace-pre-wrap break-words rounded bg-muted/10 p-3">{(taskStatus as any)?.prompt || '-'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">参数</div>
+                              <div className="font-medium">{JSON.stringify((taskStatus as any)?.params || {})}</div>
+                            </div>
+                            {(taskStatus as any)?.input_file_url && (
+                              <div>
+                                <div className="text-sm text-muted-foreground">输入文件</div>
+                                <img src={(taskStatus as any).input_file_url} alt="input" className="max-h-48 max-w-full rounded object-contain" />
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-sm text-muted-foreground">消耗积分</div>
+                              <div className="font-medium">{(taskStatus as any)?.cost_points ?? '-'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">创建时间</div>
+                              <div className="font-medium">{(taskStatus as any)?.created_at || '-'}</div>
+                            </div>
                           </div>
-                        )}
-                        <div>
-                          <div className="text-sm text-muted-foreground">消耗积分</div>
-                          <div className="font-medium">{(taskStatus as any)?.cost_points ?? '-'}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground">创建时间</div>
-                          <div className="font-medium">{(taskStatus as any)?.created_at || '-'}</div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+
+                    {/* 进度条 */}
+                    {(taskStatus?.status === 'pending' || taskStatus?.status === 'processing') && (
+                      <div className="space-y-2">
+                        <Progress value={taskStatus?.progress || 0} className="h-2" />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                          <span>
+                            {taskStatus?.status === 'pending' && (
+                              <>
+                                当前排在第 <span className="font-bold text-primary">{taskStatus?.queue_info?.position}</span> 位
+                                (通道: {taskStatus?.queue_info?.user_queue === 'vip' ? '权益通道' : '普通通道'})
+                              </>
+                            )}
+                            {taskStatus?.status === 'processing' && `生成进度: ${taskStatus?.progress}%`}
+                          </span>
+                          <span>{taskStatus?.status === 'pending' ? '等待处理' : '处理中'}</span>
                         </div>
                       </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                    )}
 
-                {/* 进度条 */}
-                {(taskStatus?.status === 'pending' || taskStatus?.status === 'processing') && (
-                <div className="space-y-2">
-                    <Progress value={taskStatus?.progress || 0} className="h-2" />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>
-                        {taskStatus?.status === 'pending' && (
-                          <>
-                            当前排在第 <span className="font-bold text-primary">{taskStatus?.queue_info?.position}</span> 位
-                            (通道: {taskStatus?.queue_info?.user_queue === 'vip' ? '权益通道' : '普通通道'})
-                          </>
-                        )}
-                        {taskStatus?.status === 'processing' && `生成进度: ${taskStatus?.progress}%`}
-                      </span>
-                      <span>{taskStatus?.status === 'pending' ? '等待处理' : '处理中'}</span>
-                    </div>
+                    {/* 失败原因 */}
+                    {taskStatus?.status === 'failed' && (
+                      <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-4 text-destructive">
+                        <AlertCircle className="size-5" />
+                        <span>{taskStatus?.fail_reason || '未知错误'}</span>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                {/* 图片结果 */}
+                {taskStatus?.status === 'success' && taskStatus?.result_url && (
+                  <div className="w-full overflow-hidden rounded-lg bg-black/5 shadow-xl">
+                    <img
+                      src={taskStatus.result_url}
+                      alt="Generated result"
+                      className="h-auto max-h-[65vh] w-full object-contain"
+                    />
                   </div>
                 )}
-
-                {/* 失败原因 */}
-                {taskStatus?.status === 'failed' && (
-                  <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-4 text-destructive">
-                    <AlertCircle className="size-5" />
-                    <span>{taskStatus?.fail_reason || '未知错误'}</span>
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            {/* 图片结果 */}
-            {taskStatus?.status === 'success' && taskStatus?.result_url && (
-              <div className="w-full overflow-hidden rounded-lg bg-black/5 shadow-xl">
-                <img
-                  src={taskStatus.result_url}
-                  alt="Generated result"
-                  className="h-auto max-h-[65vh] w-full object-contain"
-                />
-              </div>
+              </>
             )}
-            </>
-           )}
           </div>
-      </div>
+        </div>
       </div>
     </div>
   );

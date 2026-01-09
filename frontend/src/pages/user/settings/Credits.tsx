@@ -18,8 +18,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import api from '@/lib/api';
 import { authService } from '@/services/auth';
 import { useAuthStore } from '@/store/authStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
 
 export default function Credits() {
+  const queryClient = useQueryClient();
   const [code, setCode] = useState('');
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,6 +83,9 @@ export default function Credits() {
 
         // 刷新全局用户信息（余额/等级等）
         try {
+          // Invalidate the current user query to trigger a refetch in UserNavbar
+          queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+
           const me = await authService.me();
           if (me) setUser(me);
         } catch (err) {
@@ -129,12 +135,12 @@ export default function Credits() {
     try {
       const res = await api.get('/wallet/balance');
       // console.log('Wallet balance response:', res);
-      
+
       // 兼容两种响应结构：
       // 1. 标准结构 { code: 200, data: { ... } } -> res.data 是目标对象
       // 2. 直接返回数据结构 { total_balance: ... } -> res 是目标对象
       const data = res?.data || res;
-      
+
       if (data && (typeof data.total_balance === 'number' || typeof data.balance === 'number')) {
         setBalanceDetail({
           total_balance: data.total_balance ?? data.balance ?? 0,
@@ -155,7 +161,7 @@ export default function Credits() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-      <div className="flex-1">
+        <div className="flex-1">
           <Card className="p-6">
             <h3 className="mb-2 flex items-center gap-2 font-semibold">
               <CreditCard className="size-5 text-primary" />
@@ -163,7 +169,7 @@ export default function Credits() {
             </h3>
             <Button onClick={() => setPurchaseOpen(true)}>立即充值</Button>
             <Dialog open={purchaseOpen} onOpenChange={setPurchaseOpen}>
-            <DialogContent className="w-[95vw] max-w-6xl">
+              <DialogContent className="w-[95vw] max-w-6xl">
                 <DialogTitle>选择充值套餐</DialogTitle>
                 <DialogDescription>请选择适合你的充值包。</DialogDescription>
                 <div className="mt-4 grid grid-cols-4 gap-6">
@@ -176,18 +182,18 @@ export default function Credits() {
                     {
                       title: 'T3体验包',
                       price: '¥29.9',
-                      bullets: ['360 积分 (送60)', '解锁T3权限', '解锁电影级 Pro 模型','Sora-2可享8折优惠'],
+                      bullets: ['360 积分 (送60)', '解锁T3权限', '解锁电影级 Pro 模型', 'Sora-2可享8折优惠'],
                       limited: true,
                     },
                     {
                       title: '标准包',
                       price: '¥49.9',
-                      bullets: ['550 积分 (送50)', '解锁T3权限','解锁电影级 Pro 模型','Sora-2可享8折优惠'],
+                      bullets: ['550 积分 (送50)', '解锁T3权限', '解锁电影级 Pro 模型', 'Sora-2可享8折优惠'],
                     },
                     {
                       title: '专业包',
                       price: '¥199',
-                      bullets: ['2300 积分 (送300)', '解锁T4权限','Sora-2低至6折优惠'],
+                      bullets: ['2300 积分 (送300)', '解锁T4权限', 'Sora-2低至6折优惠'],
                     },
                   ].map((pkg) => (
                     <div
