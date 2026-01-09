@@ -23,7 +23,7 @@ def get_key_list(model_filter=None):
     if model_filter:
         # 支持逗号分隔的多模型筛选
         models = [m.strip() for m in model_filter.split(',')]
-        query = query.join(ApiKey.models).filter(Model.key.in_(models))
+        query = query.join(ApiKey.models).filter(Model.key.in_(models)).distinct()
 
     keys = query.all()
 
@@ -471,11 +471,15 @@ def get_key_stats():
     models = Model.query.all()
     by_model = []
 
+    # 用于跟踪已统计的密钥，避免在计算总使用量时重复计算
+    all_keys_usage = {}  # {key_id: usage}
+
     for model in models:
         # 使用 JOIN 查询支持该模型的所有密钥
         keys = db.session.query(ApiKey)\
             .join(ApiKey.models)\
             .filter(Model.key == model.key)\
+            .distinct()\
             .all()
 
         if not keys:
@@ -495,10 +499,13 @@ def get_key_stats():
                 if redis_client.exists(f"pool:cooldown:{key.id}"):
                     cooling_keys += 1
 
-                # 累计当前使用量
+                # 累计当前使用量（按模型统计）
                 usage = redis_client.get(f"pool:usage:{key.id}")
-                if usage:
-                    current_usage += int(usage)
+                usage_int = int(usage) if usage else 0
+                if usage_int > 0:
+                    current_usage += usage_int
+                    # 记录到全局字典中（用于计算总使用量，避免重复）
+                    all_keys_usage[key.id] = usage_int
         except Exception:
             pass
 
@@ -511,6 +518,9 @@ def get_key_stats():
             'current_usage': current_usage
         })
 
+    # 计算总使用量（去重：每个密钥只计算一次）
+    total_current_usage = sum(all_keys_usage.values())
+
     # 今日统计（简化版，可以后续从数据库聚合）
     total_calls_today = 0
     total_errors_today = 0
@@ -520,6 +530,7 @@ def get_key_stats():
 
     return {
         'by_model': by_model,
+        'total_current_usage': total_current_usage,  # 新增：总当前使用量（去重后）
         'total_calls_today': total_calls_today,
         'total_errors_today': total_errors_today,
         'error_rate': round(error_rate, 2)

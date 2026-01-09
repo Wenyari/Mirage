@@ -37,7 +37,6 @@ export function KeyPoolStats() {
   if (!data?.data) return null;
 
   const stats = data.data;
-
   // 计算总体数据
   const totalKeys = stats.by_model.reduce((sum, p) => sum + p.total_keys, 0);
   const totalActive = stats.by_model.reduce((sum, p) => sum + p.active_keys, 0);
