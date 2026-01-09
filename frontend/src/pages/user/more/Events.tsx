@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 
 
 import { ActivityCard } from '@/components/activity/ActivityCard';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
 import { checkin, claimActivity, getActivities, getCheckinStatus } from '@/services/activity';
 import { Activity } from '@/types/activity';
@@ -14,7 +14,7 @@ import { Activity } from '@/types/activity';
 const ACTIVITY_STATUS_ACTIVE = 'active';
 
 export default function Events() {
-  const { toast } = useToast();
+
   const queryClient = useQueryClient();
 
   // Queries
@@ -32,39 +32,25 @@ export default function Events() {
   const checkinMutation = useMutation({
     mutationFn: checkin,
     onSuccess: (data) => {
-      toast({
-        title: '签到成功',
-        description: `获得 ${data.points} 积分，已连续签到 ${data.consecutive_days} 天！`,
-      });
+      toast.success(`签到成功！获得 ${data.points} 积分，已连续签到 ${data.consecutive_days} 天！`);
       queryClient.invalidateQueries({ queryKey: ['checkinStatus'] });
       // Invalidate user balance
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
     },
     onError: (error: any) => {
-      toast({
-        variant: 'destructive',
-        title: '签到失败',
-        description: error.message || '请稍后重试',
-      });
+      toast.error(error.message || '签到失败，请稍后重试');
     },
   });
 
   const claimMutation = useMutation({
     mutationFn: claimActivity,
     onSuccess: (data) => {
-      toast({
-        title: '领取成功',
-        description: `获得 ${data.points} 积分！`,
-      });
+      toast.success(`领取成功！获得 ${data.points} 积分！`);
       queryClient.invalidateQueries({ queryKey: ['activities'] });
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
     },
     onError: (error: any) => {
-      toast({
-        variant: 'destructive',
-        title: '领取失败',
-        description: error.message || '请稍后重试',
-      });
+      toast.error(error.message || '领取失败，请稍后重试');
     },
   });
 

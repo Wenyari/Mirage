@@ -1,4 +1,4 @@
-import { LogOut,Moon, Sun } from 'lucide-react';
+import { LogOut, Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -7,11 +7,10 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { logout } from '@/services/admin/auth';
 import { useAuthStore } from '@/store/authStore';
 
@@ -28,7 +27,7 @@ export function AdminHeader() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout: storeLogout } = useAuthStore();
-  const { toast } = useToast();
+
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
@@ -52,10 +51,7 @@ export function AdminHeader() {
     try {
       await logout();
       storeLogout();
-      toast({
-        title: '登出成功',
-        description: '您已安全退出系统',
-      });
+      toast.success('登出成功，您已安全退出系统');
       navigate('/wadminw/login');
     } catch (error) {
       // 即使后端报错，前端也要登出
@@ -76,7 +72,6 @@ export function AdminHeader() {
           </BreadcrumbItem>
           {location.pathname !== '/wadminw/dashboard' && (
             <>
-              <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage>{currentPageName}</BreadcrumbPage>
               </BreadcrumbItem>

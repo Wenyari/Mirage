@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login: authLogin } = useAuthStore();
-  const { toast } = useToast();
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,17 +23,10 @@ export default function Login() {
     try {
       const data = await login({ email, password });
       authLogin(data.token, data.user);
-      toast({
-        title: '登录成功',
-        description: '欢迎回来',
-      });
+      toast.success('登录成功，欢迎回来');
       navigate('/wadminw/dashboard');
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: '登录失败',
-        description: error.message || '请检查账号密码',
-      });
+      toast.error(error.message || '登录失败，请检查账号密码');
     } finally {
       setLoading(false);
     }
