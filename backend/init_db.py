@@ -187,7 +187,7 @@ def init_api_keys():
             {
                 "api_base": "https://ai.t8star.cn",  # 默认基础地址
                 "key_secret": "***REMOVED***",
-                "max_concurrency": 5,
+                "max_concurrency": 4,
                 "status": 1,
                 "weight": 10,
                 # 模型配置：每个模型可以有独立的 api_base
@@ -252,12 +252,12 @@ def init_checkin_configs():
         # 签到配置数据（第1-7天）
         checkin_data = [
             {'day': 1, 'points': 10.00},
-            {'day': 2, 'points': 15.00},
-            {'day': 3, 'points': 20.00},
-            {'day': 4, 'points': 25.00},
-            {'day': 5, 'points': 30.00},
-            {'day': 6, 'points': 40.00},
-            {'day': 7, 'points': 50.00},
+            {'day': 2, 'points': 10.00},
+            {'day': 3, 'points': 10.00},
+            {'day': 4, 'points': 10.00},
+            {'day': 5, 'points': 10.00},
+            {'day': 6, 'points': 10.00},
+            {'day': 7, 'points': 10.00},
         ]
 
         for data in checkin_data:

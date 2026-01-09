@@ -509,17 +509,17 @@ def get_key_stats():
         except Exception:
             pass
 
-        by_model.append({
-            'model': model.key,
-            'total_keys': total_keys,
-            'active_keys': active_keys,
-            'cooling_keys': cooling_keys,
-            'total_concurrency': total_concurrency,
-            'current_usage': current_usage
-        })
 
-    # 计算总使用量（去重：每个密钥只计算一次）
     total_current_usage = sum(all_keys_usage.values())
+
+    by_model.append({
+        'model': 'all',
+        'total_keys': len(all_keys_usage.keys()),
+        'active_keys': active_keys,
+        'cooling_keys': cooling_keys,
+        'total_concurrency': 4 * len(all_keys_usage.keys()),
+        'current_usage': total_current_usage
+    })
 
     # 今日统计（简化版，可以后续从数据库聚合）
     total_calls_today = 0
