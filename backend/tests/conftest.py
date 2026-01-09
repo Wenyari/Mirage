@@ -8,6 +8,7 @@ from datetime import datetime
 from app import create_app
 from app.extensions import db, redis_client
 from app.models import User, MembershipConfig, Task, CDK, Model, ModelConfig
+from app.models.activity import Activity, ActivityClaim, CheckinConfig
 from app.config import Config
 
 
@@ -53,10 +54,13 @@ def db_session(app):
     每个测试函数都会创建新的数据库会话，测试完成后回滚
     """
     with app.app_context():
+        # 先移除现有会话
+        db.session.remove()
+
         # 删除所有表（如果存在）
         db.drop_all()
 
-        # 创建所有表
+        # 重新创建所有表
         db.create_all()
 
         # 初始化基础数据
@@ -64,7 +68,8 @@ def db_session(app):
 
         yield db
 
-        # 测试完成后，删除所有表
+        # 测试完成后，回滚事务并删除所有表
+        db.session.rollback()
         db.session.remove()
         db.drop_all()
 
@@ -133,6 +138,19 @@ def _init_test_data():
     for config in model_configs:
         db.session.add(config)
 
+    # 创建签到配置（1-7天）
+    checkin_configs = [
+        CheckinConfig(day=1, points=10.00, is_active=1),
+        CheckinConfig(day=2, points=15.00, is_active=1),
+        CheckinConfig(day=3, points=20.00, is_active=1),
+        CheckinConfig(day=4, points=25.00, is_active=1),
+        CheckinConfig(day=5, points=30.00, is_active=1),
+        CheckinConfig(day=6, points=40.00, is_active=1),
+        CheckinConfig(day=7, points=50.00, is_active=1),
+    ]
+    for config in checkin_configs:
+        db.session.add(config)
+
     db.session.commit()
 
 
@@ -146,7 +164,8 @@ def test_user(db_session):
     user = User(
         email='test@example.com',
         password_hash=password_hash,
-        balance=10000.00,  # 增加余额以便测试
+        recharge_balance=10000.00,  # 充值积分
+        activity_balance=0.00,  # 活动积分
         level=3,  # 提升到 T3，可以使用 sora-2
         role='user',
         status=1
@@ -167,7 +186,8 @@ def admin_user(db_session):
     user = User(
         email='admin@example.com',
         password_hash=password_hash,
-        balance=10000.00,
+        recharge_balance=10000.00,  # 充值积分
+        activity_balance=0.00,  # 活动积分
         level=5,
         role='admin',
         status=1
@@ -234,3 +254,48 @@ def mock_mail(mocker):
     Mock 邮件发送 - 避免实际发送邮件
     """
     return mocker.patch('app.extensions.mail.send')
+
+
+@pytest.fixture
+def test_activity(db_session):
+    """
+    创建测试活动 - 用于业务逻辑测试
+    """
+    activity = Activity(
+        code='TEST-ACTIVITY',
+        name='测试活动',
+        description='这是一个测试活动',
+        points=100.00,
+        expire_days=30,
+        max_claims_per_user=1,
+        required_level=1,
+        start_at=datetime(2024, 1, 1),
+        end_at=datetime(2030, 12, 31),
+        status='active'
+    )
+    db_session.session.add(activity)
+    db_session.session.commit()
+
+    return activity
+
+
+@pytest.fixture
+def test_user_with_activity_balance(db_session):
+    """
+    创建有活动积分的测试用户
+    """
+    password_hash = bcrypt.hashpw('password123'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    user = User(
+        email='activity_user@example.com',
+        password_hash=password_hash,
+        recharge_balance=100.00,
+        activity_balance=50.00,  # 有活动积分
+        level=3,
+        role='user',
+        status=1
+    )
+    db_session.session.add(user)
+    db_session.session.commit()
+
+    return user

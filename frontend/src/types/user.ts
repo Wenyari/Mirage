@@ -92,9 +92,13 @@ export interface UserDetails {
 // 交易记录
 export interface Transaction {
   id: number;
-  type: 'recharge' | 'consume' | 'refund';
+  type: 'recharge' | 'consume' | 'refund' | 'activity_grant';
+  balance_type?: 'recharge' | 'activity'; // 余额类型
+  activity_id?: number;                   // 活动ID
   amount: number;
-  reason: string;
+  balance_snapshot?: number;              // 余额快照
+  reason?: string;                        // 说明 (兼容旧字段)
+  remark?: string;                        // 说明 (兼容旧字段)
   created_at: string;
 }
 

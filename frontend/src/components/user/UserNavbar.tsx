@@ -1,4 +1,4 @@
-import { ChevronDown, LogOut, User as UserIcon } from 'lucide-react';
+import { ChevronDown, Coins, CreditCard, Crown,LogOut, User as UserIcon, Wallet, Zap } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -228,12 +228,32 @@ export function UserNavbar() {
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-4 rounded-lg border bg-muted/50 p-3">
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">积分余额</p>
-                        <p className="text-lg font-bold text-primary">{user?.balance?.toFixed(2) || '0.00'}</p>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Wallet className="size-3.5" />
+                          积分余额
+                        </div>
+                        <p className="text-lg font-bold text-primary">
+                          {(user?.balance_detail?.total_balance ?? user?.balance ?? 0).toFixed(2)}
+                        </p>
+                        {user?.balance_detail && (
+                          <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Coins className="size-3 text-yellow-500" />
+                              <span>{user.balance_detail.recharge_balance.toFixed(0)}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Zap className="size-3 text-blue-500" />
+                              <span>{user.balance_detail.activity_balance.toFixed(0)}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">会员等级</p>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Crown className="size-3.5" />
+                          会员等级
+                        </div>
+                        <div className="flex items-center pt-1">
                           <span className={cn(
                             "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
                             user?.level ? LEVEL_COLORS[user.level] : "bg-gray-100 text-gray-800"
@@ -261,7 +281,7 @@ export function UserNavbar() {
                         className="w-full justify-start"
                         onClick={() => navigate('/setting/credits')}
                       >
-                        <span className="mr-2 size-4">💳</span>
+                        <CreditCard className="mr-2 size-4" />
                         充值与兑换
                       </Button>
                       <Button 

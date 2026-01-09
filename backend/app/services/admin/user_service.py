@@ -218,7 +218,7 @@ def update_user_level(user_id, new_level, admin_id):
     }
 
 
-def adjust_user_balance(user_id, amount, remark, admin_id):
+def adjust_user_balance(user_id, amount, remark, admin_id, balance_type='recharge'):
     """
     调整用户余额（管理员手动调整）
 
@@ -227,6 +227,7 @@ def adjust_user_balance(user_id, amount, remark, admin_id):
         amount: 调整金额（正数=增加，负数=扣除）
         remark: 调整原因备注
         admin_id: 执行操作的管理员ID
+        balance_type: 调整类型 ('recharge' 或 'activity')，默认为充值积分
 
     Returns:
         dict: 操作结果
@@ -234,27 +235,42 @@ def adjust_user_balance(user_id, amount, remark, admin_id):
     Raises:
         ValueError: 用户不存在或余额不足
     """
+    from decimal import Decimal
+
     user = User.query.get(user_id)
 
     if not user:
         raise ValueError("User not found")
 
-    old_balance = float(user.balance)
-    new_balance = old_balance + amount
+    # 根据类型选择余额字段
+    if balance_type == 'activity':
+        old_balance = float(user.activity_balance)
+        new_balance_decimal = user.activity_balance + Decimal(str(amount))
 
-    # 检查余额不能为负数
-    if new_balance < 0:
-        raise ValueError(f"Insufficient balance. Current: {old_balance}, Adjustment: {amount}")
+        # 检查余额不能为负数
+        if new_balance_decimal < 0:
+            raise ValueError(f"Insufficient activity balance. Current: {old_balance}, Adjustment: {amount}")
 
-    # 更新用户余额
-    user.balance = new_balance
+        user.activity_balance = new_balance_decimal
+        new_balance = float(new_balance_decimal)
+    else:  # recharge
+        old_balance = float(user.recharge_balance)
+        new_balance_decimal = user.recharge_balance + Decimal(str(amount))
+
+        # 检查余额不能为负数
+        if new_balance_decimal < 0:
+            raise ValueError(f"Insufficient recharge balance. Current: {old_balance}, Adjustment: {amount}")
+
+        user.recharge_balance = new_balance_decimal
+        new_balance = float(new_balance_decimal)
 
     # 记录交易流水
     transaction = Transaction(
         user_id=user_id,
         type='system',
-        amount=amount,
-        balance_snapshot=new_balance,
+        balance_type=balance_type,
+        amount=Decimal(str(amount)),
+        balance_snapshot=new_balance_decimal,
         related_id=f'admin_{admin_id}',
         remark=remark or 'Admin adjustment'
     )
@@ -264,11 +280,12 @@ def adjust_user_balance(user_id, amount, remark, admin_id):
 
     return {
         'user_id': user_id,
+        'balance_type': balance_type,
         'old_balance': old_balance,
         'new_balance': new_balance,
         'adjustment': amount,
         'transaction_id': transaction.id,
-        'message': f'User {user.email} balance adjusted: {old_balance} -> {new_balance}'
+        'message': f'User {user.email} {balance_type} balance adjusted: {old_balance} -> {new_balance}'
     }
 
 

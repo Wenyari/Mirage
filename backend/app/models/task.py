@@ -32,7 +32,7 @@ class Task(db.Model):
     # 组合索引：用于快速统计用户当前运行中的任务数（并发控制）
     __table_args__ = (
         db.Index('idx_user_status', 'user_id', 'status'),
-        db.Index('idx_model', 'model'),
+        db.Index('idx_task_model', 'model'),
     )
 
     def __repr__(self):

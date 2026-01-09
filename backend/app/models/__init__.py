@@ -6,6 +6,7 @@ from app.models.user import User, MembershipConfig
 from app.models.task import Task
 from app.models.wallet import CDK, Transaction
 from app.models.model import Model, ModelConfig, ApiKey, ApiKeyModel
+from app.models.activity import Activity, ActivityClaim, CheckinConfig
 
 __all__ = [
     'User',
@@ -17,4 +18,7 @@ __all__ = [
     'ModelConfig',
     'ApiKey',
     'ApiKeyModel',
+    'Activity',
+    'ActivityClaim',
+    'CheckinConfig',
 ]

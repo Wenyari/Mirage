@@ -25,7 +25,13 @@
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile F:/Mirage/backend/app/services/admin/model_service.py)",
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile F:/Mirage/backend/app/services/task_service.py)",
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m py_compile F:/Mirage/backend/migrations/add_api_base_to_api_key_models.py)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m pytest tests/test_services/test_pay_service_enhanced.py -v)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m pytest tests/test_services/test_activity_service.py -v)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m pytest tests/test_services/test_activity_admin_service.py -v)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m pytest tests/test_services/test_pay_service_enhanced.py tests/test_services/test_activity_service.py tests/test_services/test_activity_admin_service.py -v --tb=short)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -c \"import sys; print\\(''Python is working''\\)\")"
     ]
   }
 }

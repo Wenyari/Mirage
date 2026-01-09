@@ -60,15 +60,16 @@ def redeem_cdk(user_id: int, code: str) -> dict:
         cdk.used_by = user_id
         cdk.used_at = datetime.utcnow()
 
-    # 5. 更新用户余额
+    # 5. 更新用户余额（充值到 recharge_balance）
     points = cdk.points
-    user.balance += points
+    user.recharge_balance += points
 
     # 6. 记录流水
-    new_balance = user.balance
+    new_balance = user.recharge_balance
     transaction = Transaction(
         user_id=user_id,
         type='recharge',
+        balance_type='recharge',  # 标记为充值积分
         amount=points,
         balance_snapshot=new_balance,
         related_id=str(cdk.id),
@@ -109,12 +110,16 @@ def redeem_cdk(user_id: int, code: str) -> dict:
 
 def check_and_deduct_balance(user_id: int, amount: float, task_id: str):
     """
-    检查余额并扣除 (任务提交时调用)
+    检查余额并扣除（优先扣除活动积分）
 
-    1. 查询用户余额
-    2. 如果 balance < amount，抛出 '余额不足'
-    3. UPDATE users SET balance = balance - amount
-    4. INSERT INTO transactions (类型=消费, related_id=task_id)
+    扣除策略：
+    1. 优先扣除 activity_balance
+    2. 不足时扣除 recharge_balance
+    3. 两者合计不足时抛出异常
+
+    流水记录：
+    - 如果只扣除活动积分：1条流水（balance_type='activity'）
+    - 如果同时扣除：2条流水（分别记录）
 
     Args:
         user_id: 用户 ID
@@ -124,29 +129,53 @@ def check_and_deduct_balance(user_id: int, amount: float, task_id: str):
     Raises:
         ValueError: 余额不足
     """
-    user = User.query.get(user_id)
+    from decimal import Decimal
+
+    user = User.query.with_for_update().get(user_id)  # 悲观锁
     if not user:
         raise ValueError("User not found")
 
-    # 检查余额
-    if user.balance < amount:
+    # 计算总余额
+    total_balance = user.recharge_balance + user.activity_balance
+    if total_balance < amount:
         raise ValueError(
-            f"Insufficient balance. Required: {amount}, Available: {user.balance}"
+            f"Insufficient balance. Required: {amount}, Available: {total_balance}"
         )
 
-    # 扣除余额
-    user.balance -= amount
+    # 计算扣除方案
+    amount_decimal = Decimal(str(amount))
+    deduct_from_activity = min(user.activity_balance, amount_decimal)
+    deduct_from_recharge = amount_decimal - deduct_from_activity
 
-    # 记录流水
-    transaction = Transaction(
-        user_id=user_id,
-        type='task_cost',
-        amount=-amount,  # 负数表示支出
-        balance_snapshot=user.balance,
-        related_id=task_id,
-        remark=f"Task cost: {task_id}"
-    )
-    db.session.add(transaction)
+    # 扣除积分
+    user.activity_balance -= deduct_from_activity
+    user.recharge_balance -= deduct_from_recharge
+
+    # 记录流水（活动积分部分）
+    if deduct_from_activity > 0:
+        transaction1 = Transaction(
+            user_id=user_id,
+            type='task_cost',
+            balance_type='activity',
+            amount=-deduct_from_activity,
+            balance_snapshot=user.activity_balance,
+            related_id=task_id,
+            remark=f"Task cost (activity): {task_id}"
+        )
+        db.session.add(transaction1)
+
+    # 记录流水（充值积分部分）
+    if deduct_from_recharge > 0:
+        transaction2 = Transaction(
+            user_id=user_id,
+            type='task_cost',
+            balance_type='recharge',
+            amount=-deduct_from_recharge,
+            balance_snapshot=user.recharge_balance,
+            related_id=task_id,
+            remark=f"Task cost (recharge): {task_id}"
+        )
+        db.session.add(transaction2)
 
     try:
         db.session.commit()
@@ -159,8 +188,7 @@ def execute_refund(user_id: int, amount: float, task_id: str, reason: str = "Tas
     """
     执行退款 (任务失败时调用)
 
-    1. UPDATE users SET balance = balance + amount
-    2. INSERT INTO transactions (类型=退款)
+    简化处理：统一退到 recharge_balance
 
     Args:
         user_id: 用户 ID
@@ -168,19 +196,23 @@ def execute_refund(user_id: int, amount: float, task_id: str, reason: str = "Tas
         task_id: 任务 ID
         reason: 退款原因
     """
+    from decimal import Decimal
+
     user = User.query.get(user_id)
     if not user:
         return  # 用户不存在，无法退款
 
-    # 退款
-    user.balance += amount
+    # 退款到充值余额（转换为 Decimal）
+    amount_decimal = Decimal(str(amount))
+    user.recharge_balance += amount_decimal
 
     # 记录流水
     transaction = Transaction(
         user_id=user_id,
         type='refund',
-        amount=amount,  # 正数表示收入
-        balance_snapshot=user.balance,
+        balance_type='recharge',  # 标记为充值积分
+        amount=amount_decimal,  # 正数表示收入
+        balance_snapshot=user.recharge_balance,
         related_id=task_id,
         remark=f"Refund: {reason}"
     )

@@ -13,12 +13,15 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(100), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
-    balance = db.Column(db.Numeric(10, 2), default=0.00, nullable=False)
+    recharge_balance = db.Column(db.Numeric(10, 2), default=0.00, nullable=False, comment='充值积分')
+    activity_balance = db.Column(db.Numeric(10, 2), default=0.00, nullable=False, comment='活动积分')
     level = db.Column(db.SmallInteger, default=1, nullable=False)  # T1-T5
     role = db.Column(db.Enum('user', 'admin'), default='user', nullable=False)
     status = db.Column(db.SmallInteger, default=1, nullable=False)  # 1=正常, 0=封禁
     register_ip = db.Column(db.String(45), nullable=True)
     last_login_at = db.Column(db.DateTime, nullable=True)
+    last_checkin_at = db.Column(db.DateTime, nullable=True, comment='最后签到时间')
+    total_checkin_days = db.Column(db.Integer, default=0, nullable=False, comment='累计签到天数')
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     # 关系映射
@@ -41,10 +44,14 @@ class User(db.Model):
             'role': self.role,  # 用户角色：'user' 或 'admin'
             'avatar': None,  # 头像URL（可选，暂未实现）
             'level': self.level,
-            'balance': float(self.balance),
+            'recharge_balance': float(self.recharge_balance),
+            'activity_balance': float(self.activity_balance),
+            'total_balance': float(self.recharge_balance + self.activity_balance),
             'status': self.status,  # 1=正常，0=封禁
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_active': self.last_login_at.isoformat() if self.last_login_at else None,
+            'last_checkin_at': self.last_checkin_at.isoformat() if self.last_checkin_at else None,
+            'total_checkin_days': self.total_checkin_days,
         }
 
 

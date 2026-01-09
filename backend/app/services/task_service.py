@@ -13,6 +13,7 @@ from app.models.task import Task
 from app.models.user import User, MembershipConfig
 from app.models.model import ModelConfig
 from app.services.key_manager import KeyManager
+from app.services.pay_service import check_and_deduct_balance, execute_refund
 
 logger = logging.getLogger(__name__)
 
@@ -93,10 +94,6 @@ class TaskService:
         # 3. 计算费用
         cost = model_config.cost_per_call
 
-        # 检查余额
-        if user.balance < cost:
-            raise ValueError(f"Insufficient balance. Required: {cost}, Available: {user.balance}")
-
         # 4. 检查并发限制
         if membership:
             concurrent_limit = membership.concurrent_limit
@@ -111,11 +108,16 @@ class TaskService:
         if current_processing >= concurrent_limit:
             raise ValueError(f"Concurrent limit exceeded ({current_processing}/{concurrent_limit})")
 
-        # 5. 扣除积分（预扣费）
-        user.balance -= Decimal(str(cost))
-
-        # 6. 创建任务记录
+        # 5. 生成任务 ID（需要在扣费前生成，用于流水记录）
         task_id = str(uuid.uuid4())
+
+        # 6. 扣除积分（使用统一的 pay_service，优先扣除活动积分）
+        try:
+            check_and_deduct_balance(user_id, cost, task_id)
+        except ValueError as e:
+            raise ValueError(str(e))
+
+        # 7. 创建任务记录
         task = Task(
             id=task_id,
             user_id=user_id,
@@ -134,7 +136,7 @@ class TaskService:
 
         logger.info(f"Task {task_id} created for user {user_id}, cost: {cost}")
 
-        # 7. 构造任务 Payload
+        # 8. 构造任务 Payload
         payload = {
             "task_id": task_id,
             "user_id": user_id,
@@ -144,7 +146,7 @@ class TaskService:
             "input_file_url": input_file_url,
         }
 
-        # 8. 尝试直接获取密钥（快车道）
+        # 9. 尝试直接获取密钥（快车道）
         key, api_base = KeyManager.allocate_key(model_key)
 
         if key:
@@ -201,9 +203,8 @@ class TaskService:
         task.status = 'cancelled'
         task.progress = 0
 
-        # 退款
-        user = User.query.get(user_id)
-        user.balance += task.cost_points
+        # 退款（使用统一的 pay_service）
+        execute_refund(user_id, float(task.cost_points), task_id, "User cancelled")
 
         db.session.commit()
 

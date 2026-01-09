@@ -112,7 +112,7 @@ def get_transactions():
 @jwt_and_redis_required()
 def get_balance():
     """
-    获取当前余额
+    获取当前余额（包含充值积分和活动积分）
     GET /api/wallet/balance
     """
     try:
@@ -128,9 +128,11 @@ def get_balance():
             "code": 200,
             "msg": "Success",
             "data": {
-                "balance": float(user.balance)
+                "total_balance": float(user.recharge_balance + user.activity_balance),
+                "recharge_balance": float(user.recharge_balance),
+                "activity_balance": float(user.activity_balance)
             }
         }), 200
 
     except Exception as e:
-        return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
+        return jsonify({"code": 500, "msg": f"Internal error: {str(e)}", "data": None}), 500

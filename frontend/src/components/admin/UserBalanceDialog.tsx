@@ -201,8 +201,8 @@ export function UserBalanceDialog({
                 <div>
                   操作后余额：{
                     submitType === 'recharge' 
-                      ? (user.balance + (form.watch('amount') || 0)).toLocaleString()
-                      : (user.balance - (form.watch('amount') || 0)).toLocaleString()
+                      ? ((user.balance_detail?.total_balance ?? user.balance) + (form.watch('amount') || 0)).toLocaleString()
+                      : ((user.balance_detail?.total_balance ?? user.balance) - (form.watch('amount') || 0)).toLocaleString()
                   }
                 </div>
               </div>

@@ -230,8 +230,9 @@ def adjust_balance(user_id):
 
     Request Body:
         {
-            "amount": 100,        // 变动金额（正数=充值，负数=扣费）
-            "reason": "活动奖励"   // 原因说明
+            "amount": 100,              // 变动金额（正数=充值，负数=扣费）
+            "reason": "活动奖励",         // 原因说明
+            "balance_type": "recharge"  // 积分类型：'recharge' 或 'activity'（可选，默认 'recharge'）
         }
 
     Returns:
@@ -239,7 +240,8 @@ def adjust_balance(user_id):
             "code": 0,
             "message": "Balance updated successfully",
             "data": {
-                "new_balance": 1100   // 更新后的余额
+                "balance_type": "recharge",
+                "new_balance": 1100
             }
         }
     """
@@ -255,6 +257,7 @@ def adjust_balance(user_id):
 
         amount = data['amount']
         reason = data.get('reason', 'Admin adjustment')
+        balance_type = data.get('balance_type', 'recharge')
 
         # 验证金额
         try:
@@ -273,13 +276,22 @@ def adjust_balance(user_id):
                 "data": None
             }), 400
 
+        # 验证积分类型
+        if balance_type not in ['recharge', 'activity']:
+            return jsonify({
+                "code": 400,
+                "message": "balance_type must be 'recharge' or 'activity'",
+                "data": None
+            }), 400
+
         admin_id = get_jwt_identity()
-        result = adjust_user_balance(user_id, amount, reason, admin_id)
+        result = adjust_user_balance(user_id, amount, reason, admin_id, balance_type)
 
         return jsonify({
             "code": 0,
             "message": "Balance updated successfully",
             "data": {
+                "balance_type": result['balance_type'],
                 "new_balance": result['new_balance']
             }
         }), 200

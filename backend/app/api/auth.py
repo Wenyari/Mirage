@@ -208,13 +208,25 @@ def get_current_user():
         except Exception:
             vip_desc = f"T{user.level}"
 
+        # 计算总余额
+        total_balance = float(user.recharge_balance + user.activity_balance)
+
         return jsonify({
             "code": 200,
             "msg": "Success",
             "data": {
                 "id": user.id,
                 "email": user.email,
-                "balance": float(user.balance),
+                "balance": total_balance,  # 兼容旧版前端
+                "balance_detail": {
+                    "recharge_balance": float(user.recharge_balance),
+                    "activity_balance": float(user.activity_balance),
+                    "total_balance": total_balance
+                },
+                "checkin_info": {
+                    "last_checkin_at": user.last_checkin_at.isoformat() if user.last_checkin_at else None,
+                    "total_checkin_days": user.total_checkin_days
+                },
                 "level": user.level,
                 "vip_desc": vip_desc,
                 "role": user.role,

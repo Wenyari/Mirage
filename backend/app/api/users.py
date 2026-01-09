@@ -18,30 +18,26 @@ def get_user_info():
     Header: Authorization: Bearer <token>
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
 
-        # TODO: 从数据库查询用户信息
-        # from app.models import User
-        # user = User.query.get(user_id)
-        # if not user:
-        #     return jsonify({"code": 404, "msg": "User not found", "data": None}), 404
+        # 从数据库查询用户信息
+        from app.models.user import User
+
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"code": 404, "msg": "User not found", "data": None}), 404
+
+        # 构建返回数据（使用 to_dict() 已包含新字段）
+        user_data = user.to_dict()
 
         return jsonify({
             "code": 200,
             "msg": "Success",
-            "data": {
-                "id": user_id,
-                "email": "user@example.com",
-                "balance": 100.00,
-                "level": 1,
-                "vip_desc": "T1",
-                "status": 1,
-                "created_at": "2024-01-01T00:00:00"
-            }
+            "data": user_data
         }), 200
 
     except Exception as e:
-        return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
+        return jsonify({"code": 500, "msg": f"Internal error: {str(e)}", "data": None}), 500
 
 
 @bp.route('/membership/plans', methods=['GET'])

@@ -48,17 +48,21 @@ class Transaction(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
-    type = db.Column(db.Enum('recharge', 'task_cost', 'refund', 'system'),
+    type = db.Column(db.Enum('recharge', 'task_cost', 'refund', 'system',
+                              'checkin', 'activity_grant', 'activity_expire'),
                      nullable=False)  # 类型
+    balance_type = db.Column(db.Enum('recharge', 'activity'), nullable=True, comment='积分类型')
     amount = db.Column(db.Numeric(10, 2), nullable=False)  # 变动金额 (+/-)
     balance_snapshot = db.Column(db.Numeric(10, 2), nullable=False)  # 变动后余额快照
     related_id = db.Column(db.String(50), nullable=True)  # 关联 ID (CDK ID or Task ID)
+    activity_id = db.Column(db.Integer, nullable=True, comment='关联活动ID')
     remark = db.Column(db.String(255), nullable=True)  # 备注
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 
     # 组合索引：用户查看账单
     __table_args__ = (
         db.Index('idx_user_created', 'user_id', 'created_at'),
+        db.Index('idx_user_type_balance', 'user_id', 'type', 'balance_type'),
     )
 
     def __repr__(self):
@@ -70,9 +74,11 @@ class Transaction(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'type': self.type,
+            'balance_type': self.balance_type,
             'amount': float(self.amount),
             'balance_snapshot': float(self.balance_snapshot),
             'related_id': self.related_id,
+            'activity_id': self.activity_id,
             'remark': self.remark,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }

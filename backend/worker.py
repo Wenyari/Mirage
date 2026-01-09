@@ -22,6 +22,7 @@ from app import create_app
 from app.extensions import db
 from app.models.task import Task
 from app.services.key_manager import KeyManager
+from app.services.pay_service import execute_refund
 from app.adapters import get_adapter
 
 # 创建 Flask 应用上下文
@@ -352,33 +353,34 @@ def process_task(payload):
 
         if should_refund:
             # 系统错误或非用户责任，进行退款
-            # 先查询任务的 cost_points（使用独立连接）
-            cost_sql = text("SELECT cost_points FROM tasks WHERE id = :task_id")
+            # 先查询任务的 cost_points 和 user_id
+            cost_sql = text("SELECT cost_points, user_id FROM tasks WHERE id = :task_id")
             cost_result = query_sql(cost_sql, {"task_id": task_id})
 
             if cost_result:
-                refund_amount = cost_result[0]
+                refund_amount, task_user_id = cost_result
 
-                # 更新任务状态并退款（原子操作，使用独立连接）
-                fail_with_refund_sql = text("""
-                    UPDATE tasks t
-                    JOIN users u ON u.id = :user_id
-                    SET t.status = 'failed',
-                        t.progress = 0,
-                        t.fail_reason = :fail_reason,
-                        t.finished_at = :finished_at,
-                        u.balance = u.balance + :refund_amount
-                    WHERE t.id = :task_id
+                # 更新任务状态为失败
+                fail_sql = text("""
+                    UPDATE tasks
+                    SET status = 'failed',
+                        progress = 0,
+                        fail_reason = :fail_reason,
+                        finished_at = :finished_at
+                    WHERE id = :task_id
                 """)
-                execute_sql(fail_with_refund_sql, {
+                execute_sql(fail_sql, {
                     "task_id": task_id,
-                    "user_id": user_id,  # 之前从检查时获取的
                     "fail_reason": fail_reason,
-                    "finished_at": datetime.now(),
-                    "refund_amount": refund_amount
+                    "finished_at": datetime.now()
                 })
 
-                logger.info(f"Refunded {refund_amount} points to user {user_id} for task {task_id} (reason: {fail_reason[:50]})")
+                # 使用统一的 pay_service 进行退款
+                with app.app_context():
+                    execute_refund(task_user_id, float(refund_amount), task_id, fail_reason)
+                    db.session.remove()  # 清理 session 避免缓存问题
+
+                logger.info(f"Refunded {refund_amount} points to user {task_user_id} for task {task_id} (reason: {fail_reason[:50]})")
             else:
                 logger.error(f"Cannot query cost for task {task_id}")
         else:

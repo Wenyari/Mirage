@@ -10,6 +10,7 @@
 from app import create_app
 from app.extensions import db
 from app.models import User, MembershipConfig, Model, ModelConfig, ApiKey, ApiKeyModel, Task
+from app.models.activity import Activity, ActivityClaim, CheckinConfig
 import bcrypt
 
 app = create_app()
@@ -20,14 +21,17 @@ def init_database():
     初始化数据库表
 
     创建的表包括：
-    - users: 用户表
+    - users: 用户表（recharge_balance, activity_balance, last_checkin_at, total_checkin_days）
     - membership_configs: 会员等级配置表
     - models: 模型基本信息表
     - model_configs: 模型配置表（包含价格、允许等级）
     - api_keys: API密钥池管理表
     - tasks: 任务表（包含 upstream_task_id, progress 等字段）
     - cdk: CDK兑换码表
-    - transactions: 资金流水表
+    - transactions: 资金流水表（扩展了类型枚举，添加了 balance_type, activity_id）
+    - activities: 活动配置表
+    - activity_claims: 活动领取记录表
+    - checkin_configs: 签到配置表
     """
     with app.app_context():
         print("Dropping existing database tables...")
@@ -38,14 +42,17 @@ def init_database():
         db.create_all()
         print("✓ Database tables created successfully")
         print("\nCreated tables:")
-        print("  - users (with balance, level)")
+        print("  - users (with recharge_balance, activity_balance, last_checkin_at, total_checkin_days)")
         print("  - membership_configs (T1-T5 tiers)")
         print("  - models (model registry)")
         print("  - model_configs (pricing & permissions)")
         print("  - api_keys (key pool management)")
         print("  - tasks (with upstream_task_id, progress, status)")
         print("  - cdk (redemption codes)")
-        print("  - transactions (financial records)")
+        print("  - transactions (with balance_type, activity_id)")
+        print("  - activities (activity configurations)")
+        print("  - activity_claims (activity claim records)")
+        print("  - checkin_configs (checkin reward configurations)")
 
 
 def init_membership_configs():
@@ -237,6 +244,35 @@ def init_api_keys():
         print("✓ Sample API keys initialized")
 
 
+def init_checkin_configs():
+    """初始化签到配置"""
+    with app.app_context():
+        print("Initializing checkin configurations...")
+
+        # 签到配置数据（第1-7天）
+        checkin_data = [
+            {'day': 1, 'points': 10.00},
+            {'day': 2, 'points': 15.00},
+            {'day': 3, 'points': 20.00},
+            {'day': 4, 'points': 25.00},
+            {'day': 5, 'points': 30.00},
+            {'day': 6, 'points': 40.00},
+            {'day': 7, 'points': 50.00},
+        ]
+
+        for data in checkin_data:
+            config = CheckinConfig(
+                day=data['day'],
+                points=data['points'],
+                is_active=1
+            )
+            db.session.add(config)
+            print(f"  ✓ Day {data['day']}: {data['points']} points")
+
+        db.session.commit()
+        print("✓ Checkin configurations initialized")
+
+
 def create_admin_user(email='admin@example.com', password='admin123'):
     """创建管理员账号"""
     with app.app_context():
@@ -255,7 +291,8 @@ def create_admin_user(email='admin@example.com', password='admin123'):
         admin = User(
             email=email,
             password_hash=password_hash,
-            balance=10000.00,
+            recharge_balance=10000.00,
+            activity_balance=0.00,
             level=5,
             role='admin',
             status=1
@@ -270,7 +307,8 @@ def create_admin_user(email='admin@example.com', password='admin123'):
         normal = User(
             email="demo@example.com",
             password_hash=password_hash,
-            balance=10000.00,
+            recharge_balance=10000.00,
+            activity_balance=0.00,
             level=1,
             role='user',
             status=1
@@ -312,7 +350,11 @@ def main():
     init_api_keys()
     print()
 
-    # 6. 创建管理员账号
+    # 6. 初始化签到配置
+    init_checkin_configs()
+    print()
+
+    # 7. 创建管理员账号
     create_admin_user()
     print()
 
@@ -321,9 +363,15 @@ def main():
     print("=" * 60)
     print()
     print("Database Schema Updates:")
-    print("  ✓ tasks.upstream_task_id - 上游API任务ID")
-    print("  ✓ tasks.progress - 任务进度（0-100）")
-    print("  ✓ tasks.status - 新增 'cancelled' 状态")
+    print("  ✓ users.recharge_balance - 充值积分")
+    print("  ✓ users.activity_balance - 活动积分")
+    print("  ✓ users.last_checkin_at - 最后签到时间")
+    print("  ✓ users.total_checkin_days - 累计签到天数")
+    print("  ✓ transactions.balance_type - 积分类型（充值/活动）")
+    print("  ✓ transactions.activity_id - 关联活动ID")
+    print("  ✓ activities - 活动配置表")
+    print("  ✓ activity_claims - 活动领取记录表")
+    print("  ✓ checkin_configs - 签到配置表（已初始化1-7天奖励）")
     print()
     print("Next steps:")
     print("1. Update API keys in the database with your actual keys")
@@ -332,9 +380,6 @@ def main():
     print("   Terminal 1: python run.py")
     print("   Terminal 2: python worker.py")
     print("   Terminal 3: python scheduler.py")
-    print()
-    print("Note: If upgrading from old schema, run:")
-    print("   python migrations/add_upstream_task_id.py")
 
 
 if __name__ == '__main__':

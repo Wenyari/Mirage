@@ -127,8 +127,8 @@ class ApiKey(db.Model):
 
     # 索引
     __table_args__ = (
-        db.Index('idx_status', 'status'),
-        db.Index('idx_weight', 'weight'),
+        db.Index('idx_api_key_status', 'status'),
+        db.Index('idx_api_key_weight', 'weight'),
     )
 
     def __repr__(self):
@@ -183,7 +183,7 @@ class ApiKeyModel(db.Model):
     # 索引
     __table_args__ = (
         db.UniqueConstraint('api_key_id', 'model', name='uk_key_model'),
-        db.Index('idx_model', 'model'),
+        db.Index('idx_api_key_model', 'model'),
         db.Index('idx_api_key_id', 'api_key_id'),
     )
 
