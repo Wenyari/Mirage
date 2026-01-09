@@ -273,7 +273,7 @@ def init_checkin_configs():
         print("✓ Checkin configurations initialized")
 
 
-def create_admin_user(email='admin@example.com', password='admin123'):
+def create_admin_user(email='admin@example.com', password='***REMOVED***'):
     """创建管理员账号"""
     with app.app_context():
         print(f"Creating admin user: {email}")
