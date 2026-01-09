@@ -43,7 +43,7 @@ export default function UserLogin() {
       toast.success('登录成功');
       navigate(USER_NAVIGATION.HOME.path);
     } catch (error: any) {
-      toast.error(error.message || '登录失败，请检查邮箱或密码');
+      toast.error(error.data.msg || '登录失败，请检查邮箱或密码');
       turnstileRef.current?.reset();
       setTurnstileToken('');
     } finally {

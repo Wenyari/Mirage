@@ -27,8 +27,15 @@ RUN pip install --upgrade pip && \
 # 复制项目文件
 COPY . .
 
+# 复制启动脚本并设置执行权限
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 # 暴露端口
 EXPOSE 5000
 
-# 启动命令 (由 docker-compose 覆盖)
+# 设置启动脚本为入口点
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# 默认启动命令 (由 docker-compose 覆盖)
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "run:app"]

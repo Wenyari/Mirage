@@ -256,7 +256,40 @@ volumes:
 - ❌ `localhost` / `127.0.0.1` - 指向容器自己，无法访问其他容器
 - ✅ 服务名（如 `mysql`, `redis`）- Docker DNS 自动解析为容器 IP
 
-### 4.2 确认配置文件
+### 4.2 环境变量覆盖机制
+
+本项目使用**智能配置切换**，无需修改代码即可在不同环境运行：
+
+```python
+# app/config.py
+SQLALCHEMY_DATABASE_URI = os.getenv(
+    'DATABASE_URI',  # 优先读取环境变量
+    'mysql+pymysql://root:admin@localhost:3306/sora_platform'  # 找不到则使用默认值
+)
+```
+
+**工作流程：**
+
+| 环境 | DATABASE_URI 环境变量 | 实际连接 | 说明 |
+|------|----------------------|---------|------|
+| 本地开发 | 未设置 | `root:admin@localhost:3306` | 连接本机 MySQL |
+| Docker | `sora_user:sora_password@mysql:3306` | `sora_user:sora_password@mysql:3306` | 连接 Docker 容器 |
+
+**为什么不会冲突？**
+
+1. **不同的主机名：**
+   - 本地：`localhost` → 你的物理机 MySQL（端口 3306）
+   - Docker：`mysql` → Docker 网络中的 MySQL 容器
+
+2. **不同的用户凭证：**
+   - 本地：`root / admin`（你本地 MySQL 的现有用户）
+   - Docker：`sora_user / sora_password`（Docker 启动时自动创建）
+
+3. **环境隔离：**
+   - 本地开发不启动 Docker → 使用默认配置
+   - Docker 运行 → `docker-compose.yml` 自动注入环境变量
+
+### 4.3 确认配置文件
 
 检查 `app/config.py`，确保数据库和 Redis 连接使用环境变量：
 
@@ -328,8 +361,49 @@ docker-compose up -d --build
 1. 构建 Python 应用镜像（首次较慢，约 2-5 分钟）
 2. 下载 MySQL 和 Redis 镜像
 3. 启动 5 个容器：mysql, redis, api, worker, scheduler
+4. **自动初始化数据库**（首次启动时）
 
-### 5.2 查看服务状态
+### 5.2 数据库自动初始化机制
+
+**重要变更：** 本项目已弃用 `init.sql`，改为使用 `docker-entrypoint.sh` + `init_db.py` 自动初始化。
+
+**为什么？**
+```
+❌ 旧方案：使用 init.sql
+   问题：MySQL 启动时立即执行 init.sql
+        但此时表结构还未创建（需要 Flask-Migrate）
+        导致 "Table doesn't exist" 错误
+
+✅ 新方案：容器启动时自动检测并初始化
+   流程：1. MySQL 启动并完成健康检查
+        2. API 容器启动，执行 docker-entrypoint.sh
+        3. 脚本检查数据库是否为空
+        4. 如果为空，自动运行 init_db.py（创建表+插入数据）
+        5. 启动应用服务
+```
+
+**初始化内容（由 init_db.py 完成）：**
+- 创建所有数据库表（users, tasks, models, api_keys 等）
+- 插入会员等级配置（T1-T5）
+- 插入模型配置（sora-2, nano-banana）
+- 创建管理员账号（admin@example.com / ***REMOVED***）
+- 创建测试用户（demo@example.com / ***REMOVED***）
+- 插入示例 API 密钥
+
+**查看初始化日志：**
+```bash
+# 查看 API 容器的启动日志
+docker-compose logs api
+
+# 应该看到类似输出：
+# ✓ MySQL is ready
+# Database is empty, initializing...
+# ✓ Database tables created successfully
+# ✓ Membership configs initialized
+# ✓ Admin user created
+```
+
+### 5.3 查看服务状态
 
 ```bash
 # 查看运行中的容器
@@ -344,26 +418,19 @@ docker-compose logs -f worker
 docker-compose logs -f scheduler
 ```
 
-### 5.3 初始化数据库
-
-首次启动需要创建数据表：
-
-```bash
-# 方式 1: 使用 Flask-Migrate
-docker-compose exec api flask db upgrade
-
-# 方式 2: 使用自定义脚本
-docker-compose exec api python init_db.py
-```
-
 ### 5.4 验证服务
+
+**注意：** 首次启动时，数据库会自动初始化，无需手动操作！如果需要重新初始化，请参考下方的"手动重新初始化"部分。
 
 ```bash
 # 测试 API
 curl http://localhost:5000/health
 
-# 进入 MySQL（密码: sora_password）
+# 进入 MySQL 数据库（会提示输入密码: sora_password）
 docker-compose exec mysql mysql -u sora_user -p sora_platform
+
+# 或者直接指定密码（开发环境快捷方式，注意 -p 和密码之间无空格）
+docker-compose exec mysql mysql -u sora_user -psora_password sora_platform
 
 # 测试 Redis
 docker-compose exec redis redis-cli ping
@@ -387,7 +454,19 @@ docker stats
 # 进入容器调试
 docker-compose exec api bash
 docker-compose exec worker bash
+
+# 手动重新初始化数据库（危险！会清空所有数据）
+docker-compose exec api python init_db.py
+
+# 如果需要完全重置（包括删除数据卷）
+docker-compose down -v  # 删除所有容器和数据卷
+docker-compose up -d --build  # 重新启动，自动初始化
 ```
+
+**⚠️ 重新初始化警告：**
+- `init_db.py` 会执行 `db.drop_all()` 删除所有表和数据
+- 生产环境请谨慎使用！
+- 建议先备份数据：`docker-compose exec mysql mysqldump -u root -proot_password sora_platform > backup.sql`
 
 ---
 
@@ -516,8 +595,11 @@ docker-compose logs --since 24h > logs_24h.txt
 ### 7.2 数据备份
 
 ```bash
-# 备份 MySQL 数据库
+# 备份 MySQL 数据库（会提示输入密码: root_password）
 docker-compose exec mysql mysqldump -u root -p sora_platform > backup_$(date +%Y%m%d).sql
+
+# 或者直接指定密码
+docker-compose exec mysql mysqldump -u root -proot_password sora_platform > backup_$(date +%Y%m%d).sql
 
 # 备份 Redis 数据
 docker-compose exec redis redis-cli SAVE
@@ -569,8 +651,11 @@ docker-compose exec api gunicorn -w 8 -b 0.0.0.0:5000 run:app
 # 检查 MySQL 健康状态
 docker-compose exec mysql mysqladmin ping
 
-# 查看连接数
+# 查看连接数（会提示输入密码: root_password）
 docker-compose exec mysql mysql -u root -p -e "SHOW PROCESSLIST;"
+
+# 或者直接指定密码
+docker-compose exec mysql mysql -u root -proot_password -e "SHOW PROCESSLIST;"
 ```
 
 ---
@@ -606,6 +691,34 @@ command: redis-server --appendonly yes --save 60 1000
 ```
 - `--appendonly yes`: 启用 AOF 持久化
 - `--save 60 1000`: 60 秒内有 1000 次写入则触发 RDB 快照
+
+### Q6: 为什么弃用 init.sql？
+**问题背景：**
+```
+错误：ERROR 1146 (42S02) at line 7: Table 'sora_platform.membership_configs' doesn't exist
+原因：MySQL 启动时立即执行 init.sql，但表结构由 Flask-Migrate 管理，此时还未创建
+```
+
+**解决方案：**
+- ✅ 使用 `docker-entrypoint.sh` + `init_db.py` 自动初始化
+- ✅ 容器启动时检测数据库是否为空，如果为空则自动运行 `init_db.py`
+- ✅ `init_db.py` 同时处理表结构创建和数据插入
+
+**如果你有自定义的 init.sql：**
+1. 将 SQL 语句转换为 Python 代码，添加到 `init_db.py` 中
+2. 或者在 API 容器启动后手动执行：
+   ```bash
+   docker-compose exec mysql mysql -u sora_user -psora_password sora_platform < your_custom.sql
+   ```
+
+### Q7: 如何查看数据库初始化日志？
+```bash
+# 查看 API 容器的完整启动日志
+docker-compose logs api
+
+# 实时跟踪
+docker-compose logs -f api
+```
 
 ---
 

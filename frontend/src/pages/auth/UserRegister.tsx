@@ -59,7 +59,7 @@ export default function UserRegister() {
         });
       }, 1000);
     } catch (error: any) {
-      toast.error(error.message || '发送验证码失败');
+      toast.error(error.data.msg || '发送验证码失败');
       turnstileRef.current?.reset();
       setTurnstileToken('');
     } finally {
@@ -86,7 +86,7 @@ export default function UserRegister() {
       toast.success('注册成功，请登录');
       navigate(USER_NAVIGATION.AUTH.LOGIN.path);
     } catch (error: any) {
-      toast.error(error.message || '注册失败');
+      toast.error(error.data.msg || '注册失败');
     } finally {
       setIsRegistering(false);
     }

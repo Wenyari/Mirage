@@ -15,7 +15,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化 SQL (可选)
+      # 注意：不使用 init.sql，改为在 API 容器启动后执行 init_db.py
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
