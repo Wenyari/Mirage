@@ -100,10 +100,10 @@ export function UsersTable({
       },
     },
     {
-      accessorKey: 'balance',
+      accessorKey: 'total_balance',
       header: '积分余额',
       cell: ({ row }) => {
-        const balance = row.getValue('balance') as number;
+        const balance = row.getValue('total_balance') as number;
         return (
           <div className="font-medium">
             {balance.toLocaleString()}
@@ -187,7 +187,6 @@ export function UsersTable({
       },
     },
   ];
-
   const table = useReactTable({
     data: data?.items || [],
     columns,

@@ -69,7 +69,7 @@ export default function Events() {
   }
 
   return (
-    <div className="container max-w-6xl py-12">
+    <div className="max-w-14xl container py-12">
       <div className="mb-10 space-y-4 pl-6">
         <h1 className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent lg:text-5xl">
           活动中心
@@ -79,7 +79,7 @@ export default function Events() {
         </p>
       </div>
 
-      <div className="my-8 grid gap-6 rounded-2xl border border-muted/50 bg-muted/20 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="my-8 grid gap-6 rounded-2xl border border-muted/50 bg-muted/20 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {/* 1. Daily Check-in Card (Always First) */}
         <ActivityCard
           variant="checkin"

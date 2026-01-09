@@ -64,8 +64,10 @@ class GeventWorker:
             self.active_tasks += 1
             logger.info(f"[Worker-{worker_id}] Processing task {task_id} (active: {self.active_tasks}/{self.max_workers})")
 
-            # 调用原有的process_task函数（无需修改）
-            process_task(payload)
+            # 🔧 关键修复：每个协程都需要独立的应用上下文
+            with app.app_context():
+                # 调用原有的process_task函数（无需修改）
+                process_task(payload)
 
             logger.info(f"[Worker-{worker_id}] Task {task_id} completed")
 
@@ -84,6 +86,8 @@ class GeventWorker:
 
         worker_counter = 0
 
+        # 注意：虽然这里有 app_context，但协程池中的子协程不会自动继承
+        # 所以在 worker_wrapper 中也需要单独设置 app_context
         with app.app_context():
             while True:
                 try:

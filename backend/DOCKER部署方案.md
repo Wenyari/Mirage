@@ -720,6 +720,37 @@ docker-compose logs api
 docker-compose logs -f api
 ```
 
+### Q8: Worker 报错 "Working outside of application context"
+**问题描述：**
+```
+RuntimeError: Working outside of application context.
+Traceback:
+  File "/app/worker_gevent.py", line 68, in worker_wrapper
+    process_task(payload)
+  File "/app/worker.py", line 74, in query_sql
+    with db.engine.connect() as conn:
+```
+
+**原因分析：**
+- Gevent 协程池中的子协程不会自动继承父协程的应用上下文
+- Flask 的数据库操作（`db.engine.connect()`）需要在应用上下文中执行
+
+**解决方案：**
+本项目已在 `worker_gevent.py` 的 `worker_wrapper` 方法中添加了 `with app.app_context():`，确保每个协程都有独立的应用上下文。
+
+**如何验证修复：**
+```bash
+# 重启 Worker 容器
+docker-compose restart worker
+
+# 查看日志
+docker-compose logs -f worker
+
+# 应该看到正常的任务处理日志，不再有 RuntimeError
+```
+
+**详细技术说明：** 请参考 `docs/flask-app-context-fix.md`
+
 ---
 
 ## 总结
