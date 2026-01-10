@@ -29,7 +29,7 @@ COPY . .
 
 # 复制启动脚本并设置执行权限
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
 
 # 暴露端口
 EXPOSE 5000

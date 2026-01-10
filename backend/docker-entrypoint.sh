@@ -35,16 +35,39 @@ fi
 echo "✓ MySQL is ready"
 echo ""
 
-# 检查是否需要初始化数据库（判断表是否存在）
+# 检查是否需要初始化数据库（直接使用 pymysql 检查表是否存在）
 echo "Checking if database initialization is needed..."
 TABLES_EXIST=$(python -c "
-from app.extensions import db
-from app import create_app
-app = create_app()
-with app.app_context():
-    inspector = db.inspect(db.engine)
-    tables = inspector.get_table_names()
-    print('yes' if tables else 'no')
+import pymysql
+import os
+
+# 从环境变量解析数据库连接信息
+db_uri = os.getenv('DATABASE_URI', '')
+# mysql+pymysql://sora_user:sora_password@mysql:3306/sora_platform?charset=utf8mb4
+# 简单解析（实际生产环境可以用 urllib.parse）
+parts = db_uri.replace('mysql+pymysql://', '').split('@')
+if len(parts) == 2:
+    user_pass = parts[0].split(':')
+    host_db = parts[1].split('/')
+    host_port = host_db[0].split(':')
+    
+    user = user_pass[0]
+    password = user_pass[1] if len(user_pass) > 1 else ''
+    host = host_port[0]
+    port = int(host_port[1]) if len(host_port) > 1 else 3306
+    database = host_db[1].split('?')[0] if len(host_db) > 1 else ''
+    
+    try:
+        conn = pymysql.connect(host=host, port=port, user=user, password=password, database=database)
+        cursor = conn.cursor()
+        cursor.execute('SHOW TABLES')
+        tables = cursor.fetchall()
+        conn.close()
+        print('yes' if tables else 'no')
+    except Exception as e:
+        print('no')
+else:
+    print('no')
 " 2>/dev/null || echo "no")
 
 if [ "$TABLES_EXIST" = "no" ]; then
