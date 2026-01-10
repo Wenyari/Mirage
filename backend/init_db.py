@@ -84,6 +84,7 @@ def init_models():
     """初始化模型基本信息"""
     with app.app_context():
         models = [
+            # 视频模型
             {
                 'key': 'sora-2',
                 'name': 'sora-2',
@@ -95,6 +96,37 @@ def init_models():
                 'tags': ['video', 'generation']
             },
             {
+                'key': 'sora-2-pro',
+                'name': 'sora-2-pro',
+                'enabled': 1,
+                'description': 'OpenAI Sora Pro 视频生成模型',
+                'color': 'bg-blue-600',
+                'icon_url': None,
+                'max_concurrency_limit': 5,
+                'tags': ['video', 'generation', 'pro']
+            },
+            {
+                'key': 'veo3.1',
+                'name': 'veo3.1',
+                'enabled': 1,
+                'description': 'Google Veo 3.1 视频生成模型',
+                'color': 'bg-green-500',
+                'icon_url': None,
+                'max_concurrency_limit': 8,
+                'tags': ['video', 'generation']
+            },
+            {
+                'key': 'veo3.1-pro',
+                'name': 'veo3.1-pro',
+                'enabled': 1,
+                'description': 'Google Veo 3.1 Pro 视频生成模型',
+                'color': 'bg-green-600',
+                'icon_url': None,
+                'max_concurrency_limit': 4,
+                'tags': ['video', 'generation', 'pro']
+            },
+            # 绘图模型
+            {
                 'key': 'nano-banana',
                 'name': 'nano-banana',
                 'enabled': 1,
@@ -103,6 +135,46 @@ def init_models():
                 'icon_url': None,
                 'max_concurrency_limit': 10,
                 'tags': ['image', 'generation']
+            },
+            {
+                'key': 'gemini-2.5-flash-image',
+                'name': 'gemini-2.5-flash-image',
+                'enabled': 1,
+                'description': 'Google Gemini 2.5 Flash 图片生成模型',
+                'color': 'bg-orange-500',
+                'icon_url': None,
+                'max_concurrency_limit': 10,
+                'tags': ['image', 'generation']
+            },
+            {
+                'key': 'sora_image',
+                'name': 'sora_image',
+                'enabled': 1,
+                'description': 'OpenAI Sora 图片生成模型',
+                'color': 'bg-blue-400',
+                'icon_url': None,
+                'max_concurrency_limit': 10,
+                'tags': ['image', 'generation']
+            },
+            {
+                'key': 'gpt-4o-image',
+                'name': 'gpt-4o-image',
+                'enabled': 1,
+                'description': 'OpenAI GPT-4o 图片生成模型',
+                'color': 'bg-green-400',
+                'icon_url': None,
+                'max_concurrency_limit': 10,
+                'tags': ['image', 'generation']
+            },
+            {
+                'key': 'nano-banana-2',
+                'name': 'nano-banana-2',
+                'enabled': 1,
+                'description': 'Nano Banana 2 4K 图片生成模型',
+                'color': 'bg-purple-600',
+                'icon_url': None,
+                'max_concurrency_limit': 8,
+                'tags': ['image', 'generation', '4k']
             }
         ]
 
@@ -124,35 +196,116 @@ def init_model_configs():
     """初始化模型配置"""
     with app.app_context():
         configs = [
+            # 视频模型配置
             {
                 'model': 'sora-2',
-                'allowed_tiers': ["T3", "T4", "T5"],
-                'cost_per_call': 100.00,
-                # params 用于存放模型特定的可配置项（如 durations、hd 等）
-                'params': {"durations": [10, 15], "hd_supported": True,
-                    "aspect_ratio": [
-                        "16:9",
-                        "9:16"
-                    ]},
+                'allowed_tiers': ["T2", "T3", "T4", "T5"],  # T2以上可使用
+                'cost_per_call': 5.00,
+                'params': {
+                    "durations": [10, 15],
+                    "hd": True,  # Sora使用hd参数
+                    "aspect_ratio": ["16:9", "9:16"]
+                },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
-                'description': 'Sora 视频生成配置'
+                'description': 'Sora 2 视频生成配置'
             },
             {
-                'model': 'nano-banana',
-                'allowed_tiers': ["T3", "T4", "T5"],
-                'cost_per_call': 20.00,
-                # params 用于存放模型特定的可配置项（如 aspect_ratio 等）
+                'model': 'sora-2-pro',
+                'allowed_tiers': ["T3", "T4", "T5"],  # T3以上可使用
+                'cost_per_call': 120.00,
                 'params': {
-                    "aspect_ratio": [
-                        "16:9",
-                        "1:1",
-                        "9:16"
-                    ]
+                    "durations": [10, 15, 25],
+                    "hd": True,  # Sora使用hd参数
+                    "aspect_ratio": ["16:9", "9:16", "1:1"]
+                },
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'Sora 2 Pro 视频生成配置'
+            },
+            {
+                'model': 'veo3.1',
+                'allowed_tiers': ["T2", "T3", "T4", "T5"],  # T2以上可使用
+                'cost_per_call': 15.00,
+                'params': {
+                 
+                    "enable_upsample": True,  # Veo使用enable_upsample参数
+                    "enhance_prompt": False,  # Veo特有的提示词优化参数
+                    "aspect_ratio": ["16:9", "9:16"]
+                },
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'Veo 3.1 视频生成配置'
+            },
+            {
+                'model': 'veo3.1-pro',
+                'allowed_tiers': ["T3", "T4", "T5"],  # T3以上可使用
+                'cost_per_call': 50.00,
+                'params': {
+                    "enable_upsample": True,  # Veo使用enable_upsample参数
+                    "enhance_prompt": False,  # Veo特有的提示词优化参数
+                    "aspect_ratio": ["16:9", "9:16"]
+                },
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'Veo 3.1 Pro 视频生成配置'
+            },
+            # 绘图模型配置
+            {
+                'model': 'nano-banana',
+                'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],  # 已有，保持兼容
+                'cost_per_call': 4.00,
+                'params': {
+                    "aspect_ratio": ["16:9", "9:16"]
                 },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
                 'description': 'Nano Banana 图片生成配置'
+            },
+            {
+                'model': 'gemini-2.5-flash-image',
+                'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],
+                'cost_per_call': 2.00,
+                'params': {
+                    "aspect_ratio": ["16:9", "1:1", "9:16", "4:3", "3:4"]
+                },
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'Gemini 2.5 Flash Image 图片生成配置'
+            },
+            {
+                'model': 'sora_image',
+                'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],
+                'cost_per_call': 3.00,
+                'params': {
+                    "aspect_ratio": ["16:9", "1:1", "9:16"]
+                },
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'Sora Image 图片生成配置'
+            },
+            {
+                'model': 'gpt-4o-image',
+                'allowed_tiers': ["T2", "T3", "T4", "T5"],  # T2以上可使用
+                'cost_per_call': 4.00,
+                'params': {
+                    "aspect_ratio": ["16:9", "1:1", "9:16", "4:3", "3:4"]
+                },
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'GPT-4o Image 图片生成配置'
+            },
+            {
+                'model': 'nano-banana-2',
+                'allowed_tiers': ["T3", "T4", "T5"],
+                'cost_per_call': 10.00,
+                'params': {
+                    "aspect_ratio": ["16:9", "1:1", "9:16"],
+                    "image_size": ["1K","2K","4K"]
+                },
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'Nano Banana 2 4K 图片生成配置'
             }
         ]
 
@@ -192,14 +345,45 @@ def init_api_keys():
                 "weight": 10,
                 # 模型配置：每个模型可以有独立的 api_base
                 "model_configs": [
+                    # 视频模型
+                    {
+                        "model": "sora-2",
+                        "api_base": "https://ai.t8star.cn/v2/videos/generations"
+                    },
+                    {
+                        "model": "sora-2-pro",
+                        "api_base": "https://ai.t8star.cn/v2/videos/generations"
+                    },
+                    {
+                        "model": "veo3.1",
+                        "api_base": "https://ai.t8star.cn/v2/videos/generations"
+                    },
+                    {
+                        "model": "veo3.1-pro",
+                        "api_base": "https://ai.t8star.cn/v2/videos/generations"
+                    },
+                    # 绘图模型
                     {
                         "model": "nano-banana",
                         "api_base": "https://ai.t8star.cn/v1/images/generations"
                     },
                     {
-                        "model": "sora-2",
-                        "api_base": "https://ai.t8star.cn/v2/videos/generations"
-                    }
+                        "model": "gemini-2.5-flash-image",
+                        "api_base": "https://ai.t8star.cn/v1/images/generations"
+                    },
+                    {
+                        "model": "sora_image",
+                        "api_base": "https://ai.t8star.cn/v1/images/generations"
+                    },
+                    {
+                        "model": "gpt-4o-image",
+                        "api_base": "https://ai.t8star.cn/v1/images/generations"
+                    },
+                    {
+                        "model": "nano-banana-2",
+                        "api_base": "https://ai.t8star.cn/v1/images/generations"
+                    },
+                   
                 ]
             }
         ]
