@@ -22,8 +22,7 @@ COPY requirements.txt .
 
 # 安装 Python 依赖（使用清华源加速）
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-
+    pip install -r requirements.txt
 # 复制项目文件
 COPY . .
 

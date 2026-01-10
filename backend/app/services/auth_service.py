@@ -114,7 +114,8 @@ def register_user(email: str, code: str, password: str) -> int:
     new_user = User(
         email=email,
         password_hash=password_hash,
-        balance=0.00,
+        recharge_balance=0.00,
+        activity_balance=0.00,
         level=1,
         role='user',
         status=1
