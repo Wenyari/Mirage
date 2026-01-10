@@ -111,6 +111,25 @@ services:
     volumes:
       - .:/app
 
+  # phpMyAdmin - MySQL 数据库管理工具 (类似 XAMPP 体验)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: sora_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: sora_user
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-sora_password}
+      UPLOAD_LIMIT: 50M
+      MEMORY_LIMIT: 256M
+      MAX_EXECUTION_TIME: 300
+    depends_on:
+      mysql:
+        condition: service_healthy
+
 volumes:
   mysql_data:
   redis_data:
