@@ -267,7 +267,8 @@ def init_model_configs():
                 'allowed_tiers': ["T2", "T3", "T4", "T5"],  # T2以上可使用
                 'cost_per_call': 4.00,
                 'params': {
-                      "size": ["1024x1024", "1536x1024", "1024x1536"]
+                      "size": ["1024x1024", "1536x1024", "1024x1536"],
+                      "quality": ["high", "medium", "low"]
                 },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
