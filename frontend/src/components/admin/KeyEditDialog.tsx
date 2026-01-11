@@ -62,7 +62,7 @@ export function KeyEditDialog({ open, onOpenChange, keyData }: KeyEditDialogProp
   const [showCreateModelDialog, setShowCreateModelDialog] = useState(false);
 
   // 获取启用的模型列表
-  const enabledModels = modelsData?.data?.filter((p) => p.enabled) || [];
+  const enabledModels = (modelsData as any)?.data?.filter((p: any) => p.enabled) || [];
 
   const form = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
@@ -82,7 +82,7 @@ export function KeyEditDialog({ open, onOpenChange, keyData }: KeyEditDialogProp
   useEffect(() => {
     if (keyData) {
       const hasConfigs = keyData.model_configs && keyData.model_configs.length > 0;
-      
+
       form.reset({
         models: keyData.models || [],
         use_advanced_config: hasConfigs,
@@ -109,7 +109,7 @@ export function KeyEditDialog({ open, onOpenChange, keyData }: KeyEditDialogProp
           // 如果用户开启了高级模式，我们假设他们想要完全控制。
           return {
             model: modelKey,
-            api_base: config?.api_base || '' 
+            api_base: config?.api_base || ''
           };
         });
       }
@@ -145,11 +145,11 @@ export function KeyEditDialog({ open, onOpenChange, keyData }: KeyEditDialogProp
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2 mb-2">
           {field.value.map((modelKey: string) => {
-            const model = enabledModels.find(m => m.key === modelKey);
+            const model = enabledModels.find((m: { key: string; }) => m.key === modelKey);
             return (
               <Badge key={modelKey} variant="secondary" className="flex items-center gap-1">
                 {model?.name || modelKey}
-                <span 
+                <span
                   className="cursor-pointer ml-1 text-muted-foreground hover:text-foreground"
                   onClick={() => {
                     field.onChange(field.value.filter((k: string) => k !== modelKey));
@@ -161,16 +161,16 @@ export function KeyEditDialog({ open, onOpenChange, keyData }: KeyEditDialogProp
             );
           })}
         </div>
-        
+
         <ScrollArea className="h-[120px] w-full rounded-md border p-4">
           <div className="grid grid-cols-2 gap-4">
             {modelsLoading ? (
               <div className="text-sm text-muted-foreground">加载中...</div>
             ) : (
               <>
-                {enabledModels.map((model) => (
+                {enabledModels.map((model: any) => (
                   <div key={model.key} className="flex items-center space-x-2">
-                    <Checkbox 
+                    <Checkbox
                       id={`edit-model-${model.key}`}
                       checked={field.value.includes(model.key)}
                       onCheckedChange={(checked) => {
@@ -207,11 +207,11 @@ export function KeyEditDialog({ open, onOpenChange, keyData }: KeyEditDialogProp
             )}
           </div>
         </ScrollArea>
-        
-        <Button 
-          type="button" 
-          variant="ghost" 
-          size="sm" 
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           className="text-primary hover:text-primary/80 h-auto p-0"
           onClick={() => setShowCreateModelDialog(true)}
         >
@@ -233,14 +233,14 @@ export function KeyEditDialog({ open, onOpenChange, keyData }: KeyEditDialogProp
         <div className="text-sm font-medium mb-2">分模型 API Base 配置</div>
         <div className="space-y-3">
           {models.map((modelKey: string) => {
-            const modelName = enabledModels.find(m => m.key === modelKey)?.name || modelKey;
+            const modelName = enabledModels.find((m: { key: string; }) => m.key === modelKey)?.name || modelKey;
             const configIndex = modelConfigs.findIndex((c: any) => c.model === modelKey);
-            
+
             return (
               <div key={modelKey} className="grid grid-cols-[120px_1fr] items-center gap-4">
                 <span className="text-sm text-muted-foreground truncate" title={modelName}>{modelName}</span>
-                <Input 
-                  placeholder="特定 API Base URL (可选)" 
+                <Input
+                  placeholder="特定 API Base URL (可选)"
                   className="h-8 text-xs font-mono"
                   value={modelConfigs[configIndex]?.api_base || ''}
                   onChange={(e) => {

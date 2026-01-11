@@ -12,7 +12,7 @@ export function KeyPoolStats() {
 
   // 创建模型名称映射
   const modelMap = new Map(
-    modelsData?.data?.map((p) => [p.key, p.name]) || []
+    (modelsData as any)?.data?.map((p: any) => [p.key, p.name]) || []
   );
 
   if (isLoading) {
@@ -126,7 +126,7 @@ export function KeyPoolStats() {
                 <div key={model.model} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline">
-                      {modelMap.get(model.model) || model.model}
+                      {modelMap.get(model.model) as any ?? model.model}
                     </Badge>
                     <span className="text-sm text-muted-foreground">
                       {model.total_keys} 个密钥

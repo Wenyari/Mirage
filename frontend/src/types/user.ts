@@ -15,6 +15,10 @@ export interface User {
   email: string;
   password_hash: string;         // 加盐加密后的密码
   balance: number;               // 积分余额（DECIMAL(10, 2)）
+  balance_detail?: {             // 余额详情（可选）
+    recharge_balance: number;    // 充值余额
+    activity_balance: number;    // 活动余额
+  };
   level: UserLevel;              // 会员等级：1-5
   role: UserRole;                // 角色：user/admin
   status: UserStatus;            // 状态：1=正常, 0=封禁
@@ -67,7 +71,7 @@ export const USER_ROLE_LABELS = {
 // 用户等级枚举常量
 export const USER_LEVEL_LABELS = {
   1: 'T1',
-  2: 'T2', 
+  2: 'T2',
   3: 'T3',
   4: 'T4',
   5: 'T5'

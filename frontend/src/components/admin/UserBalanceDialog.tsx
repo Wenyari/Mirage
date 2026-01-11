@@ -89,7 +89,7 @@ export function UserBalanceDialog({
             为用户 {user.email} 进行积分充值或扣费操作
           </DialogDescription>
         </DialogHeader>
-        
+
         {/* 当前余额显示 */}
         <div className="mb-4 rounded-lg border bg-gray-50 p-4">
           <div className="flex items-center justify-between">
@@ -158,8 +158,8 @@ export function UserBalanceDialog({
                     />
                   </FormControl>
                   <FormDescription>
-                    {submitType === 'recharge' 
-                      ? '输入要充值的积分数额' 
+                    {submitType === 'recharge'
+                      ? '输入要充值的积分数额'
                       : '输入要扣除的积分数额，不能超过用户当前余额'
                     }
                   </FormDescription>
@@ -200,9 +200,9 @@ export function UserBalanceDialog({
                 <div>金额：{form.watch('amount')?.toLocaleString()}</div>
                 <div>
                   操作后余额：{
-                    submitType === 'recharge' 
-                      ? ((user.balance_detail?.total_balance ?? user.balance) + (form.watch('amount') || 0)).toLocaleString()
-                      : ((user.balance_detail?.total_balance ?? user.balance) - (form.watch('amount') || 0)).toLocaleString()
+                    submitType === 'recharge'
+                      ? (user.balance + (form.watch('amount') || 0)).toLocaleString()
+                      : (user.balance - (form.watch('amount') || 0)).toLocaleString()
                   }
                 </div>
               </div>
@@ -217,13 +217,13 @@ export function UserBalanceDialog({
               >
                 取消
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isLoading}
                 className={submitType === 'recharge' ? 'bg-green-600' : 'bg-red-600'}
               >
-                {isLoading 
-                  ? '处理中...' 
+                {isLoading
+                  ? '处理中...'
                   : (submitType === 'recharge' ? '确认充值' : '确认扣费')
                 }
               </Button>

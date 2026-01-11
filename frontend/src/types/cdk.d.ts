@@ -8,20 +8,22 @@ export type CDKType = 'once' | 'universal';
 /**
  * CDK 状态枚举
  */
-export type CDKStatus = 0 | 1 | 2;
+export type CDKStatus = 'unused' | 'used' | 'void';
 /**
  * CDK 兑换码实体
  */
 export interface CDK {
     id: number;
     code: string;
-    points: number;
+    value: number;
+    points?: number;
     type: CDKType;
-    batch_no: string | null;
+    batch_no: string;
+    batch_name: string;
     status: CDKStatus;
-    used_by: number | null;
+    used_by: string | null;
     used_at: string | null;
-    expire_at: string | null;
+    expire_at?: string | null;
     created_at: string;
 }
 /**
@@ -33,15 +35,17 @@ export interface CDKGenerateRequest {
     count: number;
     batch_no?: string;
     expire_at?: string;
+    grant_level?: number;
 }
 /**
  * CDK 生成响应
  */
 export interface CDKGenerateResponse {
-    success: boolean;
+    code: number;
+    message: string;
     data: {
-        codes: string[];
         batch_no: string;
+        cdks: CDK[];
     };
 }
 /**
@@ -59,17 +63,21 @@ export interface CDKListParams {
  * CDK 列表响应
  */
 export interface CDKListResponse {
-    data: CDK[];
-    total: number;
-    page: number;
-    page_size: number;
+    code: number;
+    message: string;
+    data: {
+        items: CDK[];
+        total: number;
+        page: number;
+        limit: number;
+    };
 }
 /**
- * CDK 作废请求参数
+ * 作废 CDK 请求参数
  */
 export interface CDKVoidRequest {
-    ids?: number[];
     batch_no?: string;
+    ids?: number[];
 }
 /**
  * CDK 状态显示文本映射

@@ -1,4 +1,4 @@
-import { ChevronDown, Coins, CreditCard, Crown,LogOut, User as UserIcon, Wallet, Zap } from 'lucide-react';
+import { ChevronDown, Coins, CreditCard, Crown, LogOut, User as UserIcon, Wallet, Zap } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -16,13 +16,13 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 import { authService } from '@/services/auth';
 import { useAuthStore } from '@/store/authStore';
-import { LEVEL_COLORS,USER_LEVEL_LABELS } from '@/types/user';
+import { LEVEL_COLORS, USER_LEVEL_LABELS } from '@/types/user';
 
 export function UserNavbar() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { data: currentUser } = useCurrentUser();
-  
+
   const displayUser = currentUser || user;
 
   const [exploreOpen, setExploreOpen] = React.useState(false);
@@ -213,7 +213,7 @@ export function UserNavbar() {
                         <p className="text-xs text-muted-foreground">{displayUser?.email}</p>
                       </div>
                     </div>
-                    
+
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-4 rounded-lg border bg-muted/50 p-3">
                       <div className="space-y-1">
@@ -245,9 +245,9 @@ export function UserNavbar() {
                         <div className="flex items-center pt-1">
                           <span className={cn(
                             "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                            displayUser?.level ? LEVEL_COLORS[displayUser.level] : "bg-gray-100 text-gray-800"
+                            displayUser?.level ? LEVEL_COLORS[displayUser.level as keyof typeof LEVEL_COLORS] : "bg-gray-100 text-gray-800"
                           )}>
-                            {displayUser?.level ? USER_LEVEL_LABELS[displayUser.level] : 'T1'}
+                            {displayUser?.level ? USER_LEVEL_LABELS[displayUser.level as keyof typeof USER_LEVEL_LABELS] : 'T1'}
                           </span>
                         </div>
                       </div>
@@ -256,9 +256,9 @@ export function UserNavbar() {
                     {/* Actions */}
                     <div className="space-y-2">
                       {displayUser?.role === 'admin' && (
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-start" 
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
                           onClick={() => navigate('/wadminw')}
                         >
                           <UserIcon className="mr-2 size-4" />
@@ -273,9 +273,9 @@ export function UserNavbar() {
                         <CreditCard className="mr-2 size-4" />
                         充值与兑换
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-600" 
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-600"
                         onClick={handleLogout}
                       >
                         <LogOut className="mr-2 size-4" />

@@ -19,12 +19,14 @@ export interface CDK {
   id: number;
   code: string;
   value: number; // 对应后端的 value (原 points)
+  points?: number; // 兼容字段
   type: CDKType;
   batch_no: string;
   batch_name: string;
   status: CDKStatus;
   used_by: string | null; // 后端返回的是邮箱字符串
   used_at: string | null;
+  expire_at?: string | null; // 过期时间
   created_at: string;
 }
 

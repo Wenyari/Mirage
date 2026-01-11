@@ -9,6 +9,8 @@ interface CDKTableProps {
     onTypeChange: (type: CDKType | 'all') => void;
     onStatusChange: (status: CDKStatus | 'all') => void;
     onSearch: (search: string) => void;
+    onClearSearch: () => void;
+    searchValue: string;
 }
-export declare function CDKTable({ data, total, page, pageSize, onPageChange, onPageSizeChange, onTypeChange, onStatusChange, onSearch, }: CDKTableProps): import("react/jsx-runtime").JSX.Element;
+export declare function CDKTable({ data, total, page, pageSize, onPageChange, onPageSizeChange, onTypeChange, onStatusChange, onSearch, onClearSearch, searchValue, }: CDKTableProps): import("react/jsx-runtime").JSX.Element;
 export {};

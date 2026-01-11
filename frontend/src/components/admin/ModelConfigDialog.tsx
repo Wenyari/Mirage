@@ -38,7 +38,7 @@ import {
   useCreateModelConfig,
   useUpdateModelConfig,
 } from '@/hooks/useModelConfigs';
-import type { MembershipTier,ModelConfig } from '@/types/modelConfig';
+import type { MembershipTier, ModelConfig } from '@/types/modelConfig';
 import { ALL_MEMBERSHIP_TIERS, MEMBERSHIP_TIER_LABELS } from '@/types/modelConfig';
 
 interface ModelConfigDialogProps {
@@ -159,7 +159,7 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
   };
 
   // 可选择的模型列表（创建模式）
-  const availableModels = availableModelsData?.data?.filter((m) => !m.has_config) || [];
+  const availableModels = (availableModelsData as any)?.data?.filter((m: any) => !m.has_config) || [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -196,7 +196,7 @@ export function ModelConfigDialog({ open, onOpenChange, mode, config }: ModelCon
                       {mode === 'edit' && config ? (
                         <SelectItem value={config.model}>{config.model_name}</SelectItem>
                       ) : (
-                        availableModels.map((model) => (
+                        availableModels.map((model: any) => (
                           <SelectItem key={model.model} value={model.model}>
                             {model.model_name} ({model.key_count} 个密钥)
                           </SelectItem>

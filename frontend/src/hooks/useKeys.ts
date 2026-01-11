@@ -30,7 +30,7 @@ import type {
 export function useModels() {
   return useQuery({
     queryKey: ['admin', 'models'],
-    queryFn: getModels,
+    queryFn: getModels as any,
     staleTime: 1000 * 60 * 30, // 30分钟内不重新请求
   });
 }

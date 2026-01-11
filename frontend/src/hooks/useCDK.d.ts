@@ -2,7 +2,12 @@ import type { CDKGenerateRequest, CDKListParams, CDKVoidRequest } from '@/types/
 /**
  * 获取 CDK 列表
  */
-export declare function useCDKList(params: CDKListParams): import("@tanstack/react-query").UseQueryResult<import("@/types/cdk").CDKListResponse, Error>;
+export declare function useCDKList(params: CDKListParams): import("@tanstack/react-query").UseQueryResult<{
+    items: import("@/types/cdk").CDK[];
+    total: number;
+    page: number;
+    limit: number;
+}, Error>;
 /**
  * 生成 CDK
  */

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
@@ -27,13 +27,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from "@/components/ui/switch";
 import { useAddKey, useBatchAddKeys, useModels } from '@/hooks/useKeys';
-import type { ModelType, ModelConfig } from '@/types/key';
+import type { ModelConfig } from '@/types/key';
 
 interface KeyAddDialogProps {
   open: boolean;
@@ -82,7 +81,7 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
   const { data: modelsData, isLoading: modelsLoading } = useModels();
 
   // 获取启用的模型列表
-  const enabledModels = modelsData?.data?.filter((p) => p.enabled) || [];
+  const enabledModels = (modelsData as any)?.data?.filter((p: any) => p.enabled) || [];
 
   // 单个添加表单
   const singleForm = useForm<SingleFormValues>({
@@ -221,11 +220,11 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
       <div className="space-y-3">
         <div className="mb-2 flex flex-wrap gap-2">
           {field.value.map((modelKey: string) => {
-            const model = enabledModels.find(m => m.key === modelKey);
+            const model = enabledModels.find((m: { key: string; }) => m.key === modelKey);
             return (
               <Badge key={modelKey} variant="secondary" className="flex items-center gap-1">
                 {model?.name || modelKey}
-                <span 
+                <span
                   className="ml-1 cursor-pointer text-muted-foreground hover:text-foreground"
                   onClick={() => {
                     field.onChange(field.value.filter((k: string) => k !== modelKey));
@@ -237,16 +236,16 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
             );
           })}
         </div>
-        
+
         <ScrollArea className="h-[120px] w-full rounded-md border p-4">
           <div className="grid grid-cols-2 gap-4">
             {modelsLoading ? (
               <div className="text-sm text-muted-foreground">加载中...</div>
             ) : (
               <>
-                {enabledModels.map((model) => (
+                {enabledModels.map((model: any) => (
                   <div key={model.key} className="flex items-center space-x-2">
-                    <Checkbox 
+                    <Checkbox
                       id={`model-${model.key}-${mode}`}
                       checked={field.value.includes(model.key)}
                       onCheckedChange={(checked) => {
@@ -283,11 +282,11 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
             )}
           </div>
         </ScrollArea>
-        
-        <Button 
-          type="button" 
-          variant="ghost" 
-          size="sm" 
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           className="h-auto p-0 text-primary hover:text-primary/80"
           onClick={() => setShowCreateModelDialog(true)}
         >
@@ -309,15 +308,15 @@ export function KeyAddDialog({ open, onOpenChange }: KeyAddDialogProps) {
         <div className="text-sm font-medium mb-2">分模型 API Base 配置</div>
         <div className="space-y-3">
           {models.map((modelKey: string, index: number) => {
-            const modelName = enabledModels.find(m => m.key === modelKey)?.name || modelKey;
+            const modelName = enabledModels.find((m: { key: string; }) => m.key === modelKey)?.name || modelKey;
             // 找到对应的 config index
             const configIndex = modelConfigs.findIndex((c: any) => c.model === modelKey);
-            
+
             return (
               <div key={modelKey} className="grid grid-cols-[120px_1fr] items-center gap-4">
                 <span className="text-sm text-muted-foreground truncate" title={modelName}>{modelName}</span>
-                <Input 
-                  placeholder="特定 API Base URL (可选)" 
+                <Input
+                  placeholder="特定 API Base URL (可选)"
                   className="h-8 text-xs font-mono"
                   value={modelConfigs[configIndex]?.api_base || ''}
                   onChange={(e) => {

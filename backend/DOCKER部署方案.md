@@ -493,8 +493,8 @@ docker pull your-dockerhub-username/mirage:v1.0
 # 1. 构建镜像
 docker-compose build
 
-# 2. 打包成 tar 文件
-docker save -o mirage_backend_v1.0.tar mirage_backend
+# 将整个backend目录打包（包含Dockerfile和docker-compose.yml）
+tar -czf mirage_backend_v1.0.tar.gz .
 
 # 3. 上传到服务器（使用 scp 或 FTP 工具）
 scp mirage_backend_v1.0.tar root@your-server-ip:/data/

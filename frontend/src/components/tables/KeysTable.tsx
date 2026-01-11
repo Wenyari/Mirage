@@ -55,7 +55,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useDeleteKey, useModels,useTriggerCooldown, useUpdateKey } from '@/hooks/useKeys';
+import { useDeleteKey, useModels, useTriggerCooldown, useUpdateKey } from '@/hooks/useKeys';
 import type { Key } from '@/types/key';
 import { getConcurrencyColorClass, getConcurrencyRate } from '@/types/key';
 
@@ -82,7 +82,7 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
 
   // 创建模型名称映射
   const modelMap = new Map(
-    modelsData?.data?.map((p) => [p.key, p.name]) || []
+    (modelsData as any)?.data?.map((p: any) => [p.key, p.name]) || []
   );
 
   // 切换密钥显示/隐藏
@@ -154,7 +154,7 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
         <div className="flex flex-wrap gap-1 max-w-[200px]">
           {row.original.models.map((modelKey) => (
             <Badge key={modelKey} variant="outline" className="text-xs">
-              {modelMap.get(modelKey) || modelKey}
+              {modelMap.get(modelKey) as any || modelKey}
             </Badge>
           ))}
         </div>
@@ -182,7 +182,7 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
                     <div className="text-xs font-semibold border-b pb-1">详细配置</div>
                     {key.model_configs.map((config) => (
                       <div key={config.model} className="text-xs grid grid-cols-[80px_1fr] gap-2">
-                        <span className="font-medium truncate">{modelMap.get(config.model) || config.model}</span>
+                        <span className="font-medium truncate">{modelMap.get(config.model) as any || config.model}</span>
                         <span className="text-muted-foreground truncate font-mono">{config.api_base || '默认'}</span>
                       </div>
                     ))}
@@ -301,9 +301,9 @@ export function KeysTable({ data, onEdit }: KeysTableProps) {
 
         const timeLeft = key.cooling_until
           ? formatDistanceToNow(new Date(key.cooling_until), {
-              locale: zhCN,
-              addSuffix: true,
-            })
+            locale: zhCN,
+            addSuffix: true,
+          })
           : '';
 
         return (

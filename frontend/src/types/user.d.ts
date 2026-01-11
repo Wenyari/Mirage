@@ -6,6 +6,10 @@ export interface User {
     email: string;
     password_hash: string;
     balance: number;
+    balance_detail?: {
+        recharge_balance: number;
+        activity_balance: number;
+    };
     level: UserLevel;
     role: UserRole;
     status: UserStatus;
@@ -63,9 +67,13 @@ export interface UserDetails {
 }
 export interface Transaction {
     id: number;
-    type: 'recharge' | 'consume' | 'refund';
+    type: 'recharge' | 'consume' | 'refund' | 'activity_grant';
+    balance_type?: 'recharge' | 'activity';
+    activity_id?: number;
     amount: number;
-    reason: string;
+    balance_snapshot?: number;
+    reason?: string;
+    remark?: string;
     created_at: string;
 }
 export interface Task {

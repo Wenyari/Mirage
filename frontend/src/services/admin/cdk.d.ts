@@ -6,7 +6,7 @@ export declare function generateCDK(data: CDKGenerateRequest): Promise<CDKGenera
 /**
  * 获取 CDK 列表
  */
-export declare function getCDKList(params?: CDKListParams): Promise<CDKListResponse>;
+export declare function getCDKList(params?: CDKListParams): Promise<CDKListResponse['data']>;
 /**
  * 作废 CDK
  */
