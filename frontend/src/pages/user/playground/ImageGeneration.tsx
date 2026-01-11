@@ -1,8 +1,8 @@
+
 import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
-import { AlertCircle, ChevronLeft, ChevronRight, Clock, FilePlus, History, Image as ImageIcon, Loader2, Lock, Upload, XCircle } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight, FilePlus, History, Image as ImageIcon, Loader2, Lock, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskResponse, TaskStatusResponse } from '@/services/tasks';
 import { taskService } from '@/services/tasks';
@@ -26,7 +27,7 @@ export default function ImageGeneration() {
   const [model, setModel] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   // 使用 taskParams 存储动态参数
-  const [taskParams, setTaskParams] = useState<Record<string, any>>({});
+  const [taskParams, setTaskParams] = useState<Record<string, unknown>>({});
   const [taskId, setTaskId] = useState<string | null>(null);
   const [taskStatus, setTaskStatus] = useState<TaskStatusResponse | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -328,7 +329,7 @@ export default function ImageGeneration() {
         if (Array.isArray(value) && value.length > 0) {
           defaultParams[paramName] = value[0];
         } else if (typeof value === 'boolean') {
-          defaultParams[paramName] = false;
+          defaultParams[paramName] = value; // 使用模型配置中的实际值
         } else {
           defaultParams[paramName] = value;
         }
@@ -392,8 +393,6 @@ export default function ImageGeneration() {
 
       // 布尔值 -> Switch
       if (typeof value === 'boolean') {
-        if (!value) return null;
-
         return (
           <div key={key} className="flex items-center justify-between rounded-lg border p-4">
             <Label className="cursor-pointer capitalize" htmlFor={`param-${key}`}>

@@ -338,7 +338,7 @@ export default function VideoGeneration() {
         if (Array.isArray(value) && value.length > 0) {
           defaultParams[paramName] = value[0];
         } else if (typeof value === 'boolean') {
-          defaultParams[paramName] = false;
+          defaultParams[paramName] = value; // 使用模型配置中的实际值
         } else {
           // 其他类型直接使用
           defaultParams[paramName] = value;
@@ -431,8 +431,6 @@ export default function VideoGeneration() {
 
       // 3. 布尔值 -> Switch
       if (typeof value === 'boolean') {
-        if (!value) return null; // 如果 capability 为 false，不显示
-
         return (
           <div key={key} className="flex items-center justify-between rounded-lg border p-4">
             <Label className="cursor-pointer capitalize" htmlFor={`param-${key}`}>
