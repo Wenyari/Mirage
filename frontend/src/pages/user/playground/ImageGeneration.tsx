@@ -38,6 +38,26 @@ export default function ImageGeneration() {
   const pollingTimersRef = useRef<Map<string, number>>(new Map());
   const historyRefreshTimerRef = useRef<number | null>(null);
 
+  // 检查模型类型
+  const getModelType = (modelKey: string) => {
+    if (!modelKey) return 'default';
+    if (modelKey.includes('sora') || modelKey.includes('Sora')) return 'sora';
+    if (modelKey.includes('veo') || modelKey.includes('Veo')) return 'veo';
+    return 'default';
+  };
+
+  const getPromptPlaceholder = (modelKey: string) => {
+    const modelType = getModelType(modelKey);
+    switch (modelType) {
+      case 'sora':
+        return "不支持上传包含真实人物图像，涉及违规不返回积分";
+      case 'veo':
+        return "veo仅支持英文提示词，若要输入中文，请开启提示词优化自动翻译为英文";
+      default:
+        return "描述你想生成的图片内容...";
+    }
+  };
+
   // 加载模型列表和历史记录
   useEffect(() => {
     const initData = async () => {
@@ -586,7 +606,7 @@ export default function ImageGeneration() {
             <div className="space-y-2">
               <Label>提示词</Label>
               <Textarea
-                placeholder="描述你想生成的图片内容..."
+                placeholder={getPromptPlaceholder(model)}
                 className="h-[200px] resize-none"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
