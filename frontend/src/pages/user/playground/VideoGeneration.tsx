@@ -310,6 +310,7 @@ export default function VideoGeneration() {
     // 重置表单
     setPrompt('');
     setUploadedFiles([]);
+    setTaskParams({});  // 重置任务参数
 
     // 重置为默认模型
     const firstAvailable = models.find((m: ModelOption) => m.is_available);
