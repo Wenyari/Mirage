@@ -4,8 +4,55 @@
 支持: OpenAI Sora, Midjourney 等
 """
 import requests
+import re
 from flask import current_app
 from app.config import Config
+
+
+def _sanitize_error_message(error_msg: str) -> str:
+    """
+    过滤错误信息，隐藏敏感信息，给用户友好的提示
+
+    Args:
+        error_msg: 原始错误信息
+
+    Returns:
+        str: 过滤后的用户友好错误信息
+    """
+    # 隐藏API域名
+    error_msg = re.sub(r'https?://[^\s/]+', '[API服务]', error_msg)
+
+    # 转换常见技术错误为用户友好信息
+    error_mappings = {
+        'Read timed out': '请求超时，请稍后重试',
+        'Connection timed out': '网络连接超时，请稍后重试',
+        'Connection failed': '网络连接失败，请稍后重试',
+        'SSL error': '安全连接错误，请稍后重试',
+        'DNS resolution failed': '网络连接错误，请稍后重试',
+        'HTTPSConnectionPool': '网络请求失败，请稍后重试',
+        'ConnectionError': '网络连接错误，请稍后重试',
+        'Timeout': '请求超时，请稍后重试',
+        '500': '服务器内部错误，请稍后重试',
+        '502': '服务器网关错误，请稍后重试',
+        '503': '服务器暂时不可用，请稍后重试',
+        '504': '服务器响应超时，请稍后重试'
+    }
+
+    # 应用错误映射
+    for tech_error, user_friendly in error_mappings.items():
+        if tech_error.lower() in error_msg.lower():
+            return user_friendly
+
+    # 如果没有匹配到特定错误，返回通用错误信息
+    if 'timeout' in error_msg.lower() or 'time out' in error_msg.lower():
+        return '请求超时，请稍后重试'
+    elif 'connection' in error_msg.lower():
+        return '网络连接错误，请稍后重试'
+    elif 'http' in error_msg.lower() or 'api' in error_msg.lower():
+        return '服务暂时不可用，请稍后重试'
+    else:
+        # 对于未知错误，返回通用信息
+        return '生成失败，请稍后重试'
 
 
 class ModelGateway:
@@ -92,7 +139,7 @@ class SoraGateway(ModelGateway):
 
         except requests.exceptions.RequestException as e:
             current_app.logger.error(f"Sora API call failed: {e}")
-            raise Exception(f"Failed to call Sora API: {str(e)}")
+            raise Exception(f"Failed to call Sora API: {_sanitize_error_message(str(e))}")
 
     def get_job_status(self, job_id: str) -> dict:
         """
@@ -140,7 +187,7 @@ class SoraGateway(ModelGateway):
             current_app.logger.error(f"Sora API status check failed: {e}")
             return {
                 "status": "failed",
-                "fail_reason": f"API error: {str(e)}"
+                "fail_reason": _sanitize_error_message(f"API error: {str(e)}")
             }
 
 
