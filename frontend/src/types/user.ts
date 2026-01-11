@@ -13,6 +13,7 @@ export type UserRole = 'user' | 'admin';
 export interface User {
   id: number;
   email: string;
+  name?: string;                 // 用户名（可选）
   password_hash: string;         // 加盐加密后的密码
   balance: number;               // 积分余额（DECIMAL(10, 2)）
   balance_detail?: {             // 余额详情（可选）

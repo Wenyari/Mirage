@@ -449,6 +449,7 @@ def create_admin_user(email='admin@example.com', password='***REMOVED***'):
         # 创建管理员
         admin = User(
             email=email,
+            name='管理员',  # 设置默认用户名
             password_hash=password_hash,
             recharge_balance=10000.00,
             activity_balance=0.00,

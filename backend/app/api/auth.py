@@ -217,6 +217,7 @@ def get_current_user():
             "data": {
                 "id": user.id,
                 "email": user.email,
+                "name": user.name,  # 用户名
                 "balance": total_balance,  # 兼容旧版前端
                 "balance_detail": {
                     "recharge_balance": float(user.recharge_balance),

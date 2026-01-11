@@ -13,6 +13,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    name = db.Column(db.String(50), nullable=True, comment='用户名')
     password_hash = db.Column(db.String(255), nullable=False)
     recharge_balance = db.Column(db.Numeric(10, 2), default=0.00, nullable=False, comment='充值积分')
     activity_balance = db.Column(db.Numeric(10, 2), default=0.00, nullable=False, comment='活动积分')
@@ -42,6 +43,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'email': self.email,
+            'name': self.name,  # 用户名
             'role': self.role,  # 用户角色：'user' 或 'admin'
             'avatar': None,  # 头像URL（可选，暂未实现）
             'level': self.level,

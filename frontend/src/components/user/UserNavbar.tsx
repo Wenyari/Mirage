@@ -1,4 +1,4 @@
-import { ChevronDown, Coins, CreditCard, Crown, LogOut, User as UserIcon, Wallet, Zap } from 'lucide-react';
+import { ChevronDown, Coins, CreditCard, Crown, LogOut, Settings, User as UserIcon, Wallet, Zap } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -265,6 +265,14 @@ export function UserNavbar() {
                           进入管理后台
                         </Button>
                       )}
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => navigate('/setting/account')}
+                      >
+                        <Settings className="mr-2 size-4" />
+                        账户设置
+                      </Button>
                       <Button
                         variant="outline"
                         className="w-full justify-start"
