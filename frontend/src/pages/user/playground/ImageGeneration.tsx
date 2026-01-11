@@ -341,6 +341,17 @@ export default function ImageGeneration() {
     }
   }, [model]); // 移除 selectedModelInfo 依赖
 
+  // 参数名映射为中文显示
+  const paramNameMap: Record<string, string> = {
+    'enhance_prompt': '提示词优化',
+    'enable_upsample': '分辨率提升',
+    'hd': '高清',
+    'aspect_ratio': '宽高比',
+    'size': '宽高比',
+    'image_size': '分辨率',
+    'quality': '质量'
+  };
+
   // 渲染动态参数面板
   const renderDynamicParams = () => {
     if (!selectedModelInfo?.params) return null;
@@ -367,12 +378,13 @@ export default function ImageGeneration() {
     return sortedEntries.map(([key, value]) => {
       const paramName = key;
       const currentValue = taskParams[paramName];
+      const displayName = paramNameMap[key] || key.replace(/_/g, ' ');
 
       // 列表 -> Select
       if (Array.isArray(value)) {
         return (
           <div key={key} className="space-y-2">
-            <Label className="capitalize">{key.replace(/_/g, ' ')}</Label>
+            <Label className="capitalize">{displayName}</Label>
             <Select
               value={String(currentValue)}
               onValueChange={(val) => setTaskParams(prev => ({ ...prev, [paramName]: val }))}
@@ -397,7 +409,7 @@ export default function ImageGeneration() {
         return (
           <div key={key} className="flex items-center justify-between rounded-lg border p-4">
             <Label className="cursor-pointer capitalize" htmlFor={`param-${key}`}>
-              {key.replace(/_/g, ' ').replace('supported', '')}
+              {displayName.replace('supported', '')}
             </Label>
             <Switch
               id={`param-${key}`}
