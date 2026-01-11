@@ -34,12 +34,7 @@
     "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-    "composite": true,
-    "tsBuildInfoFile": "./tsconfig.app.tsbuildinfo",
-    "noEmit": false,
-    "emitDeclarationOnly": true,
-    "declaration": true
+    "noUncheckedSideEffectImports": true
   },
   "include": [
     "src"

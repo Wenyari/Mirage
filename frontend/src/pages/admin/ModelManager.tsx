@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Edit, Filter,MoreVertical, Plus, Trash2 } from 'lucide-react';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -99,12 +100,12 @@ export default function ModelManager() {
     );
   }
 
-  let models = data?.data || [];
+  let models = (data as any)?.data || [];
 
   // 前端筛选逻辑 (API 也支持 tags 参数，但这里为了简单直接在前端筛选，除非数据量很大)
   if (tagFilter) {
     const filterTag = tagFilter.toLowerCase().trim();
-    models = models.filter(m => 
+    models = models.filter((m: { tags: any[]; }) => 
       m.tags && m.tags.some(t => t.toLowerCase().includes(filterTag))
     );
   }
@@ -165,7 +166,7 @@ export default function ModelManager() {
                 </TableCell>
               </TableRow>
             ) : (
-              models.map((model) => (
+              models.map((model: Model) => (
                 <TableRow key={model.key}>
                   <TableCell>
                     <div className="flex flex-col gap-1">

@@ -1,5 +1,7 @@
 import * as XLSX from 'xlsx';
+
 import type { CDK } from '@/types/cdk';
+import { CDK_STATUS_MAP, CDK_TYPE_MAP } from '@/types/cdk';
 
 /**
  * 导出 CDK 列表到 Excel
@@ -8,10 +10,10 @@ export function exportCDKToExcel(cdkList: CDK[], filename: string = 'cdk-export'
   // 准备导出数据
   const exportData = cdkList.map((cdk) => ({
     '兑换码': cdk.code,
-    '积分面额': cdk.points,
-    '类型': cdk.type === 'once' ? '一次性' : '通用码',
+    '积分面额': cdk.points || cdk.value,
+    '类型': CDK_TYPE_MAP[cdk.type],
     '批次号': cdk.batch_no || '-',
-    '状态': cdk.status === 0 ? '未使用' : cdk.status === 1 ? '已使用' : '已作废',
+    '状态': CDK_STATUS_MAP[cdk.status],
     '使用者ID': cdk.used_by || '-',
     '使用时间': cdk.used_at ? new Date(cdk.used_at).toLocaleString('zh-CN') : '-',
     '过期时间': cdk.expire_at ? new Date(cdk.expire_at).toLocaleString('zh-CN') : '-',

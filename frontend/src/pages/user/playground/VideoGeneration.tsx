@@ -1,8 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
-import { AlertCircle, ChevronLeft, ChevronRight, Clock, FilePlus, History, Loader2, Lock, Play, Upload, XCircle } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight, FilePlus, History, Loader2, Lock, Play, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -16,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskResponse, TaskStatusResponse } from '@/services/tasks';
 import { taskService } from '@/services/tasks';
@@ -106,7 +106,7 @@ export default function VideoGeneration() {
     // 每 10 秒刷新一次历史记录
     historyRefreshTimerRef.current = setInterval(() => {
       refreshHistory();
-    }, 10000);
+    }, 10000) as any;
 
     return () => {
       if (historyRefreshTimerRef.current) {
@@ -163,7 +163,7 @@ export default function VideoGeneration() {
       }
     }, 3000);
 
-    pollingTimersRef.current.set(id, timerId);
+    pollingTimersRef.current.set(id, timerId as any);
   };
 
   // 停止轮询某个任务

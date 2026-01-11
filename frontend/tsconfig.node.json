@@ -5,6 +5,8 @@
     "module": "ESNext",
     "types": ["node"],
     "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -18,14 +20,7 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-
-    "composite": true,
-    "tsBuildInfoFile": "./tsconfig.app.tsbuildinfo", // Good practice for caching
-    
-    "noEmit": false,                // Must be false so references can read outputs
-    "emitDeclarationOnly": true,    // Only emit .d.ts files, let Vite handle the JS
-    "declaration": true
+    "noUncheckedSideEffectImports": true
   },
   "include": ["vite.config.ts"]
 }

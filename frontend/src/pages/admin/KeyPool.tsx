@@ -39,7 +39,7 @@ export default function KeyPool() {
       toast.info('开始健康检测...');
       const result = await healthCheckMutation.mutateAsync(model);
 
-      if (result.code === 0) {
+      if ((result as any).code === 0) {
         const { total, active, cooling, disabled } = result.data;
         toast.success(
           `健康检测完成：${total} 个密钥，${active} 可用，${cooling} 冷却中，${disabled} 已停用`
@@ -99,9 +99,9 @@ export default function KeyPool() {
                 加载中...
               </SelectItem>
             ) : (
-              modelsData?.data
-                ?.filter((p) => p.enabled)
-                .map((model) => (
+              (modelsData as any)?.data
+                ?.filter((p: any) => p.enabled)
+                .map((model: any) => (
                   <SelectItem key={model.key} value={model.key}>
                     {model.name}
                   </SelectItem>

@@ -106,7 +106,7 @@ export default function ImageGeneration() {
   useEffect(() => {
     historyRefreshTimerRef.current = setInterval(() => {
       refreshHistory();
-    }, 10000);
+    }, 10000) as any;
 
     return () => {
       if (historyRefreshTimerRef.current) {
@@ -162,7 +162,7 @@ export default function ImageGeneration() {
       }
     }, 3000);
 
-    pollingTimersRef.current.set(id, timerId);
+    pollingTimersRef.current.set(id, timerId as any);
   };
 
   // 停止轮询某个任务

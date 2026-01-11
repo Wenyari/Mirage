@@ -1,7 +1,5 @@
-import type { AvailableModel,MembershipConfigs, ModelConfig } from '@/types/modelConfig';
+import type { MembershipConfigs, ModelConfig } from '@/types/modelConfig';
 
-import { mockKeys } from './keys';
-import { mockModels } from './models';
 
 /**
  * Mock 模型配置数据
@@ -146,22 +144,7 @@ export function deleteModelConfig(id: number): boolean {
 /**
  * 获取可配置的模型列表（从实际的模型表和密钥池动态获取）
  */
-export function getAvailableModels(): AvailableModel[] {
-  // 从 mockModels 获取所有启用的模型
-  const enabledModels = mockModels.filter((p) => p.enabled);
-
-  // 统计每个模型的密钥数量
-  return enabledModels.map((model) => {
-    const keyCount = mockKeys.filter((k) => k.model === model.key).length;
-    const hasConfig = mockModelConfigs.some((c) => c.model === model.key);
-
-    return {
-      model: model.key,
-      model_name: model.name,
-      key_count: keyCount,
-      has_config: hasConfig,
-    };
-  });
+export function getAvailableModels(): void {
 }
 
 /**

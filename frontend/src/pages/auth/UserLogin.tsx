@@ -38,7 +38,7 @@ export default function UserLogin() {
       const response = await authService.login({ email, password, cf_token: turnstileToken });
       
       // 更新全局 Auth Store
-      login(response.token, response.user);
+      login((response as any).token, (response as any).user);
       
       toast.success('登录成功');
       navigate(USER_NAVIGATION.HOME.path);

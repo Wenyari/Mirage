@@ -9,7 +9,7 @@ export const mockKeys: Key[] = [];
 /**
  * 下一个可用的密钥 ID
  */
-let nextKeyId = mockKeys.length + 1;
+const nextKeyId = mockKeys.length + 1;
 
 /**
  * 添加单个密钥
