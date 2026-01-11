@@ -208,7 +208,7 @@ def process_task(payload):
         submit_payload = adapter.build_submit_payload(payload)
 
         logger.info(f"Submitting task payload: {submit_payload}")
-        resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=30)
+        resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=60)
 
         # 错误处理
         if resp.status_code in [401, 403]:
@@ -268,7 +268,7 @@ def process_task(payload):
 
                 # 查询状态
                 logger.debug(f"Polling status for task {task_id}")
-                check = requests.get(status_url, headers=headers, timeout=30)
+                check = requests.get(status_url, headers=headers, timeout=60)
 
                 if check.status_code >= 400:
                     logger.error(f"Status check error {check.status_code}: {check.text}")
