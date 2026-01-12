@@ -24,7 +24,9 @@ export default function VideoGeneration() {
   const queryClient = useQueryClient();
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState('');
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  // 首帧和尾帧图片URL
+  const [firstFrameUrl, setFirstFrameUrl] = useState<string>('');
+  const [lastFrameUrl, setLastFrameUrl] = useState<string>('');
   // 使用 taskParams 存储动态参数
   const [taskParams, setTaskParams] = useState<Record<string, any>>({});
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -36,6 +38,50 @@ export default function VideoGeneration() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
   const pollingTimersRef = useRef<Map<string, number>>(new Map());
   const historyRefreshTimerRef = useRef<number | null>(null);
+
+  // 生成图片prefix (XML格式)
+  const generateImagePrefix = () => {
+    const parts: string[] = [];
+    if (firstFrameUrl) {
+      parts.push(`首帧图片:<uri>${firstFrameUrl}</uri>`);
+    }
+    if (lastFrameUrl) {
+      parts.push(`尾帧图片:<uri>${lastFrameUrl}</uri>`);
+    }
+    return parts.length > 0 ? `<prefix>${parts.join('，')}</prefix>` : '';
+  };
+
+  // 从完整prompt中剥离prefix，提取用户输入部分
+  const stripImagePrefix = (fullPrompt: string): string => {
+    // 匹配 <prefix>...</prefix> 标记及其内容
+    const prefixPattern = /<prefix>.*?<\/prefix>/;
+    return fullPrompt.replace(prefixPattern, '').trim();
+  };
+
+  // 从prefix中解析出首帧和尾帧URL
+  const parseImagePrefixUrls = (fullPrompt: string): { firstFrame: string; lastFrame: string } => {
+    const result = { firstFrame: '', lastFrame: '' };
+
+    // 提取 <prefix>...</prefix> 内容
+    const prefixMatch = fullPrompt.match(/<prefix>(.*?)<\/prefix>/);
+    if (!prefixMatch) return result;
+
+    const prefixContent = prefixMatch[1];
+
+    // 提取首帧图片
+    const firstFrameMatch = prefixContent.match(/首帧图片:<uri>(.*?)<\/uri>/);
+    if (firstFrameMatch) {
+      result.firstFrame = firstFrameMatch[1];
+    }
+
+    // 提取尾帧图片
+    const lastFrameMatch = prefixContent.match(/尾帧图片:<uri>(.*?)<\/uri>/);
+    if (lastFrameMatch) {
+      result.lastFrame = lastFrameMatch[1];
+    }
+
+    return result;
+  };
 
   // 检查模型类型
   const getModelType = (modelKey: string) => {
@@ -211,11 +257,20 @@ export default function VideoGeneration() {
       setIsSubmitting(true);
       setTaskStatus(null);
 
+      // 生成图片prefix并拼接完整prompt
+      const imagePrefix = generateImagePrefix();
+      const fullPrompt = imagePrefix + prompt;
+
+      // 构建input_file_url数组（顺序：首帧、尾帧）
+      const inputFileUrls: string[] = [];
+      if (firstFrameUrl) inputFileUrls.push(firstFrameUrl);
+      if (lastFrameUrl) inputFileUrls.push(lastFrameUrl);
+
       const response = await taskService.createTask({
         model,
-        prompt,
+        prompt: fullPrompt,
         params: taskParams,
-        input_file_url: uploadedFiles
+        input_file_url: inputFileUrls
       });
 
       const taskData = response as unknown as TaskResponse;
@@ -281,6 +336,10 @@ export default function VideoGeneration() {
   const handleSelectTask = async (item: TaskHistoryItem) => {
     setTaskId(item.id);
 
+    // 先清空当前上传的图片
+    setFirstFrameUrl('');
+    setLastFrameUrl('');
+
     // 直接从后端拉取该任务的完整详情
     try {
       const statusResponse = await taskService.getTaskStatus(item.id);
@@ -291,7 +350,18 @@ export default function VideoGeneration() {
 
         // 填充参数到当前面板
         if (status.model) setModel(status.model);
-        if (status.prompt) setPrompt(status.prompt);
+
+        // 从完整prompt中剥离prefix，只显示用户输入部分
+        if (status.prompt) {
+          const userPrompt = stripImagePrefix(status.prompt);
+          setPrompt(userPrompt);
+
+          // 从prefix中解析首帧和尾帧URL
+          const { firstFrame, lastFrame } = parseImagePrefixUrls(status.prompt);
+          if (firstFrame) setFirstFrameUrl(firstFrame);
+          if (lastFrame) setLastFrameUrl(lastFrame);
+        }
+
         if (status.params) {
           setTimeout(() => {
             setTaskParams(status.params || {});
@@ -329,7 +399,8 @@ export default function VideoGeneration() {
 
     // 重置表单
     setPrompt('');
-    setUploadedFiles([]);
+    setFirstFrameUrl('');
+    setLastFrameUrl('');
     setTaskParams({});  // 重置任务参数
 
     // 重置为默认模型
@@ -554,7 +625,7 @@ export default function VideoGeneration() {
                     <div className="flex flex-1 flex-col gap-1 pr-16">
                       <div className="text-sm text-[#333]">
                         <span className="font-semibold text-black">{item.model}</span>
-                        <p className="mt-1 line-clamp-2 text-xs text-[#555]">{item.prompt}</p>
+                        <p className="mt-1 line-clamp-2 text-xs text-[#555]">{stripImagePrefix(item.prompt)}</p>
                       </div>
 
                       <p className="text-xs text-[#777]">
@@ -644,12 +715,22 @@ export default function VideoGeneration() {
             </div>
 
             <div className="space-y-2">
-              <Label>上传参考图 (可选；最多2张, &lt; 1MB)</Label>
+              <Label>首帧参考图 (可选；&lt; 2MB)</Label>
               <ImageUploader
-                value={uploadedFiles}
-                onChange={setUploadedFiles}
-                maxFiles={2}
-                maxSizeMB={1}
+                value={firstFrameUrl ? [firstFrameUrl] : []}
+                onChange={(urls) => setFirstFrameUrl(urls[0] || '')}
+                maxFiles={1}
+                maxSizeMB={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>尾帧参考图 (可选；&lt; 2MB)</Label>
+              <ImageUploader
+                value={lastFrameUrl ? [lastFrameUrl] : []}
+                onChange={(urls) => setLastFrameUrl(urls[0] || '')}
+                maxFiles={1}
+                maxSizeMB={2}
               />
             </div>
 
@@ -740,7 +821,7 @@ export default function VideoGeneration() {
                             </div>
                             <div>
                               <div className="text-sm text-muted-foreground">提示词</div>
-                              <div className="whitespace-pre-wrap break-words rounded bg-muted/10 p-3">{(taskStatus as any)?.prompt || '-'}</div>
+                              <div className="whitespace-pre-wrap break-words rounded bg-muted/10 p-3">{stripImagePrefix((taskStatus as any)?.prompt || '-')}</div>
                             </div>
                             <div>
                               <div className="text-sm text-muted-foreground">参数</div>

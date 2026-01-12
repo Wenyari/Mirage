@@ -71,10 +71,27 @@ export function ImageUploader({
     }
   };
 
-  const handleRemove = (index: number) => {
-    const newUrls = [...value];
-    newUrls.splice(index, 1);
-    onChange(newUrls);
+  const handleRemove = async (index: number) => {
+    const url = value[index];
+
+    try {
+      // 从URL中解析出object_key
+      const parsed = new URL(url);
+      const objectKey = parsed.pathname.substring(1); // 去掉开头的 '/'
+
+      // 调用后端删除接口
+      await uploadService.deleteFile(objectKey);
+
+      // 从本地状态中删除
+      const newUrls = [...value];
+      newUrls.splice(index, 1);
+      onChange(newUrls);
+
+      toast.success('图片已删除');
+    } catch (error: any) {
+      console.error('Delete failed:', error);
+      toast.error(error.message || '删除失败');
+    }
   };
 
   return (

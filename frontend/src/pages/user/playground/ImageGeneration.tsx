@@ -280,6 +280,9 @@ export default function ImageGeneration() {
   const handleSelectTask = async (item: TaskHistoryItem) => {
     setTaskId(item.id);
 
+    // 先清空当前上传的图片
+    setUploadedFiles([]);
+
     try {
       const statusResponse = await taskService.getTaskStatus(item.id);
       const status = statusResponse as unknown as TaskStatusResponse;
@@ -293,6 +296,16 @@ export default function ImageGeneration() {
           setTimeout(() => {
             setTaskParams(status.params || {});
           }, 100);
+        }
+
+        // 加载任务的上传图片
+        if ((status as any).input_file_url) {
+          const inputFileUrl = (status as any).input_file_url;
+          if (Array.isArray(inputFileUrl)) {
+            setUploadedFiles(inputFileUrl);
+          } else if (typeof inputFileUrl === 'string') {
+            setUploadedFiles([inputFileUrl]);
+          }
         }
 
         if (['pending', 'processing'].includes(status.status)) {
@@ -594,12 +607,12 @@ export default function ImageGeneration() {
             </div>
 
             <div className="space-y-2">
-              <Label>上传参考图 (可选；最多1张, &lt; 1MB)</Label>
+              <Label>上传参考图 (可选；最多1张, &lt; 2MB)</Label>
               <ImageUploader
                 value={uploadedFiles}
                 onChange={setUploadedFiles}
                 maxFiles={1}
-                maxSizeMB={1}
+                maxSizeMB={2}
               />
             </div>
 

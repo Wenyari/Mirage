@@ -59,8 +59,8 @@ class TestStorageService:
 
         # 验证格式：uploads/YYYY/MM/DD/uuid-filename.jpg
         assert key.startswith('uploads/')
-        assert key.endswith('-test-image.jpg')
-        assert len(key.split('/')) == 4  # uploads/year/month/day
+        assert key.endswith('-test_image.jpg')  # secure_filename 将空格转换为下划线
+        assert len(key.split('/')) == 5  # uploads/year/month/day/filename
 
     def test_generate_object_key_without_prefix(self, storage):
         """测试无前缀的对象键生成"""
@@ -69,7 +69,7 @@ class TestStorageService:
 
         # 验证格式：YYYY/MM/DD/uuid-filename.mp4
         assert key.endswith('-video.mp4')
-        assert len(key.split('/')) == 3  # year/month/day
+        assert len(key.split('/')) == 4  # year/month/day/filename
 
     def test_upload_file_success(self, storage, mock_boto3_client):
         """测试文件上传成功"""

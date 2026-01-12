@@ -473,9 +473,11 @@ class TaskService:
                 if task.input_file_url and isinstance(task.input_file_url, list):
                     for url in task.input_file_url:
                         if url and isinstance(url, str):
-                            # 从 URL 中提取对象键（假设 URL 格式为 domain/key）
+                            # 从 URL 中提取对象键（去除协议和域名部分）
                             try:
-                                object_key = url.split('/', 3)[-1] if '/' in url else None
+                                from urllib.parse import urlparse
+                                parsed = urlparse(url)
+                                object_key = parsed.path.lstrip('/')  # 去掉开头的 /
                                 if object_key:
                                     files_to_delete.append(object_key)
                             except Exception as e:

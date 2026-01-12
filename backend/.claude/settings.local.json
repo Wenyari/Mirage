@@ -31,7 +31,12 @@
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m pytest tests/test_services/test_activity_service.py -v)",
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m pytest tests/test_services/test_activity_admin_service.py -v)",
       "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m pytest tests/test_services/test_pay_service_enhanced.py tests/test_services/test_activity_service.py tests/test_services/test_activity_admin_service.py -v --tb=short)",
-      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -c \"import sys; print\\(''Python is working''\\)\")"
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -c \"import sys; print\\(''Python is working''\\)\")",
+      "Bash(set TESTING_NO_REDIS=1)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -m pytest:*)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\":*)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" -c:*)",
+      "Bash(\"F:\\\\software\\\\anaconda\\\\envs\\\\sora_env\\\\python.exe\" test_delete_uploaded_file.py)"
     ]
   }
 }

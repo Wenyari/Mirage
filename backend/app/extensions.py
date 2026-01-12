@@ -22,7 +22,16 @@ redis_client = None
 
 def init_redis(app):
     """初始化 Redis 客户端"""
+    import os
     global redis_client
+
+    # 测试环境下跳过真实的Redis连接
+    if os.getenv('TESTING_NO_REDIS') == '1' or app.config.get('TESTING_NO_REDIS'):
+        print("Testing mode: Skipping Redis initialization")
+        from unittest.mock import MagicMock
+        redis_client = MagicMock()
+        return redis_client
+
     redis_url = app.config['REDIS_URL']
     try:
         redis_client = redis.from_url(redis_url, decode_responses=True)
