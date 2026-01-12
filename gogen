@@ -1,23 +1,29 @@
 server {
     listen 80;
-    server_name your-server-ip; # 例如 123.456.78.90
+    # 1. 修改这里：将 IP 换成您的域名
+    server_name gogen.tech www.gogen.tech; 
+
+    # --- 性能优化（可选，建议加上）---
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript;
 
     # --- 前端配置 ---
     location / {
-        root /var/www/gogen/frontend; # 指向上传的 dist 文件
+        root /var/www/gogen/frontend;
         index index.html;
-        # 解决 SPA 单页应用刷新 404 问题
         try_files $uri $uri/ /index.html;
     }
 
     # --- 后端接口反向代理 ---
-    # 假设你的前端请求前缀是 /api
     location /api/ {
-        # 转发给本地 Docker 容器
-        proxy_pass http://127.0.0.1:5000/;
+        # 2. 这里的斜杠 / 非常关键，请看下文解释
+        proxy_pass http://127.0.0.1:5000/; 
         
         proxy_set_header Host $host;
+        
+        # 3. Turnstile 验证关键配置：确保后端能拿到用户真实 IP
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }

@@ -1,9 +1,9 @@
-import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
-import { CheckCircle2,KeyRound, Lock, Mail, UserPlus } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { CheckCircle2, KeyRound, Lock, Mail, UserPlus } from 'lucide-react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import Turnstile from '@/components/auth/Turnstile';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,6 @@ export default function UserRegister() {
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [isRegistering, setIsRegistering] = useState(false);
-  const turnstileRef = useRef<TurnstileInstance>(null);
   const [turnstileToken, setTurnstileToken] = useState('');
 
   // 发送验证码
@@ -60,7 +59,6 @@ export default function UserRegister() {
       }, 1000);
     } catch (error: any) {
       toast.error(error.data.msg || '发送验证码失败');
-      turnstileRef.current?.reset();
       setTurnstileToken('');
     } finally {
       setIsSendingCode(false);
@@ -134,22 +132,15 @@ export default function UserRegister() {
                   {countdown > 0 ? `${countdown}s` : (isSendingCode ? '发送中' : '获取验证码')}
                 </Button>
               </div>
-              
+
               {/* Turnstile 放置在邮箱输入框下方，作为一个验证步骤 */}
               <div className="flex justify-center py-2">
-                 <Turnstile
-                  ref={turnstileRef}
-                  siteKey="0x4AAAAAACLPiWv7g_o7HXD3"
-                  options={{
-                    theme: 'light',
-                    size: 'flexible',
-                  }}
-                  onSuccess={(token) => setTurnstileToken(token)}
+                <Turnstile
+                  siteKey="0x4AAAAAACLyBsB9XmANf9ns"
+                  theme="light"
+                  onVerify={(token) => setTurnstileToken(token)}
                   onExpire={() => setTurnstileToken('')}
-                  onError={() => {
-                    setTurnstileToken('');
-                    turnstileRef.current?.reset();
-                  }}
+                  onError={() => setTurnstileToken('')}
                 />
               </div>
             </div>

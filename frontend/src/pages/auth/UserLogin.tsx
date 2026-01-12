@@ -1,9 +1,9 @@
-import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
-import { Lock,LogIn, Mail } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { Lock, LogIn, Mail } from 'lucide-react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import Turnstile from '@/components/auth/Turnstile';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,6 @@ export default function UserLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const turnstileRef = useRef<TurnstileInstance>(null);
   const [turnstileToken, setTurnstileToken] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -44,7 +43,6 @@ export default function UserLogin() {
       navigate(USER_NAVIGATION.HOME.path);
     } catch (error: any) {
       toast.error(error.data.msg || '登录失败，请检查邮箱或密码');
-      turnstileRef.current?.reset();
       setTurnstileToken('');
     } finally {
       setIsLoading(false);
@@ -102,18 +100,11 @@ export default function UserLogin() {
             </div>
             <div className="flex justify-center py-2">
               <Turnstile
-                ref={turnstileRef}
-                siteKey="0x4AAAAAACLPiWv7g_o7HXD3"
-                options={{
-                  theme: 'light',
-                  size: 'flexible',
-                }}
-                onSuccess={(token) => setTurnstileToken(token)}
+                siteKey="0x4AAAAAACLyBsB9XmANf9ns"
+                theme="light"
+                onVerify={(token) => setTurnstileToken(token)}
                 onExpire={() => setTurnstileToken('')}
-                onError={() => {
-                  setTurnstileToken('');
-                  turnstileRef.current?.reset();
-                }}
+                onError={() => setTurnstileToken('')}
               />
             </div>
           </CardContent>

@@ -112,7 +112,7 @@ docker-compose up -d --build
 
 ```bash
 sudo nano /etc/nginx/sites-available/gogen
-
+scp .\gogen root@your-server-ip:/etc/nginx/sites-available/gogen
 ```
 
 **2. 粘贴以下内容 (按需修改 IP)**
