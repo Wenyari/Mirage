@@ -113,7 +113,7 @@ def init_models():
                 'color': 'bg-green-500',
                 'icon_url': None,
                 'max_concurrency_limit': 8,
-                'tags': ['video', 'generation']
+                'tags': ['video', 'generation', 'frames']
             },
             {
                 'key': 'veo3.1-pro',
@@ -123,7 +123,7 @@ def init_models():
                 'color': 'bg-green-600',
                 'icon_url': None,
                 'max_concurrency_limit': 4,
-                'tags': ['video', 'generation', 'pro']
+                'tags': ['video', 'generation', 'pro', 'frames']
             },
             # 绘图模型
             {
@@ -205,7 +205,7 @@ def init_model_configs():
                 'cost_per_call': 120.00,
                 'params': {
                     "durations": [10, 15, 25],#25时 hd不起作用
-                    "hd": True,  # Sora使用hd参数
+                    "hd": False,  # Sora使用hd参数
                     "aspect_ratio": ["16:9", "9:16"]
                 },
                 'token_cost_config': {"enabled": False},
@@ -218,7 +218,7 @@ def init_model_configs():
                 'cost_per_call': 15.00,
                 'params': {
                  
-                    "enable_upsample": True,  # Veo使用enable_upsample参数
+                    "enable_upsample": False,  # Veo使用enable_upsample参数
                     "enhance_prompt": True,  # Veo特有的提示词优化参数
                     "aspect_ratio": ["16:9", "9:16"]
                 },
@@ -231,7 +231,7 @@ def init_model_configs():
                 'allowed_tiers': ["T3", "T4", "T5"],  # T3以上可使用
                 'cost_per_call': 50.00,
                 'params': {
-                    "enable_upsample": True,  # Veo使用enable_upsample参数
+                    "enable_upsample": False,  # Veo使用enable_upsample参数
                     "enhance_prompt": True,  # Veo特有的提示词优化参数
                     "aspect_ratio": ["16:9", "9:16"]
                 },

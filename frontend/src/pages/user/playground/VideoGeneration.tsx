@@ -24,9 +24,11 @@ export default function VideoGeneration() {
   const queryClient = useQueryClient();
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState('');
-  // 首帧和尾帧图片URL
+  // 首帧和尾帧图片URL (用于支持frames的模型)
   const [firstFrameUrl, setFirstFrameUrl] = useState<string>('');
   const [lastFrameUrl, setLastFrameUrl] = useState<string>('');
+  // 单张参考图URL (用于不支持frames的模型)
+  const [referenceImageUrl, setReferenceImageUrl] = useState<string>('');
   // 使用 taskParams 存储动态参数
   const [taskParams, setTaskParams] = useState<Record<string, any>>({});
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -38,6 +40,12 @@ export default function VideoGeneration() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
   const pollingTimersRef = useRef<Map<string, number>>(new Map());
   const historyRefreshTimerRef = useRef<number | null>(null);
+
+  // 检查当前模型是否支持首尾帧
+  const supportsFrames = () => {
+    const selectedModel = models.find(m => m.key === model);
+    return selectedModel?.tags?.includes('frames') || false;
+  };
 
   // 生成图片prefix (XML格式)
   const generateImagePrefix = () => {
@@ -257,14 +265,23 @@ export default function VideoGeneration() {
       setIsSubmitting(true);
       setTaskStatus(null);
 
-      // 生成图片prefix并拼接完整prompt
-      const imagePrefix = generateImagePrefix();
-      const fullPrompt = imagePrefix + prompt;
+      let fullPrompt = prompt;
+      let inputFileUrls: string[] = [];
 
-      // 构建input_file_url数组（顺序：首帧、尾帧）
-      const inputFileUrls: string[] = [];
-      if (firstFrameUrl) inputFileUrls.push(firstFrameUrl);
-      if (lastFrameUrl) inputFileUrls.push(lastFrameUrl);
+      if (supportsFrames()) {
+        // 支持frames的模型：使用XML格式的prefix和首尾帧
+        const imagePrefix = generateImagePrefix();
+        fullPrompt = imagePrefix + prompt;
+
+        // 构建input_file_url数组（顺序：首帧、尾帧）
+        if (firstFrameUrl) inputFileUrls.push(firstFrameUrl);
+        if (lastFrameUrl) inputFileUrls.push(lastFrameUrl);
+      } else {
+        // 不支持frames的模型：直接使用原始prompt和单张参考图
+        if (referenceImageUrl) {
+          inputFileUrls.push(referenceImageUrl);
+        }
+      }
 
       const response = await taskService.createTask({
         model,
@@ -336,9 +353,10 @@ export default function VideoGeneration() {
   const handleSelectTask = async (item: TaskHistoryItem) => {
     setTaskId(item.id);
 
-    // 先清空当前上传的图片
+    // 先清空所有上传的图片
     setFirstFrameUrl('');
     setLastFrameUrl('');
+    setReferenceImageUrl('');
 
     // 直接从后端拉取该任务的完整详情
     try {
@@ -351,16 +369,35 @@ export default function VideoGeneration() {
         // 填充参数到当前面板
         if (status.model) setModel(status.model);
 
-        // 从完整prompt中剥离prefix，只显示用户输入部分
-        if (status.prompt) {
-          const userPrompt = stripImagePrefix(status.prompt);
-          setPrompt(userPrompt);
+        // 等待model设置完成，然后根据该模型是否支持frames来处理prompt和图片
+        setTimeout(() => {
+          const modelSupportsFrames = models.find(m => m.key === status.model)?.tags?.includes('frames') || false;
 
-          // 从prefix中解析首帧和尾帧URL
-          const { firstFrame, lastFrame } = parseImagePrefixUrls(status.prompt);
-          if (firstFrame) setFirstFrameUrl(firstFrame);
-          if (lastFrame) setLastFrameUrl(lastFrame);
-        }
+          if (status.prompt) {
+            if (modelSupportsFrames) {
+              // 支持frames：从prefix中解析图片URL，剥离prefix显示用户输入
+              const userPrompt = stripImagePrefix(status.prompt);
+              setPrompt(userPrompt);
+
+              const { firstFrame, lastFrame } = parseImagePrefixUrls(status.prompt);
+              if (firstFrame) setFirstFrameUrl(firstFrame);
+              if (lastFrame) setLastFrameUrl(lastFrame);
+            } else {
+              // 不支持frames：直接显示原始prompt
+              setPrompt(status.prompt);
+
+              // 加载单张参考图
+              if ((status as any).input_file_url) {
+                const inputFileUrl = (status as any).input_file_url;
+                if (Array.isArray(inputFileUrl) && inputFileUrl.length > 0) {
+                  setReferenceImageUrl(inputFileUrl[0]);
+                } else if (typeof inputFileUrl === 'string') {
+                  setReferenceImageUrl(inputFileUrl);
+                }
+              }
+            }
+          }
+        }, 100);
 
         if (status.params) {
           setTimeout(() => {
@@ -401,6 +438,7 @@ export default function VideoGeneration() {
     setPrompt('');
     setFirstFrameUrl('');
     setLastFrameUrl('');
+    setReferenceImageUrl('');
     setTaskParams({});  // 重置任务参数
 
     // 重置为默认模型
@@ -714,25 +752,39 @@ export default function VideoGeneration() {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label>首帧参考图 (可选；&lt; 2MB)</Label>
-              <ImageUploader
-                value={firstFrameUrl ? [firstFrameUrl] : []}
-                onChange={(urls) => setFirstFrameUrl(urls[0] || '')}
-                maxFiles={1}
-                maxSizeMB={2}
-              />
-            </div>
+            {supportsFrames() ? (
+              <>
+                <div className="space-y-2">
+                  <Label>首帧参考图 (可选；&lt; 2MB)</Label>
+                  <ImageUploader
+                    value={firstFrameUrl ? [firstFrameUrl] : []}
+                    onChange={(urls) => setFirstFrameUrl(urls[0] || '')}
+                    maxFiles={1}
+                    maxSizeMB={2}
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label>尾帧参考图 (可选；&lt; 2MB)</Label>
-              <ImageUploader
-                value={lastFrameUrl ? [lastFrameUrl] : []}
-                onChange={(urls) => setLastFrameUrl(urls[0] || '')}
-                maxFiles={1}
-                maxSizeMB={2}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label>尾帧参考图 (可选；&lt; 2MB)</Label>
+                  <ImageUploader
+                    value={lastFrameUrl ? [lastFrameUrl] : []}
+                    onChange={(urls) => setLastFrameUrl(urls[0] || '')}
+                    maxFiles={1}
+                    maxSizeMB={2}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="space-y-2">
+                <Label>参考图 (可选；&lt; 2MB)</Label>
+                <ImageUploader
+                  value={referenceImageUrl ? [referenceImageUrl] : []}
+                  onChange={(urls) => setReferenceImageUrl(urls[0] || '')}
+                  maxFiles={1}
+                  maxSizeMB={2}
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label>提示词</Label>
