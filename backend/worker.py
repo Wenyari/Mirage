@@ -77,6 +77,54 @@ def query_sql(sql, params=None):
         return result.fetchone()  # 返回单行结果
 
 
+def _sanitize_error_message(error_msg: str) -> str:
+    """
+    过滤错误信息，隐藏敏感信息，给用户友好的提示
+
+    Args:
+        error_msg: 原始错误信息
+
+    Returns:
+        str: 过滤后的用户友好错误信息
+    """
+    import re
+
+    # 隐藏API域名
+    error_msg = re.sub(r'https?://[^\s/]+', '[API服务]', error_msg)
+
+    # 转换常见技术错误为用户友好信息
+    error_mappings = {
+        'Read timed out': '请求超时，请稍后重试',
+        'Connection timed out': '网络连接超时，请稍后重试',
+        'Connection failed': '网络连接失败，请稍后重试',
+        'SSL error': '安全连接错误，请稍后重试',
+        'DNS resolution failed': '网络连接错误，请稍后重试',
+        'HTTPSConnectionPool': '网络请求失败，请稍后重试',
+        'ConnectionError': '网络连接错误，请稍后重试',
+        'Timeout': '请求超时，请稍后重试',
+        '500': '服务器内部错误，请稍后重试',
+        '502': '服务器网关错误，请稍后重试',
+        '503': '服务器暂时不可用，请稍后重试',
+        '504': '服务器响应超时，请稍后重试'
+    }
+
+    # 应用错误映射
+    for tech_error, user_friendly in error_mappings.items():
+        if tech_error.lower() in error_msg.lower():
+            return user_friendly
+
+    # 如果没有匹配到特定错误，返回通用错误信息
+    if 'timeout' in error_msg.lower() or 'time out' in error_msg.lower():
+        return '请求超时，请稍后重试'
+    elif 'connection' in error_msg.lower():
+        return '网络连接错误，请稍后重试'
+    elif 'http' in error_msg.lower() or 'api' in error_msg.lower():
+        return '服务暂时不可用，请稍后重试'
+    else:
+        # 对于未知错误，返回通用信息
+        return '生成失败，请稍后重试'
+
+
 def _should_refund_on_failure(fail_reason: str) -> bool:
     """
     判断任务失败时是否应该退款
@@ -208,7 +256,7 @@ def process_task(payload):
         submit_payload = adapter.build_submit_payload(payload)
 
         logger.info(f"Submitting task payload: {submit_payload}")
-        resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=30)
+        resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=60)
 
         # 错误处理
         if resp.status_code in [401, 403]:
@@ -268,7 +316,7 @@ def process_task(payload):
 
                 # 查询状态
                 logger.debug(f"Polling status for task {task_id}")
-                check = requests.get(status_url, headers=headers, timeout=30)
+                check = requests.get(status_url, headers=headers, timeout=60)
 
                 if check.status_code >= 400:
                     logger.error(f"Status check error {check.status_code}: {check.text}")
@@ -347,7 +395,7 @@ def process_task(payload):
         # 任务失败处理（使用原始 SQL）
         logger.error(f"Task {task_id} failed: {str(e)}")
 
-        fail_reason = str(e)[:255]  # 限制长度
+        fail_reason = _sanitize_error_message(str(e))[:255]  # 限制长度并过滤敏感信息
 
         # 【智能退款逻辑】根据失败原因判断是否退款
         should_refund = _should_refund_on_failure(fail_reason)

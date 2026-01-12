@@ -47,6 +47,10 @@ export const USER_NAVIGATION = {
     label: '设置',
     path: '/setting',
     children: {
+      ACCOUNT: {
+        label: '账户设置',
+        path: '/setting/account',
+      },
       CREDITS: {
         label: '充值与兑换',
         path: '/setting/credits',

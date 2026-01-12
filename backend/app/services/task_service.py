@@ -119,6 +119,9 @@ class TaskService:
             raise ValueError(str(e))
 
         # 7. 创建任务记录
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+
         task = Task(
             id=task_id,
             user_id=user_id,
@@ -128,8 +131,8 @@ class TaskService:
             params=params,
             status='pending',
             progress=0,
-            cost_points=cost
-            # created_at 使用模型默认值 datetime.now(ZoneInfo("Asia/Shanghai"))
+            cost_points=cost,
+            created_at=datetime.now(ZoneInfo("Asia/Shanghai"))  # 显式设置创建时间
         )
 
         db.session.add(task)

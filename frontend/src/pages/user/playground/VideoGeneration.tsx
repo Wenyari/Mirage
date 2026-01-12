@@ -37,6 +37,26 @@ export default function VideoGeneration() {
   const pollingTimersRef = useRef<Map<string, number>>(new Map());
   const historyRefreshTimerRef = useRef<number | null>(null);
 
+  // 检查模型类型
+  const getModelType = (modelKey: string) => {
+    if (!modelKey) return 'default';
+    if (modelKey.includes('sora') || modelKey.includes('Sora')) return 'sora';
+    if (modelKey.includes('veo') || modelKey.includes('Veo')) return 'veo';
+    return 'default';
+  };
+
+  const getPromptPlaceholder = (modelKey: string) => {
+    const modelType = getModelType(modelKey);
+    switch (modelType) {
+      case 'sora':
+        return "不支持上传包含真实人物图像，涉及违规不返回积分";
+      case 'veo':
+        return "veo仅支持英文提示词，若要输入中文，请开启提示词优化自动翻译为英文";
+      default:
+        return "描述你想生成的内容...";
+    }
+  };
+
   // 加载模型列表和历史记录
   useEffect(() => {
     const initData = async () => {
@@ -310,6 +330,7 @@ export default function VideoGeneration() {
     // 重置表单
     setPrompt('');
     setUploadedFiles([]);
+    setTaskParams({});  // 重置任务参数
 
     // 重置为默认模型
     const firstAvailable = models.find((m: ModelOption) => m.is_available);
@@ -351,6 +372,18 @@ export default function VideoGeneration() {
   }, [model]); // 移除 selectedModelInfo 依赖，因为它随 model 变化
 
   // 渲染动态参数面板
+  // 参数名映射为中文显示
+  const paramNameMap: Record<string, string> = {
+    'enhance_prompt': '提示词优化',
+    'enable_upsample': '分辨率提升',
+    'hd': '高清',
+    'aspect_ratio': '宽高比',
+    'size': '宽高比',
+    'image_size': '分辨率',
+    'quality': '质量',
+    'durations': '时长'
+  };
+
   const renderDynamicParams = () => {
     if (!selectedModelInfo?.params) return null;
 
@@ -407,9 +440,10 @@ export default function VideoGeneration() {
 
       // 2. 列表 -> Select
       if (Array.isArray(value)) {
+        const displayName = paramNameMap[key] || key.replace(/_/g, ' ');
         return (
           <div key={key} className="space-y-2">
-            <Label className="capitalize">{key.replace(/_/g, ' ')}</Label>
+            <Label className="capitalize">{displayName}</Label>
             <Select
               value={String(currentValue)}
               onValueChange={(val) => setTaskParams(prev => ({ ...prev, [paramName]: val }))}
@@ -431,10 +465,11 @@ export default function VideoGeneration() {
 
       // 3. 布尔值 -> Switch
       if (typeof value === 'boolean') {
+        const displayName = paramNameMap[key] || key.replace(/_/g, ' ').replace('supported', '');
         return (
           <div key={key} className="flex items-center justify-between rounded-lg border p-4">
             <Label className="cursor-pointer capitalize" htmlFor={`param-${key}`}>
-              {key.replace(/_/g, ' ').replace('supported', '')}
+              {displayName}
             </Label>
             <Switch
               id={`param-${key}`}
@@ -621,7 +656,7 @@ export default function VideoGeneration() {
             <div className="space-y-2">
               <Label>提示词</Label>
               <Textarea
-                placeholder="描述你想生成的内容..."
+                placeholder={getPromptPlaceholder(model)}
                 className="h-[200px] resize-none"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}

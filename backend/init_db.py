@@ -137,16 +137,6 @@ def init_models():
                 'tags': ['image', 'generation']
             },
             {
-                'key': 'gemini-2.5-flash-image',
-                'name': 'gemini-2.5-flash-image',
-                'enabled': 1,
-                'description': 'Google Gemini 2.5 Flash 图片生成模型',
-                'color': 'bg-orange-500',
-                'icon_url': None,
-                'max_concurrency_limit': 10,
-                'tags': ['image', 'generation']
-            },
-            {
                 'key': 'sora_image',
                 'name': 'sora_image',
                 'enabled': 1,
@@ -203,7 +193,6 @@ def init_model_configs():
                 'cost_per_call': 5.00,
                 'params': {
                     "durations": [10, 15],
-                    "hd": True,  # Sora使用hd参数
                     "aspect_ratio": ["16:9", "9:16"]
                 },
                 'token_cost_config': {"enabled": False},
@@ -215,9 +204,9 @@ def init_model_configs():
                 'allowed_tiers': ["T3", "T4", "T5"],  # T3以上可使用
                 'cost_per_call': 120.00,
                 'params': {
-                    "durations": [10, 15, 25],
+                    "durations": [10, 15, 25],#25时 hd不起作用
                     "hd": True,  # Sora使用hd参数
-                    "aspect_ratio": ["16:9", "9:16", "1:1"]
+                    "aspect_ratio": ["16:9", "9:16"]
                 },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
@@ -230,7 +219,7 @@ def init_model_configs():
                 'params': {
                  
                     "enable_upsample": True,  # Veo使用enable_upsample参数
-                    "enhance_prompt": False,  # Veo特有的提示词优化参数
+                    "enhance_prompt": True,  # Veo特有的提示词优化参数
                     "aspect_ratio": ["16:9", "9:16"]
                 },
                 'token_cost_config': {"enabled": False},
@@ -243,7 +232,7 @@ def init_model_configs():
                 'cost_per_call': 50.00,
                 'params': {
                     "enable_upsample": True,  # Veo使用enable_upsample参数
-                    "enhance_prompt": False,  # Veo特有的提示词优化参数
+                    "enhance_prompt": True,  # Veo特有的提示词优化参数
                     "aspect_ratio": ["16:9", "9:16"]
                 },
                 'token_cost_config': {"enabled": False},
@@ -256,29 +245,18 @@ def init_model_configs():
                 'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],  # 已有，保持兼容
                 'cost_per_call': 4.00,
                 'params': {
-                    "aspect_ratio": ["16:9", "9:16"]
+                    "aspect_ratio": ["16:9", "9:16",  "3:4", "4:3", "1:1"]
                 },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
                 'description': 'Nano Banana 图片生成配置'
             },
             {
-                'model': 'gemini-2.5-flash-image',
-                'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],
-                'cost_per_call': 2.00,
-                'params': {
-                    "aspect_ratio": ["16:9", "1:1", "9:16", "4:3", "3:4"]
-                },
-                'token_cost_config': {"enabled": False},
-                'is_active': 1,
-                'description': 'Gemini 2.5 Flash Image 图片生成配置'
-            },
-            {
                 'model': 'sora_image',
                 'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],
                 'cost_per_call': 3.00,
                 'params': {
-                    "aspect_ratio": ["16:9", "1:1", "9:16"]
+                      "size": ["256x256", "512x512", "1024x1024"]
                 },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
@@ -289,7 +267,8 @@ def init_model_configs():
                 'allowed_tiers': ["T2", "T3", "T4", "T5"],  # T2以上可使用
                 'cost_per_call': 4.00,
                 'params': {
-                    "aspect_ratio": ["16:9", "1:1", "9:16", "4:3", "3:4"]
+                      "size": ["1024x1024", "1536x1024", "1024x1536"],
+                      "quality": ["high", "medium", "low"]
                 },
                 'token_cost_config': {"enabled": False},
                 'is_active': 1,
@@ -300,7 +279,7 @@ def init_model_configs():
                 'allowed_tiers': ["T3", "T4", "T5"],
                 'cost_per_call': 10.00,
                 'params': {
-                    "aspect_ratio": ["16:9", "1:1", "9:16"],
+                    "aspect_ratio": ["16:9", "9:16",  "3:4", "4:3", "1:1"],
                     "image_size": ["1K","2K","4K"]
                 },
                 'token_cost_config': {"enabled": False},
@@ -365,10 +344,6 @@ def init_api_keys():
                     # 绘图模型
                     {
                         "model": "nano-banana",
-                        "api_base": "https://ai.t8star.cn/v1/images/generations"
-                    },
-                    {
-                        "model": "gemini-2.5-flash-image",
                         "api_base": "https://ai.t8star.cn/v1/images/generations"
                     },
                     {
@@ -474,6 +449,7 @@ def create_admin_user(email='admin@example.com', password='***REMOVED***'):
         # 创建管理员
         admin = User(
             email=email,
+            name='管理员',  # 设置默认用户名
             password_hash=password_hash,
             recharge_balance=10000.00,
             activity_balance=0.00,
