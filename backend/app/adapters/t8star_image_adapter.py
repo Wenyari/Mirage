@@ -31,6 +31,10 @@ class T8StarImageGenerationAdapter(T8StarVideoGenerationAdapter):
         # 图片生成可能有参考图
         image = params.get('image', [])
 
+        if not image and task_payload.get('input_file_url'):
+            input_url = task_payload['input_file_url']
+            image = [input_url] if isinstance(input_url, str) else input_url
+
         payload = {
             "model": task_payload.get('model'),
             "prompt": task_payload.get('prompt', ''),
