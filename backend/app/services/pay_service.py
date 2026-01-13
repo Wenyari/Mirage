@@ -109,7 +109,7 @@ def redeem_cdk(user_id: int, code: str) -> dict:
     return result
 
 
-def check_and_deduct_balance(user_id: int, amount: float, task_id: str):
+def check_and_deduct_balance(user_id: int, amount: float, task_id: str, model: str = None):
     """
     检查余额并扣除（优先扣除活动积分）
 
@@ -158,6 +158,7 @@ def check_and_deduct_balance(user_id: int, amount: float, task_id: str):
             user_id=user_id,
             type='task_cost',
             balance_type='activity',
+            model=model,
             amount=-deduct_from_activity,
             balance_snapshot=user.activity_balance,
             related_id=task_id,
@@ -171,6 +172,7 @@ def check_and_deduct_balance(user_id: int, amount: float, task_id: str):
             user_id=user_id,
             type='task_cost',
             balance_type='recharge',
+            model=model,
             amount=-deduct_from_recharge,
             balance_snapshot=user.recharge_balance,
             related_id=task_id,

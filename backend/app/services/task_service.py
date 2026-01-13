@@ -114,7 +114,8 @@ class TaskService:
 
         # 6. 扣除积分（使用统一的 pay_service，优先扣除活动积分）
         try:
-            check_and_deduct_balance(user_id, cost, task_id)
+            # pass model_key so the transaction rows record which model was used
+            check_and_deduct_balance(user_id, cost, task_id, model_key)
         except ValueError as e:
             raise ValueError(str(e))
 
