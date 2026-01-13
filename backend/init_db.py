@@ -126,17 +126,7 @@ def init_models():
                 'tags': ['video', 'generation', 'pro', 'frames']
             },
             # 绘图模型
-            {
-                'key': 'nano-banana',
-                'name': 'nano-banana',
-                'enabled': 1,
-                'description': 'Nano Banana 图片生成模型',
-                'color': 'bg-purple-500',
-                'icon_url': None,
-                'max_concurrency_limit': 10,
-                'tags': ['image', 'generation']
-            },
-            {
+              {
                 'key': 'sora_image',
                 'name': 'sora_image',
                 'enabled': 1,
@@ -156,6 +146,17 @@ def init_models():
                 'max_concurrency_limit': 10,
                 'tags': ['image', 'generation']
             },
+            {
+                'key': 'nano-banana',
+                'name': 'nano-banana',
+                'enabled': 1,
+                'description': 'Nano Banana 图片生成模型',
+                'color': 'bg-purple-500',
+                'icon_url': None,
+                'max_concurrency_limit': 10,
+                'tags': ['image', 'generation']
+            },
+          
             {
                 'key': 'nano-banana-2',
                 'name': 'nano-banana-2',
@@ -240,18 +241,7 @@ def init_model_configs():
                 'description': 'Veo 3.1 Pro 视频生成配置'
             },
             # 绘图模型配置
-            {
-                'model': 'nano-banana',
-                'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],  # 已有，保持兼容
-                'cost_per_call': 4.00,
-                'params': {
-                    "aspect_ratio": ["16:9", "9:16",  "3:4", "4:3", "1:1"]
-                },
-                'token_cost_config': {"enabled": False},
-                'is_active': 1,
-                'description': 'Nano Banana 图片生成配置'
-            },
-            {
+             {
                 'model': 'sora_image',
                 'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],
                 'cost_per_call': 3.00,
@@ -274,6 +264,18 @@ def init_model_configs():
                 'is_active': 1,
                 'description': 'GPT-4o Image 图片生成配置'
             },
+            {
+                'model': 'nano-banana',
+                'allowed_tiers': ["T1", "T2", "T3", "T4", "T5"],  # 已有，保持兼容
+                'cost_per_call': 4.00,
+                'params': {
+                    "aspect_ratio": ["16:9", "9:16",  "3:4", "4:3", "1:1"]
+                },
+                'token_cost_config': {"enabled": False},
+                'is_active': 1,
+                'description': 'Nano Banana 图片生成配置'
+            },
+           
             {
                 'model': 'nano-banana-2',
                 'allowed_tiers': ["T3", "T4", "T5"],
