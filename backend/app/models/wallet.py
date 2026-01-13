@@ -58,6 +58,7 @@ class Transaction(db.Model):
     related_id = db.Column(db.String(50), nullable=True)  # 关联 ID (CDK ID or Task ID)
     activity_id = db.Column(db.Integer, nullable=True, comment='关联活动ID')
     remark = db.Column(db.String(255), nullable=True)  # 备注
+    model = db.Column(db.String(50), nullable=True, comment='关联模型标识，例如 sora-2 或 gpt-4')
     created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False, index=True)
 
     # 组合索引：用户查看账单
@@ -76,6 +77,7 @@ class Transaction(db.Model):
             'user_id': self.user_id,
             'type': self.type,
             'balance_type': self.balance_type,
+            'model': self.model,
             'amount': float(self.amount),
             'balance_snapshot': float(self.balance_snapshot),
             'related_id': self.related_id,

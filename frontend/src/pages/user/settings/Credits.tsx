@@ -295,8 +295,8 @@ export default function Credits() {
           最近交易
         </h4>
         <ScrollArea className="h-48">
-          {transactions.length === 0 ? (
-            <div className="text-muted-foreground">暂无交易记录</div>
+          {transactions.filter((t) => t.type === 'recharge').length === 0 ? (
+            <div className="text-muted-foreground">暂无充值记录</div>
           ) : (
             <table className="w-full">
               <thead>
@@ -308,17 +308,19 @@ export default function Credits() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((t) => (
-                  <tr key={t.id}>
-                    <td>{t.created_at}</td>
-                    <td>
-                      {t.type}
-                      {t.balance_type && <span className="ml-1 text-xs text-gray-500">({t.balance_type})</span>}
-                    </td>
-                    <td>{t.amount}</td>
-                    <td>{t.remark || t.reason || '-'}</td>
-                  </tr>
-                ))}
+                {transactions
+                  .filter((t) => t.type === 'recharge')
+                  .map((t) => (
+                    <tr key={t.id}>
+                      <td>{t.created_at}</td>
+                      <td>
+                        {t.type}
+                        {t.balance_type && <span className="ml-1 text-xs text-gray-500">({t.balance_type})</span>}
+                      </td>
+                      <td>{t.amount}</td>
+                      <td>{t.remark || t.reason || '-'}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
