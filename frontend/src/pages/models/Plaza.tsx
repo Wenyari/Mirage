@@ -1,7 +1,8 @@
-import { useEffect, useState, useMemo } from 'react';
-import api from '@/lib/api';
-import { Card } from '@/components/ui/card';
 import { Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
+import { useEffect, useMemo,useState } from 'react';
+
+import { Card } from '@/components/ui/card';
+import api from '@/lib/api';
 
 const CATEGORY_ORDER = ['text', 'image', 'video', 'other'];
 const CATEGORY_LABEL: Record<string, string> = {
@@ -39,7 +40,7 @@ export default function ModelPlaza() {
   const fetchModels = async () => {
     setIsLoading(true);
     try {
-      const res: any = await api.get('/models?page=1&size=50');
+      const res: any = await api.get('/models/?page=1&size=50');
       const list = res?.data?.list || [];
       setModels(list);
     } catch (e) {
@@ -66,7 +67,7 @@ export default function ModelPlaza() {
 
   return (
     <div className="p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">模型广场</h1>
           <div className="text-sm text-muted-foreground">{models.length} 个模型</div>
@@ -82,8 +83,8 @@ export default function ModelPlaza() {
               if (list.length === 0) return null;
               return (
                 <section key={cat} className="mb-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-medium flex items-center gap-2">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="flex items-center gap-2 text-lg font-medium">
                       {cat === 'image' ? (
                         <ImageIcon className="size-4 text-muted-foreground" />
                       ) : cat === 'video' ? (
@@ -96,7 +97,7 @@ export default function ModelPlaza() {
                     <div className="text-sm text-muted-foreground">{list.length} 个</div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-center">
+                  <div className="grid grid-cols-1 justify-center gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {list.map((item: any) => {
                       const m = item.model;
                       const cfg = item.config;
@@ -106,23 +107,23 @@ export default function ModelPlaza() {
                       return (
                         <Card
                           key={m.key}
-                          className="w-full max-w-[520px] h-28 p-4 rounded-xl border flex items-center gap-4 hover:shadow-md transition overflow-hidden"
+                          className="flex h-28 w-full max-w-[520px] items-center gap-4 overflow-hidden rounded-xl border p-4 transition hover:shadow-md"
                           onClick={() => (window.location.href = `/models/${m.key}`)}
                         >
-                          <div className="w-14 h-14 rounded-md flex items-center justify-center text-white shrink-0" style={{ background: m.color || '#eef2ff' }}>
+                          <div className="flex size-14 shrink-0 items-center justify-center rounded-md text-white" style={{ background: m.color || '#eef2ff' }}>
                             { (m.icon_url || assetMap[m.key]) ? (
-                              <img src={m.icon_url || assetMap[m.key]} alt={m.name} className="w-10 h-10 object-contain" />
+                              <img src={m.icon_url || assetMap[m.key]} alt={m.name} className="size-10 object-contain" />
                             ) : (
                               <span className="font-semibold">{(m.name || '').charAt(0).toUpperCase()}</span>
                             )}
                           </div>
 
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold truncate">{m.name}</div>
-                            <div className="text-sm text-muted-foreground mt-1 truncate">{line1}</div>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate font-semibold">{m.name}</div>
+                            <div className="mt-1 truncate text-sm text-muted-foreground">{line1}</div>
                             {line2 && (
                               <div
-                                className="text-sm text-muted-foreground mt-1"
+                                className="mt-1 text-sm text-muted-foreground"
                                 style={{
                                   display: '-webkit-box',
                                   WebkitLineClamp: 2,

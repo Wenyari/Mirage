@@ -1,12 +1,27 @@
+# 1. 强制 HTTP 跳转到 HTTPS (可选，但推荐)
 server {
     listen 80;
-    # 1. 修改这里：将 IP 换成您的域名
-    server_name gogen.tech www.gogen.tech; 
+    server_name gogen.top www.gogen.top;
+    return 301 https://$host$request_uri;
+}
 
-    # --- 性能优化（可选，建议加上）---
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript;
+# 2. HTTPS 配置
+server {
+    listen 443 ssl;
+    server_name gogen.top www.gogen.top;
 
+    # --- SSL 证书配置核心部分 ---
+    ssl_certificate     /etc/nginx/cert/gogen.top.pem;  # 证书路径
+    ssl_certificate_key /etc/nginx/cert/gogen.top.key;  # 密钥路径
+
+    # --- SSL 优化配置 (推荐) ---
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    # --- 你的业务配置 (前端 + 后端) ---
+    
     # --- 前端配置 ---
     location / {
         root /var/www/gogen/frontend;
