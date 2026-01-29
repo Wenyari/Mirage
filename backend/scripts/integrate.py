@@ -30,7 +30,7 @@ BUCKET_NAME = "assets"  # 对应你的 R2_BUCKET_NAME
 
 # 3. 公网访问域名
 # 注意：去掉末尾的斜杠，方便后面代码拼接
-PUBLIC_DOMAIN = "https://pub-826107e0701d495a8c5318616ce8ac43.r2.dev"
+PUBLIC_DOMAIN = "https://pub-a68a295d454b46b694db9db8b1272806.r2.dev"
 
 # 并发限制 (防止一次性发起太多请求)
 MAX_CONCURRENCY = 10
