@@ -14,7 +14,7 @@ DB_CONFIG = {
     'cursorclass': pymysql.cursors.DictCursor
 }
 
-JSON_FILE = 'final_data_to_sync.json'
+JSON_FILE = 'scripts/final_data_to_sync.json'
 
 # ================= SQL 定义 =================
 
