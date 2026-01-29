@@ -1,0 +1,16 @@
+[
+  {
+    "source_id": "demo_img_001",
+    "media_type": "image",
+    "prompt_en": "A cute cat sitting on a laptop, anime style",
+    "prompt_zh": "一只坐在笔记本电脑上的可爱猫咪，动漫风格",
+    "negative_prompt": "",
+    "width": 272,
+    "height": 92,
+    "aspect_ratio": 2.96,
+    "r2_key": "images/202601/2221c2e536b2424a88df0788fe247f05.png",
+    "r2_url": "https://pub-826107e0701d495a8c5318616ce8ac43.r2.dev/images/202601/2221c2e536b2424a88df0788fe247f05.png",
+    "cover_r2_key": null,
+    "cover_r2_url": null
+  }
+]
