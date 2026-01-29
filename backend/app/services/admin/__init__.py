@@ -44,6 +44,14 @@ from .membership_config_service import (
     get_membership_config,
     update_membership_config,
 )
+from .ai_media_asset_service import (
+    get_asset_list,
+    get_asset_by_id,
+    create_asset,
+    update_asset,
+    delete_asset,
+    batch_delete_assets,
+)
 
 __all__ = [
     # Dashboard服务
@@ -84,4 +92,11 @@ __all__ = [
     # 会员配置管理服务
     'get_membership_config',
     'update_membership_config',
+    # AI媒体资产管理服务
+    'get_asset_list',
+    'get_asset_by_id',
+    'create_asset',
+    'update_asset',
+    'delete_asset',
+    'batch_delete_assets',
 ]

@@ -11,6 +11,7 @@ from .keys import bp as keys_bp
 from .model_configs import bp as model_configs_bp
 from .config import bp as config_bp
 from .activities import bp as activities_bp
+from .ai_media_assets import bp as ai_media_assets_bp
 
 # 创建管理员主蓝图，URL前缀为 /api/admin
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
@@ -24,6 +25,7 @@ admin_bp.register_blueprint(keys_bp)
 admin_bp.register_blueprint(model_configs_bp)
 admin_bp.register_blueprint(config_bp)
 admin_bp.register_blueprint(activities_bp)
+admin_bp.register_blueprint(ai_media_assets_bp)
 
 # 导出主蓝图供 app 使用
 __all__ = ['admin_bp']
