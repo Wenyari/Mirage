@@ -39,8 +39,8 @@ import { useAuthStore } from '@/store/authStore';
 import type { AiMediaAsset, CreateAssetRequest, UpdateAssetRequest } from '@/types/aiMediaAsset';
 
 export default function Prompts() {
-  const { user } = useAuthStore();
-  const isAdmin = user?.role === 'admin';
+  const { user, isAuthenticated } = useAuthStore();
+  const isAdmin = isAuthenticated && user?.role === 'admin';
 
   // 筛选和搜索状态
   const [mediaType, setMediaType] = useState<'all' | 'image' | 'video'>('image'); // 默认显示图片
@@ -96,6 +96,22 @@ export default function Prompts() {
       observer.disconnect();
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  // 加载时禁用滚动,防止布局闪烁
+  useEffect(() => {
+    if (isFetchingNextPage) {
+      // 禁用滚动
+      document.body.style.overflow = 'hidden';
+    } else {
+      // 恢复滚动
+      document.body.style.overflow = '';
+    }
+
+    // 清理函数:组件卸载时恢复滚动
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isFetchingNextPage]);
 
   // 处理搜索
   const handleSearch = () => {
@@ -218,9 +234,9 @@ export default function Prompts() {
         </div>
       ) : isLoading ? (
         // 加载骨架屏
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="space-y-3">
+            <div key={i} className="mb-6 break-inside-avoid space-y-3">
               <Skeleton className="aspect-[4/3] w-full rounded-lg" />
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-4 w-full" />
@@ -246,16 +262,20 @@ export default function Prompts() {
         </div>
       ) : (
         <>
-          {/* 资产网格 - 使用列数布局,卡片高度自适应 */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {/* 资产网格 - 使用多列布局实现瀑布流效果 */}
+          <div
+            key={`${mediaType}-${keyword}`}
+            className="columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4"
+          >
             {assets.map((asset) => (
-              <AssetCard
-                key={asset.id}
-                asset={asset}
-                isAdmin={isAdmin}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-              />
+              <div key={asset.id} className="mb-6 break-inside-avoid">
+                <AssetCard
+                  asset={asset}
+                  isAdmin={isAdmin}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                />
+              </div>
             ))}
           </div>
 
