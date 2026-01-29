@@ -246,7 +246,7 @@ export default function Prompts() {
         </div>
       ) : (
         <>
-          {/* 资产网格 */}
+          {/* 资产网格 - 使用列数布局,卡片高度自适应 */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {assets.map((asset) => (
               <AssetCard

@@ -32,7 +32,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { AiMediaAsset } from '@/types/aiMediaAsset';
+import type { AiMediaAsset, CreateAssetRequest, UpdateAssetRequest } from '@/types/aiMediaAsset';
 
 const assetFormSchema = z.object({
     title: z.string().min(1, '标题不能为空').max(255, '标题过长'),
@@ -53,7 +53,7 @@ interface AssetDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     asset?: AiMediaAsset;
-    onSubmit: (data: AssetFormValues) => void;
+    onSubmit: (data: CreateAssetRequest | UpdateAssetRequest) => void;
     isLoading?: boolean;
 }
 
@@ -68,8 +68,9 @@ export function AssetDialog({ open, onOpenChange, asset, onSubmit, isLoading }: 
                 prompt_zh: asset.prompt_zh || '',
                 width: asset.width,
                 height: asset.height,
-                r2_key: asset.r2_key || '',
-                r2_url: asset.r2_url || '',
+                // 兼容旧数据:如果是数组取第一个,否则保留原值
+                r2_key: Array.isArray(asset.r2_key) ? asset.r2_key.join(', ') : asset.r2_key || '',
+                r2_url: Array.isArray(asset.r2_url) ? asset.r2_url.join(', ') : asset.r2_url || '',
                 cover_r2_key: asset.cover_r2_key || '',
                 cover_r2_url: asset.cover_r2_url || '',
             }
@@ -88,7 +89,13 @@ export function AssetDialog({ open, onOpenChange, asset, onSubmit, isLoading }: 
     });
 
     const handleSubmit = (data: AssetFormValues) => {
-        onSubmit(data);
+        // 将字符串字段转换为数组(用逗号分隔)
+        const transformedData: CreateAssetRequest | UpdateAssetRequest = {
+            ...data,
+            r2_key: data.r2_key ? data.r2_key.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+            r2_url: data.r2_url ? data.r2_url.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+        };
+        onSubmit(transformedData);
         form.reset();
     };
 
@@ -219,9 +226,9 @@ export function AssetDialog({ open, onOpenChange, asset, onSubmit, isLoading }: 
                                 <FormItem>
                                     <FormLabel>资源URL</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://..." {...field} />
+                                        <Input placeholder="https://..., https://..." {...field} />
                                     </FormControl>
-                                    <FormDescription>R2存储的资源访问链接</FormDescription>
+                                    <FormDescription>R2存储的资源访问链接,多个链接用逗号分隔</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}

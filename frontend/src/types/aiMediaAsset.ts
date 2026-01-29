@@ -13,8 +13,8 @@ export interface AiMediaAsset {
     width: number;
     height: number;
     aspect_ratio: number;
-    r2_key: string | null;
-    r2_url: string | null;
+    r2_key: string[] | null;
+    r2_url: string[] | null;
     cover_r2_key: string | null;
     cover_r2_url: string | null;
     created_at: string;
@@ -50,8 +50,8 @@ export interface CreateAssetRequest {
     prompt_zh?: string;
     width?: number;
     height?: number;
-    r2_key?: string;
-    r2_url?: string;
+    r2_key?: string[];
+    r2_url?: string[];
     cover_r2_key?: string;
     cover_r2_url?: string;
 }
