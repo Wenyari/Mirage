@@ -5,6 +5,7 @@
  */
 import { Loader2, Plus, Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import Masonry from 'react-masonry-css';
 import { toast } from 'sonner';
 
 import { AssetCard } from '@/components/user/AssetCard';
@@ -234,16 +235,26 @@ export default function Prompts() {
         </div>
       ) : isLoading ? (
         // 加载骨架屏
-        <div className="columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4">
+        <Masonry
+          breakpointCols={{
+            default: 4,
+            1280: 4,
+            1024: 3,
+            640: 2,
+            0: 1
+          }}
+          className="flex -ml-6 w-auto"
+          columnClassName="pl-6 bg-clip-padding"
+        >
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="mb-6 break-inside-avoid space-y-3">
+            <div key={i} className="mb-6 space-y-3">
               <Skeleton className="aspect-[4/3] w-full rounded-lg" />
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
             </div>
           ))}
-        </div>
+        </Masonry>
       ) : assets.length === 0 ? (
         // 空状态
         <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-dashed p-8">
@@ -262,13 +273,20 @@ export default function Prompts() {
         </div>
       ) : (
         <>
-          {/* 资产网格 - 使用多列布局实现瀑布流效果 */}
-          <div
-            key={`${mediaType}-${keyword}`}
-            className="columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4"
+          {/* 资产网格 - 使用 Masonry 实现瀑布流效果 */}
+          <Masonry
+            breakpointCols={{
+              default: 4,
+              1280: 4, // xl
+              1024: 3, // lg
+              640: 2,  // sm
+              0: 1     // mobile
+            }}
+            className="flex -ml-6 w-auto"
+            columnClassName="pl-6 bg-clip-padding"
           >
             {assets.map((asset) => (
-              <div key={asset.id} className="mb-6 break-inside-avoid">
+              <div key={asset.id} className="mb-6">
                 <AssetCard
                   asset={asset}
                   isAdmin={isAdmin}
@@ -277,7 +295,7 @@ export default function Prompts() {
                 />
               </div>
             ))}
-          </div>
+          </Masonry>
 
           {/* 加载更多指示器 */}
           <div ref={loadMoreRef} className="flex justify-center py-8">
