@@ -1,7 +1,7 @@
 /**
  * AI媒体资产React Query Hooks
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
     batchDeleteAssets,
@@ -25,6 +25,25 @@ export function useAssets(params?: GetAssetsParams) {
     return useQuery({
         queryKey: ['ai-media-assets', params],
         queryFn: () => getAssets(params),
+    });
+}
+
+/**
+ * 无限滚动获取资产列表
+ */
+export function useInfiniteAssets(params?: Omit<GetAssetsParams, 'page'>) {
+    return useInfiniteQuery({
+        queryKey: ['ai-media-assets', 'infinite', params],
+        queryFn: ({ pageParam = 1 }) =>
+            getAssets({
+                ...params,
+                page: pageParam,
+            }),
+        getNextPageParam: (lastPage) => {
+            const { page, total_pages } = lastPage.data;
+            return page < total_pages ? page + 1 : undefined;
+        },
+        initialPageParam: 1,
     });
 }
 

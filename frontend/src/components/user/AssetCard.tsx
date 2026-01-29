@@ -25,65 +25,59 @@ export function AssetCard({ asset, isAdmin, onEdit, onDelete }: AssetCardProps) 
 
     return (
         <Card className="group overflow-hidden transition-all hover:shadow-lg">
-            {/* 预览图 */}
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                {asset.r2_url ? (
-                    <>
-                        {asset.media_type === 'image' ? (
-                            <img
-                                src={asset.r2_url}
-                                alt={asset.title}
-                                className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                                loading="lazy"
-                            />
-                        ) : (
-                            <div className="relative h-full w-full">
-                                {asset.cover_r2_url ? (
-                                    <img
-                                        src={asset.cover_r2_url}
-                                        alt={asset.title}
-                                        className="h-full w-full object-cover"
-                                        loading="lazy"
-                                    />
-                                ) : (
-                                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-                                        <Play className="h-16 w-16 text-white/80" />
-                                    </div>
-                                )}
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                    <Play className="h-12 w-12 text-white" />
+            {/* 预览图 - 仅在有图片时显示 */}
+            {asset.r2_url && (
+                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    {asset.media_type === 'image' ? (
+                        <img
+                            src={asset.r2_url}
+                            alt={asset.title}
+                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                            loading="lazy"
+                        />
+                    ) : (
+                        <div className="relative h-full w-full">
+                            {asset.cover_r2_url ? (
+                                <img
+                                    src={asset.cover_r2_url}
+                                    alt={asset.title}
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                                    <Play className="h-16 w-16 text-white/80" />
                                 </div>
+                            )}
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <Play className="h-12 w-12 text-white" />
                             </div>
-                        )}
-                    </>
-                ) : (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
-                        <span className="text-gray-400">无预览</span>
-                    </div>
-                )}
+                        </div>
+                    )}
 
-                {/* 管理员操作按钮 */}
-                {isAdmin && (
-                    <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                        <Button
-                            variant="secondary"
-                            size="icon"
-                            className="h-8 w-8 bg-black/50 text-white hover:bg-black/70"
-                            onClick={() => onEdit?.(asset)}
-                        >
-                            <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                            variant="destructive"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => onDelete?.(asset.id)}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    </div>
-                )}
-            </div>
+                    {/* 管理员操作按钮 */}
+                    {isAdmin && (
+                        <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                            <Button
+                                variant="secondary"
+                                size="icon"
+                                className="h-8 w-8 bg-black/50 text-white hover:bg-black/70"
+                                onClick={() => onEdit?.(asset)}
+                            >
+                                <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => onDelete?.(asset.id)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* 卡片内容 */}
             <CardHeader className="pb-3">

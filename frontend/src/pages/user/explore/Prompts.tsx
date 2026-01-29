@@ -1,9 +1,10 @@
 /**
  * AI媒体资产展示页面 (Prompts)
  * 所有用户可浏览,管理员可增删改
+ * 使用无限滚动懒加载
  */
-import { Plus, Search } from 'lucide-react';
-import { useState } from 'react';
+import { Loader2, Plus, Search } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { AssetCard } from '@/components/user/AssetCard';
@@ -18,7 +19,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -30,9 +30,9 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  useAssets,
   useCreateAsset,
   useDeleteAsset,
+  useInfiniteAssets,
   useUpdateAsset,
 } from '@/hooks/useAiMediaAssets';
 import { useAuthStore } from '@/store/authStore';
@@ -43,8 +43,7 @@ export default function Prompts() {
   const isAdmin = user?.role === 'admin';
 
   // 筛选和搜索状态
-  const [page, setPage] = useState(1);
-  const [mediaType, setMediaType] = useState<'all' | 'image' | 'video'>('all');
+  const [mediaType, setMediaType] = useState<'all' | 'image' | 'video'>('image'); // 默认显示图片
   const [keyword, setKeyword] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
@@ -56,9 +55,18 @@ export default function Prompts() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingAssetId, setDeletingAssetId] = useState<number | null>(null);
 
-  // 数据查询
-  const { data, isLoading, error } = useAssets({
-    page,
+  // 无限滚动加载
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // 数据查询 - 使用无限滚动
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteAssets({
     page_size: 20,
     media_type: mediaType === 'all' ? undefined : mediaType,
     keyword: keyword || undefined,
@@ -69,10 +77,29 @@ export default function Prompts() {
   const updateMutation = useUpdateAsset();
   const deleteMutation = useDeleteAsset();
 
+  // 无限滚动检测
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
   // 处理搜索
   const handleSearch = () => {
     setKeyword(searchInput);
-    setPage(1);
   };
 
   // 处理创建
@@ -131,12 +158,11 @@ export default function Prompts() {
   // 处理媒体类型筛选
   const handleMediaTypeChange = (value: string) => {
     setMediaType(value as 'all' | 'image' | 'video');
-    setPage(1);
   };
 
-  const assets = data?.data?.items || [];
-  const totalPages = data?.data?.total_pages || 0;
-  const total = data?.data?.total || 0;
+  // 合并所有页的数据
+  const assets = data?.pages.flatMap((page) => page.data.items) || [];
+  const total = data?.pages[0]?.data?.total || 0;
 
   return (
     <div className="container mx-auto space-y-6 p-6">
@@ -207,7 +233,13 @@ export default function Prompts() {
         <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-dashed p-8">
           <p className="text-lg text-muted-foreground">暂无数据</p>
           {keyword && (
-            <Button variant="link" onClick={() => { setKeyword(''); setSearchInput(''); setPage(1); }}>
+            <Button
+              variant="link"
+              onClick={() => {
+                setKeyword('');
+                setSearchInput('');
+              }}
+            >
               清除搜索
             </Button>
           )}
@@ -227,50 +259,19 @@ export default function Prompts() {
             ))}
           </div>
 
-          {/* 分页 */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                上一页
-              </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  let pageNumber: number;
-                  if (totalPages <= 5) {
-                    pageNumber = i + 1;
-                  } else if (page <= 3) {
-                    pageNumber = i + 1;
-                  } else if (page >= totalPages - 2) {
-                    pageNumber = totalPages - 4 + i;
-                  } else {
-                    pageNumber = page - 2 + i;
-                  }
-
-                  return (
-                    <Button
-                      key={pageNumber}
-                      variant={page === pageNumber ? 'default' : 'outline'}
-                      onClick={() => setPage(pageNumber)}
-                      className="h-9 w-9 p-0"
-                    >
-                      {pageNumber}
-                    </Button>
-                  );
-                })}
+          {/* 加载更多指示器 */}
+          <div ref={loadMoreRef} className="flex justify-center py-8">
+            {isFetchingNextPage ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>加载中...</span>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
-                下一页
-              </Button>
-            </div>
-          )}
+            ) : hasNextPage ? (
+              <div className="text-muted-foreground">滚动加载更多</div>
+            ) : assets.length > 0 ? (
+              <div className="text-muted-foreground">— 到底了 —</div>
+            ) : null}
+          </div>
         </>
       )}
 
@@ -294,7 +295,10 @@ export default function Prompts() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               {deleteMutation.isPending ? '删除中...' : '确认删除'}
             </AlertDialogAction>
           </AlertDialogFooter>
