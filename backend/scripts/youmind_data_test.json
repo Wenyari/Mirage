@@ -3,7 +3,9 @@
     "source_id": "3769395caa627bd4dad05d51d64b3472",
     "title": "寬版引言卡，附人像及中英文自訂選項",
     "prompt_zh": "一张宽幅的名人金句卡，棕色背景，衬线体浅金色“保持饥饿，保持愚蠢”，小字“——Steve Jobs”，文字前面带一个大的淡淡的引号。人物头像在左边，文字在右边，文字占画面比例 2/3，人物占 1/3，人物有一点渐变过渡的感觉。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763886933714_5zqn1e_G6QBjQHbgAE3Yt_-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763886933714_5zqn1e_G6QBjQHbgAE3Yt_-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -14,7 +16,9 @@
     "source_id": "563c7b655902381b795eadc3ca1758ce",
     "title": "優質液態玻璃 Bento 網格產品資訊圖表，包含 8 個模組",
     "prompt_zh": "輸入變數：[插入產品名稱]\n語言：[插入語言]\n\n系統指令：\n建立一張包含 8 個模組（卡片 2 至 8 僅顯示文字標題）的優質液態玻璃便當格產品資訊圖表。\n1) 產品分析：\n→ 識別產品的主要自然顏色 → 「主色調」\n→ 識別類別：食物 / 藥品 / 科技\n2) 色彩調色板（源自主色調）：\n→ 產品 + 點綴：完全飽和的主色調\n→ 圖示、邊框：柔和的主色調（30-40% 飽和度，絕不使用黑色）\n3) 視覺風格：\n→ 主打產品：真實攝影（真實、優質），3D 玻璃版本 [擇一]\n→ 卡片：Apple 液態玻璃（85-90% 透明），搭配極細邊框和微妙的陰影，營造浮動深度並反射背景顏色\n→ 背景保持在卡片後方，卡片所在區域高度模糊 [擇一]：\n  - 飄渺：產品精髓、輕微焦散、抽象光暈\n  - 微距：產品紋理特寫、高度模糊\n  - 圖案：產品柔和重複，10-15% 不透明度\n  - 情境：相關環境，模糊 + 去飽和\n→ 添加微妙的動態效果\n→ 不對稱便當格，16:9 橫向\n→ 主卡片：28-30% | 資訊模組：70-72%\n4) 模組內容（8 張卡片）：\nM1 — 主打：以真實照片 / 3D 玻璃 / 風格化詮釋（擇一）的美麗形式展示產品 + 產品名稱標籤\nM2 — 核心優勢：4 項獨特優勢 + 主色調圖示\nM3 — 使用方法：4 種使用方法 + 圖示\nM4 — 關鍵指標：5 個精確數據點\n格式：[圖示] [標籤] [粗體值] [單位]\n食物：熱量：[X] kcal/100g，碳水化合物：[X]g（膳食纖維 [X]g，糖 [X]g），蛋白質：[X]g，[關鍵維生素]：[X]mg（[X]% 每日建議攝取量），[關鍵礦物質]：[X]mg（[X]% 每日建議攝取量）\n藥品：活性成分：[名稱]，強度：[X] mg，起效時間：[X] 分鐘，持續時間：[X] 小時，半衰期：[X] 小時\n科技：晶片：[型號]，電池：[X] 小時，重量：[X]g，[關鍵規格]：[值]，連接性：[協議]\nM5 — 適用對象：4 個建議群組，帶綠色勾選圖示 | 3 個注意事項群組，帶琥珀色警告圖示\nM6 — 重要注意事項：4 項預防措施 + 警告圖示\nM7 — 快速參考：\n→ 食物：升糖指數 + 飲食標籤，帶圖示\n→ 藥品：副作用 + 嚴重程度，帶圖示\n→ 科技：相容性 + 認證，帶圖示\nM8 — 您知道嗎：3 個事實（來源、科學、全球統計）+ 圖示\n輸出：1 張圖片，16:9 橫向，超優質液態玻璃資訊圖表。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1768962051381_l9uih4_537980579-6f29d32a-c786-40c4-bd5a-79c640737496-300x167.png",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1768962051381_l9uih4_537980579-6f29d32a-c786-40c4-bd5a-79c640737496-300x167.png"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -25,7 +29,9 @@
     "source_id": "9cf060c1f8cd25dac1b552fe301c59af",
     "title": "手繪風格標題圖片提示，源自照片",
     "prompt_zh": "完全重現上傳的人物。\n將其製作成一篇筆記文章的標題圖片，內容是該人物介紹「Nano Banana Pro」。\n長寬比：橫向 16:9。\n風格與顏色：簡潔、手繪風格、斜體，並帶有藍綠漸層。\n標題文字：「深入解析 Google 全新 AI『Nano Banana Pro』」。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885651870_4szbai_G6VZiROagAAqsIh-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885651870_4szbai_G6VZiROagAAqsIh-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -36,7 +42,9 @@
     "source_id": "306b1f44fc5abd632bba02eff323ebe7",
     "title": "德國水彩地圖，附各邦標籤",
     "prompt_zh": "生成一張水彩風格的德國地圖，並用原子筆標示出所有聯邦州。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763886061720_fzgqaq_G6RIeSZXgAA7cOf-300x164.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763886061720_fzgqaq_G6RIeSZXgAA7cOf-300x164.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -47,7 +55,9 @@
     "source_id": "925eb9e002b7684b58d9c2d76777dfe9",
     "title": "新年特輯：2026 祝福四格拼圖",
     "prompt_zh": "[关键:保持精确的面部特征,保留原始脸部结构,图中角色与上传参考图完全一致] 高级摄影棚2x2宫格写真。左上格(海军蓝背景):人物穿海军蓝色制服风连衣裙,金色纽扣装饰,复古卷发配蓝色贝雷帽和珍珠耳环,她双手托举一块巨大的拼图块(左上角块,上面有\"20\"数字),向画面中心方向移动,眼神专注地看向中心拼图区域,表情认真,嘴角微笑,背景有海军条纹、船锚、\"启航新年\"字样。右上格(樱花粉背景):同一女性穿粉色蕾丝连衣裙,珍珠项链,公主头配粉色玫瑰花发夹和水晶耳环,她双手托举右上角拼图块(上面有\"26\"数字)向中心移动与左上格拼接,眼神看向拼图接缝处,表情专注期待,身体前倾,背景有粉色樱花、\"美好相遇\"字样、蝴蝶、花瓣。左下格(薄荷绿背景):同一女性穿薄荷绿色棉麻连衣裙,文艺风格,自然长发配绿色发带和木质耳环,她双手托举左下角拼图块(上面有\"元旦\"字样)向上移动与左上格对接,眼神看向拼图,表情认真,嘴巴微微抿起,背景有绿色植物、\"希望生长\"字样、新芽、叶子。右下格(柠檬黄背景):同一女性穿黄色连衣裙,向日葵图案,双马尾配黄色蝴蝶结,她双手托举最后一块右下角拼图(上面有\"快乐\"字样)完成拼图,四块拼图在画面中心完美拼成\"2026元旦快乐\"完整图案,她头后仰,眼睛看向完成的拼图,脸上洋溢着成功喜悦的笑容,画面中心爆出金色光芒和彩纸,背景有黄色太阳、\"圆满成功\"字样、笑脸、向日葵。四格之间拼图从四角汇聚到中心形成完整画面,清透妆容,明亮环形光,85mm镜头,f/1.8光圈,拼图互动四联构图,时尚杂志风格。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1767455034932_ivuvu0_G9V-MszakAEAIBw-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1767455034932_ivuvu0_G9V-MszakAEAIBw-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -58,7 +68,9 @@
     "source_id": "a9777328f0010d887457eda0f4306edc",
     "title": "發明專利古董文件",
     "prompt_zh": "一份關於INVENTION的復古專利文件，其風格模仿 1800 年代末期的美國專利局檔案。頁面上印有精確的技術圖紙，並附有編號的標註（圖 1、圖 2、圖 3），展示了正面、側面和分解視圖。鋼筆墨水手寫的註釋描述了機械裝置。紙張呈陳舊的象牙色，帶有霉斑和輕微的摺痕。頁角處可見官方浮雕印章和紅色蠟封。底部有發明者的手寫簽名和日期。整張圖片給人一種從檔案中找回的感覺——權威、歷史悠久且略帶神秘。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1766940094520_1mg5pd_G8_m2ZVWEAAMG7y-300x224.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1766940094520_1mg5pd_G8_m2ZVWEAAMG7y-300x224.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -69,7 +81,9 @@
     "source_id": "88cefedecea9c87e66814b6f3b2ed049",
     "title": "黑板風格的 AI 新聞摘要",
     "prompt_zh": "使用以下內容，以黑板手寫風格歸納新聞，並像老師寫的一樣，用圖表和淺顯易懂的表達方式來分解說明。\n—-\n來自 Grok 的搜尋結果",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885620059_vzaj75_G6WfVvIbAAEgvYg-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885620059_vzaj75_G6WfVvIbAAEgvYg-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -80,7 +94,9 @@
     "source_id": "b6e61ae37a8c702d0412427e8b3e81be",
     "title": "詳細的鏡中自拍御宅族房間場景",
     "prompt_zh": "### **场景**\n镜子自拍，御宅族电脑角落，蓝色调\n\n---\n\n### **主体**\n* **性别表现**: 女性\n* **年龄段**: 25岁左右\n* **种族**: 东亚\n* **身材**: 苗条，腰线分明；身材比例自然\n* **肤色**: 浅中性色调\n* **发型**:\n    * **长度**: 及腰长发\n    * **样式**: 直发，发尾微卷\n    * **颜色**: 中等棕色\n* **姿势**:\n    * **站姿**: 站立，轻微的对立式平衡站姿（contrapposto）\n    * **右手**: 手持手机挡住脸（身份被遮挡）\n    * **左臂**: 在躯干旁自然下垂\n    * **躯干**: 身体轻微后仰；露出腰腹\n* **着装**:\n    * **上衣**: 浅蓝色短款针织开衫，扣上前两颗纽扣；隐约可见蓝色法式内衣\n    * **下装**: 牛仔超短裤，两侧臀部各有一个蓝色缎带蝴蝶结\n    * **袜子**: 蓝白横条纹过膝长袜\n    * **配饰**: 蓝色可爱吉祥物手机壳\n\n---\n\n### **环境**\n* **描述**: 从挂墙镜中看到的卧室电脑角落\n* **陈设**:\n    * 白色书桌\n    * 单显示器，显示着柔和的蓝色壁纸（没有可读的文字）\n    * 机械键盘，白色键帽，放在蓝色桌垫上\n    * 鼠标，放在小号蓝色鼠标垫上\n    * PC主机在右侧，带有蓝色机箱灯效\n    * PC主机上或附近有三个动漫手办\n    * 墙上贴着一张佛塔海报\n    * 猫形台灯，带有蓝色点缀\n    * 一杯透明的玻璃水杯\n    * 窗边（镜头左侧）有一株高大的绿叶植物\n* **颜色替换**: 将所有原先的粉色元素（衣物和房间）替换为蓝色（婴儿蓝 -> 天空蓝/长春花蓝）。\n\n---\n\n### **灯光**\n* **光源**: 来自镜头左侧大窗户的日光，透过薄纱窗帘\n* **光线质感**: 柔和的漫射光\n* **白平衡 (K)**: 5200\n\n---\n\n### **相机**\n* **模式**: 智能手机后置摄像头通过镜子拍摄（无肖像/虚化模式）\n* **等效焦距 (mm)**: 26\n* **距离 (米)**:\n    * 主体到镜子: 0.6\n    * 相机到镜子: 0.5\n* **曝光**:\n    * 光圈 (f): 1.8\n    * 感光度 (ISO): 100\n    * 快门速度 (秒): 0.01\n    * 曝光补偿 (EV): -0.3\n* **对焦**: 对焦于镜中影像的躯干和短裤\n* **景深**: 自然的智能手机景深（深景深）；背景清晰可辨，无人为模糊\n* **构图**:\n    * **宽高比**: 1:1\n    * **裁剪**: 从头顶到大腿中部；画面包含书桌、显示器、PC主机和植物\n    * **角度**: 从镜子的视角轻微俯拍\n    * **构图备注**: 保持主体居中；为避免广角边缘拉伸，可以站远一些再进行方形裁剪\n\n---\n\n### **负面提示词**\n* 任何地方出现粉色/品红色\n* 美颜滤镜/磨皮皮肤；没有毛孔的外观\n* 夸张或扭曲的人体结构\n* NSFW，透视面料，走光\n* 商标，品牌名，可读的用户界面文本\n* 虚假的人像模式模糊，CGI/插画感",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763889946850_689z0h_G23i3sJW0AASGUw-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763889946850_689z0h_G23i3sJW0AASGUw-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -91,7 +107,9 @@
     "source_id": "62a47afe159c25c85a22f784edb2baea",
     "title": "江戶時代浮世繪風格的現代場景再詮釋",
     "prompt_zh": "一幅日本江戶時代的浮世繪木刻版畫。整體感覺是葛飾北齋和歌川廣重等大師的超現實合作，透過古老的視角重新詮釋現代科技。\n\n**場景：**繁忙的澀谷十字路口**江戶時代的轉化邏輯：**\n人物身著江戶時代的和服，卻在進行現代活動。所有科技都被轉化為超現實的江戶時代等效物：\n* 智慧型手機是發光的彩繪紙卷，人們正專注地閱讀。\n* 地鐵站和列車是巨大的鉸接式木製蜈蚣車廂，在人群中穿梭。\n* 摩天大樓被重新想像成無盡、高聳的木製寶塔，直入變幻莫測的雲端。\n* 機器人和機甲則以巨大的、身披盔甲的木刻魔像形象出現。\n\n構圖採用扁平視角，具有粗大、醒目的手刻墨線輪廓。背景以高度風格化的浮世繪波浪圖案和戲劇性的旋渦雲為特色，遠處地平線上可見富士山。\n\n圖像必須看起來像實體版畫，而非數位繪畫。\n* 紋理：整幅作品中，木紋紋理和粗糙的紙纖維清晰可見。\n* 印刷瑕疵：顏料滲色明顯。模擬手工壓印版畫，帶有輕微的色彩錯位，以增添真實感。\n* 調色板：嚴格限於傳統礦物顏料，主要使用普魯士藍、朱紅色和柔和的赭黃色。\n* 光線：柔和、平坦、無陰影的光線，沒有數位漸層。\n\n長寬比為 3:4 的垂直海報。包含描述場景的垂直日文書法，並在角落處有一個傳統的紅色藝術家印章。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1764915832381_renotr_G7FuPlzbYAAsuo2-300x401.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1764915832381_renotr_G7FuPlzbYAAsuo2-300x401.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -102,7 +120,9 @@
     "source_id": "9f379e1a58062de837d566ac3a3ea6a2",
     "title": "火車廣告風格的書籍廣告圖片",
     "prompt_zh": "請產生一張廣告圖片。\n\n==== 廣告規格 ===\n- 長寬比：16:9（橫向）\n- 廣告產品：第一張附加圖片中的書籍\n- 主要吸睛點：以立體方式呈現第一張附加圖片中的書籍\n- 語言：日文\n- 風格：商業書籍廣告\n\n# 包含文字：\n- 前導文案：【發售約一週後即決定再版】\n\n書籍「Designing from Zero with AI」現正熱銷中。\n\nAmazon 暢銷書排行榜\n商業設計類銷售排名第一（截至 10/15）\nhttps://t.co/QxbYpfFVj6",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885539326_yao7in_G6WBYReawAAcp2x-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885539326_yao7in_G6WBYReawAAcp2x-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -113,7 +133,9 @@
     "source_id": "df13c43c0f78ad327e7c67db0057eca9",
     "title": "為中老年受眾生成爆紅標題和文案的 AI 提示範本",
     "prompt_zh": "恭喜你，2026年有3件大喜事马上到你家！快接住\n你的心愿要显化了，所求皆如愿，好运正奔你而来\n您家马上要迎来小贵子啦，快接住这份全家好运！\n让你开心的都在旺你，让你抑郁的都在克你，千万别不信\n你家娃的贵人，正在赶来的路上\n愿你在接下来的日子，左手握健康，右手握财富，平安又顺遂！\n你要开始发达了，步步高升大财来，举步生风遇贵人，鸿运当头喜事来\n12月开始顺风顺水，所有的心愿全都超预期到账，别怀疑，整个12月就是为你开挂的幸运月\n只有福报深的人才会看到这篇文章，别不信\n能量提示：你的苦累要结束了，好日子正在赶来\n别急着走开，有人特意托我捎来三句暖心话，每句都藏着满满好运\n你就是幸运好命，想什么来什么，干什么成什么\n\n总结上面标题的书写方式，再发散思维，根据你的总结，给我书写10个类似的爆款标题\n\n我是公众号创作者，根据标题：你就是天生福命，2026 年想啥来啥，干啥啥成。给我写出一段祝福文案，结构要求：5段话，每句话2分句。文风要求：简短、接地气，口语化表达，没有ai生硬词汇、以及网络用语，中老年人都能看懂",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582014771_t3rm4i_G_unQaRaUAAVM5x-300x259.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582014771_t3rm4i_G_unQaRaUAAVM5x-300x259.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -124,7 +146,9 @@
     "source_id": "5dee6c041e0d577da5cd6f91d07725d4",
     "title": "直視鏡頭的親密特寫肖像，帶有環形補光燈",
     "prompt_zh": "{\n    \"subject\": {\n        \"core_identity\": \"使用參考圖像中的相同臉孔，不改變面部特徵，白皙皮膚帶柔和暖色調，自然迷人的美感，及肩直髮為巧克力棕色帶有微妙暖色調\",\n        \"skin_and_facial_details\": \"超細緻寫實皮膚:1.4，鼻部、臉頰和下巴可見細微毛孔，微妙的次表面散射營造出柔和的光澤，自然的微小瑕疵和淡淡的紋理，高度細緻的虹膜帶有豐富的放射狀圖案，環形燈和手機閃光燈投射出銳利眼神光，眉毛清晰，睫毛捲翹濃密，豐滿光澤的嘴唇呈現豐富的珊瑚紅色並帶有高光澤:1.3\",\n        \"hair\": \"及肩直髮為巧克力棕色帶有暖色調，整齊的鈍剪波波頭，帶有柔和的修飾臉型的層次，髮絲捕捉環形燈光，呈現逼真的光澤分離和微妙的動感:1.2\",\n        \"body_figure\": \"纖細而柔和豐滿的女性輪廓，比例勻稱:1.2，低領上衣露出柔和的肩線，可見精緻的鎖骨，胸部自然輪廓輕柔地壓在布料上，特寫畫面暗示著纖細的腰部和臀部，放鬆斜倚的姿勢呈現自然的不對稱性\",\n        \"micro_expression\": \"親密的直視鏡頭，眼睛微垂，柔和微張的光澤嘴唇呈現輕柔誘人的嘟嘴，嘴角帶有微妙的會心一笑，透過半閉的眼睛和放鬆的面部表情傳達出私密的魅力、從容的自信和感性的邀請:1.2\"\n    },\n    \"apparel_and_materials\": \"黑色天鵝絨或毛絨短版上衣，低領口，柔軟奢華的面料帶有深絨毛紋理，微妙的光澤和吸光性營造出豐富的深色調，斜倚姿勢下胸部和肩部周圍的自然垂墜和壓縮褶皺:1.3\",\n    \"pose_and_action\": \"親密特寫臥室自拍姿勢，躺在床上或枕頭上，頭部略微傾向鏡頭，肩膀放鬆，身體傾斜以展示頸部和鎖骨線條，姿勢透過斜倚的姿態和直接的眼神接觸傳達出私密的放鬆、感性的親近和誘人的脆弱:1.2\",\n    \"scene_and_environment\": \"舒適的現代臥室內部，背景是柔和的青色/藍綠色窗簾，溫暖的環形燈提供主要照明，中性寢具，帶有柔和低調氛圍的私密空間:1.1\",\n    \"lighting_shadows_and_color_design\": \"來自右上方前方的強烈定向環形燈光，營造出柔和而戲劇性的\"\n}",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582035395_aoa1st_G_uj5xjaAAASH7w-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582035395_aoa1st_G_uj5xjaAAASH7w-300x537.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -135,7 +159,9 @@
     "source_id": "661be5008092aa2200129423f65981b4",
     "title": "極簡主義生活風格攝影提示",
     "prompt_zh": "```json\n{\n  \"image_generation\": {\n    \"subject\": {\n      \"description\": \"年輕女子隨意地坐在室內\",\n      \"pose\": \"坐在木凳上，膝蓋彎曲，雙手捧著一杯冷飲\",\n      \"expression\": \"平靜、中性、略帶內省\",\n      \"gaze\": \"直視鏡頭\"\n    },\n    \"appearance\": {\n      \"hair\": {\n        \"color\": \"自然黑\",\n        \"style\": \"長直髮，中分\"\n      },\n      \"face\": {\n        \"skin_tone\": \"白皙帶自然紅暈\",\n        \"makeup\": \"淡妝，自然妝容\"\n      },\n      \"accessories\": [\n        \"銀色耳罩式耳機\",\n        \"棕色皮革斜背包\"\n      ]\n    },\n    \"outfit\": {\n      \"top\": \"{argument name=\\\"top color\\\" default=\\\"white\\\"} 合身背心\",\n      \"outerwear\": \"淺米色紋理襯衫外套\",\n      \"bottom\": \"白色寬鬆長褲\",\n      \"footwear\": \"灰色運動鞋配白色條紋\"\n    },\n    \"environment\": {\n      \"setting\": \"現代簡約室內空間\",\n      \"background_elements\": [\n        \"水泥牆\",\n        \"黑色冰箱\",\n        \"開放式門口\",\n        \"木桌\"\n      ],\n      \"floor\": \"拋光水泥地\"\n    },\n    \"props\": {\n      \"drink\": \"透明塑膠杯裝冰咖啡，附黑色吸管\",\n      \"furniture\": \"圓形木凳\"\n    },\n    \"lighting\": {\n      \"type\": \"自然日光\",\n      \"direction\": \"窗戶側光\",\n      \"quality\": \"柔和漫射\"\n    },\n    \"camera\": {\n      \"angle\": \"視線水平\",\n      \"framing\": \"中景全身照\",\n      \"lens\": \"35mm\",\n      \"depth_of_field\": \"適中，背景柔和對焦\"\n    },\n    \"aesthetic\": {\n      \"style\": \"極簡生活攝影\",\n      \"vibe\": \"舒適、放鬆、現代\",\n      \"color_palette\": \"中性色調、米色、白色、灰色\"\n    },\n    \"quality\": {\n      \"realism\": \"高度寫實\",\n      \"resolution\": \"高解析度\",\n      \"look\": \"編輯式生活照\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582042437_hg0qhu_G_udOq6WAAATbyr-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582042437_hg0qhu_G_udOq6WAAATbyr-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -146,7 +172,9 @@
     "source_id": "9a47b9c04a6035d2a3699050cf679b1c",
     "title": "電影節肖像提示",
     "prompt_zh": "創作一張電影風格、高解析度、超特寫的年輕女性肖像（使用上傳照片中的人物，無需修改），場景設定在電子音樂節。她擁有一頭深棕色黑長髮。她正喜悅地回眸，表情沉著而酷炫。她戴著圓形復古風格太陽眼鏡，反射著周圍的燈光，並穿著一件白色有紋理的夾克。燈光戲劇化且充滿活力，以青色光束為主，並帶有",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582041036_dkngl4_G_uQZdvbAAE8WuC-300x402.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582041036_dkngl4_G_uQZdvbAAE8WuC-300x402.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -157,7 +185,9 @@
     "source_id": "3bcb1b676fc4389d3b2cdd931523c1fe",
     "title": "Alexander McQueen 運動鞋編輯網格 Nano Banana Pro 提示",
     "prompt_zh": "为高端商业营销活动创建3×3网格，以Alexander McQueen男士奢侈运动鞋为中心主题。\n\n每帧展现独特视觉概念，同时保持九张图像中完美的产品一致性。\n\n网格概念（每格一个）：\n\n1. '标志性英雄镜头'：深色光滑基座上的眼平面侧视图，强调标志性超大鞋底。\n\n2. '极致微距细节'：鞋跟或缝线特写，突显顶级皮革纹理和'Alexander McQueen'标志压纹。\n\n3. '动态交互'：鞋踏上表面产生微妙优雅的黑色液体或大理石粉溅洒效果。\n\n4. '极简雕塑感'：鞋艺术性地平衡在几何混凝土或大理石块上，强调建筑设计。\n\n5. '悬浮轻盈感'：鞋悬浮空中，鞋带动态悬挂，传达顶级舒适感和轻盈感。\n\n6. '感官质地'：聚焦天鹅绒或光滑皮革上部与粗糙石头纹理对比的触感氛围镜头。\n\n7. '单色奢华'：背景与鞋的强调色完美匹配的色块场景，营造大胆编辑感。\n\n8. '解构工艺'：原始材料的抽象排列（皮革样本、橡胶纹理）环绕鞋子，象征高质量构造。\n\n9. '超现实融合'：鞋融入超现实梦幻景观，融合现实主义与高级时尚。\n\n视觉规则：\n* '主体'：Alexander McQueen男士超大运动鞋。\n* '一致性'：鞋的形状、比例、鞋底厚度、标志位置和排版必须100%准确。\n* '无扭曲'：标志性鞋底或品牌无变形。\n* '分离'：鞋与背景清晰分离。\n\n灯光与风格：\n* 柔和受控的工作室灯光，具有戏剧性边光突显鞋的轮廓。\n* 皮革上的细微高光，鞋底下深层逼真阴影。\n* 高动态范围，8K分辨率，超锐利焦点。\n* 编辑奢侈时尚广告美学（Vogue/GQ风格）。\n* 调色板：极简主义、单色、金属和深哑光色调。\n\n整体氛围：\n* 现代、精致、视觉连贯。\n* 奢侈时尚品牌高端商业活动。\n* 超现实、电影感、精致和渴望感。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582015231_gd3cvg_G_uOL8mbAAEHFtE-300x402.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582015231_gd3cvg_G_uOL8mbAAEHFtE-300x402.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -168,7 +198,9 @@
     "source_id": "97e8345c715ad61f0888b5b9d7d10b81",
     "title": "Sydney Sweeney 衣櫥選擇生成器 (4 個場景)",
     "prompt_zh": "```json\n{\n  \"subject\": \"{argument name=\\\"subject name\\\" default=\\\"Sydney Sweeney\\\"}\",\n  \"images\": [\n    {\n      \"id\": \"image_01\",\n      \"scene\": \"湖上小船\",\n      \"description\": \"Sydney Sweeney 和一隻德國牧羊犬在船上放鬆。\",\n      \"action\": \"擁抱一隻大狗\",\n      \"clothing\": {\n        \"item\": \"潛水衣 泳裝\",\n        \"color\": \"黑色\",\n        \"style\": \"長袖、流線型\"\n      },\n      \"environment\": {\n        \"location\": \"湖泊\",\n        \"background\": \"松樹林和水面\",\n        \"lighting\": \"日光\"\n      }\n    },\n    {\n      \"id\": \"image_02\",\n      \"scene\": \"豪華遊艇\",\n      \"description\": \"Sydney Sweeney 在日落時分站在遊艇甲板上。\",\n      \"action\": \"手持香檳杯，優雅地擺姿勢\",\n      \"clothing\": {\n        \"item\": \"套裝\",\n        \"color\": \"米色 / 米白色\",\n        \"style\": \"寬鬆西裝外套、長褲、絲質吊帶背心\",\n        \"accessories\": \"疊戴項鍊\"\n      },\n      \"environment\": {\n        \"location\": \"沿海海域\",\n        \"background\": \"有山丘和建築物的海岸線\",\n        \"lighting\": \"黃金時段 日落\"\n      }\n    },\n    {\n      \"id\": \"image_03\",\n      \"scene\": \"豪華室內\",\n      \"description\": \"Sydney Sweeney 坐在一間富麗堂皇的酒店大堂或大廳裡。\",\n      \"action\": \"坐著微笑\",\n      \"clothing\": {\n        \"item\": \"晚禮服\",\n        \"color\": \"祖母綠\",\n        \"style\": \"緞面布料，緊身胸衣上有金色花卉刺繡\",\n        \"accessories\": \"金色手拿包、垂墜耳環\"\n      },\n      \"environment\": {\n        \"location\": \"酒店大堂 / 宴會廳\",\n        \"background\": \"大理石柱、吊燈\",\n        \"lighting\": \"溫暖的室內燈光\"\n      }\n    },\n    {\n      \"id\": \"image_04\",\n      \"scene\": \"公園長椅\",\n      \"description\": \"Sydney Sweeney 坐在公園的木製長椅上。\",\n      \"action\": \"拿著一本書休息\",\n      \"clothing\": {\n        \"item\": \"休閒服裝\",\n        \"style\": \"碎花中長裙搭配牛仔外套\",\n        \"footwear\": \"棕色涼鞋\",\n        \"accessories\": \"棕色皮革托特包\"\n      }\n    }\n  ]\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581988172_nex0ly_G_tUxEFWEAEDmFx-300x164.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769581988172_nex0ly_G_tUxEFWEAEDmFx-300x164.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -179,7 +211,9 @@
     "source_id": "9cbd8db4ca8411bb224e88fe4075502f",
     "title": "爆炸或靜態食物攝影的提示",
     "prompt_zh": "可以讓它爆炸，靜態",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582033433_2q9lrz_G_tPKcsbAAM-Fig-300x225.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582033433_2q9lrz_G_tPKcsbAAM-Fig-300x225.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -190,139 +224,9 @@
     "source_id": "70c63d5d45a2ccf2ca764749c2435883",
     "title": "SaaS UI 的氛圍產品介面視覺提示",
     "prompt_zh": "現代 SaaS 平台的氛圍感產品介面視覺。\n清晰的層次結構、平衡的對比度、\n柔和的陰影、中性的色調，\n專注於清晰度和寧靜感，\n設計如同頂級 SaaS 體驗。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581933231_911rp4_G_JDloYXQAAXf5_-300x300.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "399efd34d51253c36431fd1557e72417",
-    "title": "地下停車場中的電影感時尚肖像",
-    "prompt_zh": "```json\n{\n  \"subject\": {\n    \"type\": \"年輕女性\",\n    \"style\": \"超寫實、時尚雜誌風格\",\n    \"mood\": \"平靜、自信、沉穩\",\n    \"appearance\": \"自然的皮膚紋理、真實的比例、高細節\",\n    \"identity\": \"通用角色，可替換為自訂臉部或參考對象\"\n  },\n\n  \"pose\": {\n    \"position\": \"坐在地上\",\n    \"legs\": \"側彎、向前伸展、膝蓋微抬、腳踝輕微交叉\",\n    \"arms\": \"放在身體後方支撐\",\n    \"hands\": \"手掌平放地面、手指放鬆\",\n    \"torso\": \"挺直，略微自然向後傾斜\",\n    \"shoulders\": \"放鬆\",\n    \"body_language\": \"放鬆而有目的性，自信的姿態\"\n  },\n\n  \"clothing\": {\n    \"top\": \"寬鬆的米白色長袖運動衫\",\n    \"fit\": \"寬鬆、休閒\",\n    \"fabric\": \"柔軟棉質紋理\",\n    \"bottom\": \"高腰橄欖綠短裙\",\n    \"details\": \"側面有細緻的布料綁帶細節\",\n    \"style\": \"簡約、現代、雜誌風格\"\n  },\n\n  \"shoes\": {\n    \"type\": \"高跟涼鞋\",\n    \"color\": \"{argument name=\\\"shoe color\\\" default=\\\"red\\\"}\",\n    \"design\": \"細帶、露趾\",\n    \"finish\": \"光澤\",\n    \"style\": \"優雅、女性化\"\n  },\n\n  \"accessories\": {\n    \"bag\": \"小型 {argument name=\\\"bag color\\\" default=\\\"red\\\"} 單肩包\",\n    \"bag_position\": \"掛在右肩上\",\n    \"jewelry\": \"無或極簡\",\n    \"overall_style\": \"簡潔、不雜亂\"\n  },\n\n  \"hair\": {\n    \"style\": \"鬆散波浪或柔和捲髮\",\n    \"volume\": \"中等\",\n    \"finish\": \"自然、略顯凌亂但整齊\",\n    \"texture\": \"真實髮絲\"\n  },\n\n  \"gaze\": {\n    \"direction\": \"直視鏡頭\",\n    \"expression\": \"中性至略顯嚴肅\",\n    \"eyes\": \"平靜、專注\",\n    \"lips\": \"放鬆、不微笑\",\n    \"emotion\": \"自信、內省\"\n  },\n\n  \"environment\": {\n    \"location\": \"地下停車場\",\n    \"atmosphere\": \"充滿活力、生動\",\n    \"lighting\": \"暖色燈光搭配霓虹點綴\",\n    \"background_style\": \"色彩斑斕的倒影、略微模糊\"\n  },\n\n  \"photography\": {\n    \"camera_angle\": \"與視線齊平至略低角度\",\n    \"lens\": \"35mm\",\n    \"framing\": \"中廣角鏡頭\",\n    \"focus\": \"主體清晰對焦、背景柔和模糊\",\n    \"depth_of_field\": \"淺景深\",\n    \"lighting_setup\": {\n      \"key_light\": \"左前方柔和主光\",\n      \"fill_light\": \"柔和補光以柔化陰影\",\n      \"rim_light\": \"微妙的背光以將主體與背景分離\"\n    },\n    \"style\": \"電影感時尚攝影\",\n    \"color_grading\": \"柔和的電影色調搭配微妙的色彩點綴\",\n    \"contrast\": \"平衡、自然\"\n  },\n\n  \"negative_prompt\": {\n    \"style\": \"卡通、動漫、插畫、繪畫、CGI、3D 渲染\",\n    \"anatomy\": \"身體扭曲、不真實的比例、多餘的肢體、多餘的手指\",\n    \"quality\": \"模糊的臉部、低細節、低解析度、噪點、顆粒感\",\n    \"skin\": \"塑膠皮膚\"\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581977253_66psq1_G_s3ImCWgAAIFnA-300x402.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "d89aca6684af064c6c6247ba34b09bf0",
-    "title": "咖啡館裡的休閒生活肖像",
-    "prompt_zh": "```json\n{\n  \"scene\": \"室內咖啡廳的休閒生活風格肖像\",\n  \"subject\": {\n    \"character\": \"年輕女性，友善、放鬆的舉止\",\n    \"face\": {\n      \"structure\": \"橢圓形臉，顴骨突出，酒窩明顯\",\n      \"skin\": \"曬黑，光滑，容光煥發的膚色\",\n      \"eyes\": {\n        \"shape\": \"杏仁狀\",\n        \"color\": \"深棕色\",\n        \"expression\": \"直接眼神接觸，引人入勝\"\n      },\n      \"mouth\": {\n        \"lips\": \"自然粉色，輕輕微笑\"\n      },\n      \"makeup\": \"自然「素顏」妝容，淡腮紅，修整過的眉毛\"\n    },\n    \"hair\": {\n      \"color\": \"深棕色至黑色\",\n      \"length\": \"及肩（鮑伯頭）\",\n      \"texture\": \"直髮帶有輕微蓬鬆感\",\n      \"style\": \"散髮，瀏海輕柔地修飾額頭\",\n      \"shine\": \"健康，略帶光澤\"\n    },\n    \"accessories\": {\n      \"necklace\": \"細金鍊，帶有心形吊墜\",\n      \"earrings\": \"小銀色或金色耳環\",\n      \"bracelets\": \"雙腕戴有細金屬手鍊\",\n      \"rings\": \"手指戴有簡約戒指\"\n    }\n  },\n  \"pose\": {\n    \"overall\": \"隨意坐姿，身體略微向後靠在椅子上\",\n    \"position\": {\n      \"base\": \"坐在木椅上\",\n      \"orientation\": \"面向前方，朝向鏡頭\"\n    },\n    \"torso\": {\n      \"direction\": \"正面\",\n      \"posture\": \"放鬆但挺直\"\n    },\n    \"arms\": {\n      \"position\": \"右臂拿著吸管/飲料，左臂放在桌子附近\",\n      \"other\": \"在胸部高度拿著一杯冰飲\"\n    },\n    \"legs\": {\n      \"position\": \"不對稱；右腿彎曲，膝蓋抬起，左腿向下伸展\",\n      \"visible\": \"雙腿穿著緊身衣物完全可見\"\n    },\n    \"head\": {\n      \"turn\": \"正視前方\",\n      \"expression\": \"柔和、自信的微笑\"\n    }\n  },\n  \"outfit\": {\n    \"activewear\": {\n      \"type\": \"無袖連體衣 / 連身褲\",\n      \"color\": \"米色 / 裸色\",\n      \"style\": \"運動休閒風\",\n      \"details\": {\n        \"top\": \"V 領，無袖\",\n        \"fit\": \"貼身，緊身\",\n        \"material\": \"羅紋或光滑彈性面料\"\n      }\n    },\n    \"footwear\": {\n      \"type\": \"運動鞋\",\n      \"style\": \"灰色運動跑鞋（New Balance 風格）\",\n      \"socks\": \"白色羅紋中筒襪\"\n    }\n  },\n  \"body\": {\n    \"type\": \"健美，纖細\",\n    \"skin\": \"曬黑\"\n  },\n  \"environment\": {\n    \"location\": \"咖啡店內部\",\n    \"furniture\": {\n      \"table\": \"圓形木桌，帶有板條底座\",\n      \"chair\": \"帶有簡約靠背的木椅\"\n    },\n    \"objects\": {\n      \"drink\": \"一杯冰鎮的 {argument name=\\\"drink type\\\" default=\\\"綠色抹茶拿鐵\\\"}，配玻璃吸管\",\n      \"bag\": \"桌上的 Louis Vuitton Monogram Speedy 手提包\",\n      \"sunglasses\": \"桌上的黑框太陽眼鏡\",\n      \"coaster\": \"小木盤/杯墊\"\n    },\n    \"background\": {\n      \"people\": \"模糊的人影坐在其他桌旁\",\n      \"floor\": \"混凝土或石磚地板\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581960034_99wqan_G_szpDFWkAAsYq0-300x396.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "24848dddda05229104b948325a1de70a",
-    "title": "超逼真高端時尚編輯肖像，帶有身份鎖定",
-    "prompt_zh": "```json\n{\n  \"version_control\": {\n    \"target_style\": \"高端時尚雜誌風格\",\n    \"fidelity_level\": \"絕對 1:1 身份鎖定\",\n    \"rendering_engine_constraints\": \"無 CGI、無插畫、無 AI 平滑處理\"\n  },\n  \"subject_profile\": {\n    \"identity\": {\n      \"name\": \"{argument name=\\\"subject name\\\" default=\\\"Sophie Rain\\\"}\",\n      \"age_group\": \"成年女性\",\n      \"biometric_integrity\": \"100% 保留原始骨骼結構、面部不對稱、痣和眼睛形狀。零變形或增強。\"\n    },\n    \"anatomy_and_skin\": {\n      \"texture\": \"可見毛孔、微細紋、細微半透明感\",\n      \"physics\": \"自然水珠、柔和濕潤光澤、皮膚上逼真的表面張力\",\n      \"tone\": \"自然膚色基調、陽光親吻般的溫暖、無人工光澤\"\n    },\n    \"face_details\": {\n      \"eyes\": \"自然瞳色、柔和中性粉色光澤眼影、細緻睫毛根部眼線（無眼尾上揚）、根根分明的捲翹睫毛\",\n      \"brows\": \"自然濃密度、直型至柔和圓潤的眉型\",\n      \"nose_and_lips\": \"鼻樑處帶有細微粉色暖意；豐滿雙唇、玫瑰粉漸變、濕潤光澤感、模糊邊緣、無外擴描繪\"\n    },\n    \"hair_styling\": {\n      \"state\": \"明顯濕潤、髮根服貼、髮絲潮濕\",\n      \"arrangement\": \"鬆散、自然垂落在雙肩和背部、隨性凌亂的質感\",\n      \"match_reference\": \"1:1 顏色和造型匹配\"\n    }\n  },\n  \"composition_and_pose\": {\n    \"action\": \"斜倚在游泳池邊緣，身體呈 45 度角，雙腳浸在水中\",\n    \"arm_placement\": \"雙臂自然擱置在大腿上\",\n    \"framing\": \"中景特寫、四分之三角度\",\n    \"mood\": \"親密、平靜、沉穩、自信\"\n  },\n  \"attire_and_wardrobe\": {\n    \"primary_garment\": \"極簡主義 {argument name=\\\"swimsuit color\\\" default=\\\"紅色\\\"} 泳衣、細肩帶、簡潔線條\",\n    \"fabric_physics\": \"濕潤皮膚上逼真的張力、自然的褶皺和堆積\",\n    \"jewelry\": \"個性耳環、天然寶石/黃金、逼真的微刮痕和反光\"\n  },\n  \"environment_and_lighting\": {\n    \"background\": {\n      \"element\": \"碧綠的泳池水\",\n      \"physics\": \"折射、池底光影戲、細微漣漪、逼真動態\"\n    },\n    \"lighting_design\": {\n      \"source\": \"單向自然陽光\",\n      \"color_temp\": \"溫暖的陽光色調\",\n      \"exposure\": \"輕微曝光不足（降低曝光）\",\n      \"shadows\": \"鎖骨和胸部上物理精確的接觸陰影\"\n    }\n  },\n  \"technical_parameters\": {\n    \"optics\": \"50mm–85mm 等效焦距、逼真的攝影視角\",\n    \"depth_of_field\": \"淺景深、有機散景、自然虛化\",\n    \"resolution_quality\": \"16k 超現實\",\n    \"aspect_ratio\": \"3:4\"\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581916309_ot692r_G_sx6D9W8AAn4Ex-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "ee5001f1bf7843dba035ca04127eea69",
-    "title": "用於生成圖像提示的系統提示",
-    "prompt_zh": "將以下系統提示複製到 ChatGPT / Claude / Gemini\n\n2⃣ 輸入一個詞：「愛」、「飢餓」、「夢想」\n\n3⃣ 收到 3 個具有 3 種不同詮釋的提示\n\n4⃣ 複製並貼上到 Nano Banana 🍌",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582041819_19ifuj_G_sq4irWQAAUI_B-300x168.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "6678bc40897c5587eb4f0f761a1591db",
-    "title": "Nano Banana Pro 手寫生成提示",
-    "prompt_zh": "請使用隨附的參考圖片作為手寫風格指南（特別是第二張有手寫樣本的圖片）。請在乾淨的白紙上寫一行日文手寫文字。使用細緻的啫喱筆 / 極細筆（0.3–0.4mm 的筆觸），筆劃纖細輕盈，大部分為單線（沒有毛筆或麥克筆的感覺）。請呈現時尚、輕盈、女性化的手寫風格：柔和的曲線、輕巧的筆觸，並略微向右傾斜。透過明顯的字體大小變化（有些字體大 10–25% 或小 10–25%）、不規則的間距，以及從左到右輕微向上傾斜的基線，來增添鮮明的個性。在幾個字體上，特別是第一個字、文字中任何拉長/延伸的筆劃，以及最後一個字，加上拉長的起筆和收筆（長而漸細的起筆/收筆），同時保持所有內容清晰可讀。請精確地寫下這段文字：「The true chocolate tasted like an adult's.」。不要有額外的文字、邊框、標誌、底線、裝飾性的曲線。高解析度，清晰的細墨線，極少的紙張紋理。\n負面：\n毛筆、書法、書道、麥克筆、粗筆劃、粗墨、重壓、畫筆、方塊字、字體大小均勻、間距完美、基線完全筆直、印刷字體、排版、空心字體、多餘文字、浮水印、邊框、印章、底線、曲線、塗鴉\n額外：\n保持筆劃纖細；主要透過大小/間距/基線和漸細的筆劃末端來創造表現力，而不是粗細。增加字體大小對比和間距不規則性，但保持易讀性。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582030644_le72bb_G_o0py4akAABSoj-300x169.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "7b08d313d6493b86519091b5d24ec4ab",
-    "title": "概念視覺故事資產提示",
-    "prompt_zh": "概念性敘事視覺。\n抽象元素排列以呈現向前移動的感覺，\n前景、中景、背景的層次深度，\n柔和的定向照明營造視覺流動感，\n柔和的電影色彩調色板，\n情感豐富但簡約，\n如同品牌電影的靜態畫面。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581942818_ikocrk_G_dKkv3WIAAlzCX-300x300.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "58966d16d03956e33e55334e93ebdb81",
-    "title": "科技戶外服飾宣傳海報生成提示",
-    "prompt_zh": "機能性外套宣傳海報\n\n此提示會建立[YOUR BRAND]與相關機能時尚品牌之間的合作企劃\n\n（它會自動為您挑選最合適的品牌）",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581985792_ohysax_G_skcsaWUAALVM3-300x375.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "2ddf3ebb9ebbeb8b7347454867f423aa",
-    "title": "健美韓國女孩的超寫實電影研究",
-    "prompt_zh": "{ \"hardware_and_optical_fidelity\": { \"camera_tier\": \"專業級單眼相機\", \"lens_specification\": { \"focal_length\": \"50mm 定焦鏡\", \"lens_character\": \"銳利現代大師級定焦鏡\", \"aperture_blade_shape\": \"圓形（奶油般圓潤的散景光斑）\" }, \"manual_settings\": { \"exposure_mode\": \"陰鬱曝光不足 -1.5\", \"shutter_execution\": \"1/200s (靜態)\", \"iso_noise_profile\": \"ISO 400 (細膩的底片顆粒感)\", \"white_balance\": \"混合光源（冷色邊緣光與中性膚色）\" } }, \"optical_artifacts_and_filth_engine\": { \"chromatic_aberrations\": \"主體後方失焦高光處有輕微縱向色差\", \"digital_defects\": \"感光元件輸出乾淨，無任何後製瑕疵\", \"physical_defects\": \"鏡頭上的微小刮痕造成輕微光暈；光束中可見大氣塵埃顆粒\", \"lens_flare\": \"來自上方背光的朦朧面紗眩光\", \"focus_errors\": \"主眼虹膜處對焦極其銳利\" }, \"identity_and_celebrity_anchors\": { \"celebrity_base\": \"無\", \"demographics\": { \"ethnicity\": \"韓國人\", \"age\": \"24\" }, \"skin_authenticity\": \"高光澤運動油光；胸骨和額頭上可見汗珠；超細緻毛孔；下腹部有極細血管紋路\" }, \"pose_and_erotic_tension\": { \"hand_placement\": \"雙手置於腦後，手指交錯於長黑髮中，輕微向上拉伸以拉長軀幹\", \"body_geometry\": { \"tilt\": \"誇張的弓形脊椎，骨盆有明顯側傾以強調臀部曲線\", \"camera_relation\": \"視線水平，中景全身照\" }, \"erotic_markers\": \"半閉的眼神；微張的雙唇，可見濕潤感；腹斜肌和股四頭肌高度緊繃；膚色潮紅\" }, \"anatomical_physics_extreme\": { \"waist_to_hip_ratio\": \"0.65 (極致沙漏型)\", \"bust_and_gluteal_physics\": { \"mass\": \"運動型，結實 C 罩杯\", \"gravity\": \"逼真的結實上提；髂骨溝處有深邃接觸陰影；臀部肌肉線條分明，有明顯突出\", \"occlusion\": \"布料與皮膚接觸處有深邃接觸陰影；前鋸肌線條清晰\" }, \"clothing_interaction\": \"高衩黑色連身泳衣；布料在臀部處緊繃；細肩帶在斜方肌和臀部肉處造成深陷痕跡\" }, \"environment_and_lighting\": { \"lighting_control\": \"明暗對比工作室燈光；強烈邊緣光勾勒輪廓；體積霧捕捉來自後方的光線\", \"environment\": \"黑暗、極簡主義工作室，帶有輕微大氣薄霧和反光地板\" } } 最終主提示（「硬編碼」執行）指令：生成一張超現實、原始且未經濾鏡處理的攝影作品。這是一項高張力感官研究，需要精確控制硬體品質和解剖物理學。硬體與光學執行（強制）：模擬使用專業級單眼相機和 50mm 定焦鏡頭進行拍攝。應用混合光源白平衡。將曝光設定為陰鬱曝光不足",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582033932_cq4l1y_G_sbdtKbAAM8iYA-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "7df70cbc05c71ba2e2a4a866f986c45d",
-    "title": "編輯聯絡表提示：手持粉色鬱金香的女人",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_editorial_contact_sheet_9panel\",\n      \"version\": \"v1.0_9PANEL_TULIP_CONTACT_SHEET_MINIMAL_WALL_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (RECOMMENDED)\",\n        \"purpose\": \"STYLE_GRID_LAYOUT_POSE_VIBE_ANCHOR\",\n        \"strict_lock\": true,\n        \"preserve_composition\": true,\n        \"preserve_vibe\": true\n      },\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": false\n      }\n    },\n    \"output_settings\": {\n      \"aspect_ratio\": \"1:1\",\n      \"orientation\": \"square\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"editorial_ultra_photoreal_contact_sheet\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle_35mm\",\n      \"dynamic_range\": \"natural_filmic_not_hdr\",\n      \"color_grade\": \"soft_neutral_beige_wall_pastel_pink_flowers\",\n      \"skin_rendering\": \"natural_skin_texture_no_beautify\",\n      \"grid_layout\": {\n        \"type\": \"3x3\",\n        \"borders\": \"thin_white_dividers\",\n        \"panel_consistency\": \"same_room_same_light_same_outfit\"\n      },\n      \"lens_and_camera\": {\n        \"camera\": \"full_frame_dslr_look\",\n        \"lens\": \"50mm_prime\",\n        \"aperture\": \"f2.8\",\n        \"focus_style\": \"subject_in_focus_minimal_distortion\"\n      },\n      \"lighting\": {\n        \"key\": \"soft_window_daylight\",\n        \"fill\": \"gentle_bounce\",\n        \"mood\": \"calm_minimal_editorial\"\n      },\n      \"background\": {\n        \"environment\": \"plain_beige_wall_indoor\",\n        \"clean\": \"no_clutter_no_props\"\n      }\n    },\n    \"scene\": {\n      \"global_description\": \"一張 9 格（3x3）編輯風格的聯絡表，展示同一位年輕女性在米色素牆前，手持一大束粉色鬱金香擺拍。極簡、乾淨、自然窗光。全程穿著相同服裝：淺色中性上衣和高腰藍色牛仔褲。每格展示不同的姿勢或構圖（側面、背面、四分之三身、俏皮倚靠和花束特寫）。無任何文字。\",\n      \"subject\": {\n        \"description\": \"年輕成年女性，長波浪深棕色頭髮，自然妝容，放鬆表情\",\n        \"wardrobe\": \"簡約淺色中性上衣（無肩帶或細肩帶）+ 高腰藍色牛仔褲\",\n        \"flowers\": \"一大束新鮮粉色鬱金香，帶長綠色莖葉\"\n      },\n      \"panels\": [\n        {\n          \"panel\": \"1\",\n          \"framing\": \"medium\",\n          \"pose\": \"四分之三身視角，將花束放低，看向側面\"\n        },\n        {\n          \"panel\": \"2\",\n          \"framing\": \"medium\",\n          \"pose\": \"背部微弓，下巴抬高，花束置於腰間\"\n        },\n        {\n          \"panel\": \"3\",\n          \"framing\": \"medium\",\n          \"pose\": \"側身，將花束舉至臉旁，輕輕微笑\"\n        }\n      ]\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582018272_xsceyx_G_sW6ABWcAA-VzH-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "57d56ee88110a537f0c51c73bf15892b",
-    "title": "電影級寫實角色配對提示：藍色角色與女性",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"ultra_photoreal_cinematic_character_pair\",\n      \"version\": \"v1.0_BLUE_CHARACTER_AND_WOMAN_BLUE_DRESS_MODERN_WHITE_ROOM_BLUE_STARS_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"STYLE_MOOD_LIGHTING_ANCHOR\",\n        \"strict_lock\": false,\n        \"preserve_vibe\": true\n      }\n    },\n    \"output_settings\": {\n      \"aspect_ratio\": \"3:4\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"cinematic_ultra_photoreal_film_still\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle_35mm\",\n      \"dynamic_range\": \"natural_filmic_not_hdr\",\n      \"color_grade\": \"clean_neutral_whites_with_soft_blue_accents\",\n      \"skin_rendering\": \"natural_skin_texture_no_beautify\",\n      \"lens_and_camera\": {\n        \"camera\": \"ARRI_Alexa_Mini_LF\",\n        \"lens\": \"50mm_prime\",\n        \"aperture\": \"f2.0\",\n        \"focus_style\": \"subject_eyes_priority_shallow_dof\"\n      },\n      \"lighting\": {\n        \"key\": \"soft_window_daylight\",\n        \"fill\": \"gentle_bounce_fill\",\n        \"mood\": \"quiet_emotional_intimate\"\n      },\n      \"background\": {\n        \"environment\": \"minimal_modern_white_room_scandinavian_style\",\n        \"props\": \"white_bed_white_linen_simple_wall_art_minimal_decor\",\n        \"accent\": \"subtle_blue_star_projections_on_wall_and_ceiling\"\n      }\n    },\n    \"scene\": {\n      \"global_description\": \"一個電影級超寫實場景，設於現代簡約的白色臥室。一個藍色皮膚、類人型的情緒化角色，有著閃亮的藍色短髮和超大圓框眼鏡，輕輕地依偎在躺在白色床上的女人肩上/背部。女人穿著一件樸素優雅的藍色連衣裙。氛圍平靜而略帶憂鬱，柔和的日光和牆壁及天花板上微妙的藍色星星投影。一切看起來都真實可觸：織物紋理、皮膚毛孔、髮絲和自然陰影。沒有卡通或插畫感。\",\n      \"characters\": {\n        \"blue_character\": {\n          \"description\": \"小型類人型藍色角色，表情豐富的大眼睛，閃亮的藍色短髮，超大圓框眼鏡，穿著淺藍色針織毛衣\",\n          \"pose\": \"輕輕依偎在女人肩上/背部，看起來略帶悲傷和沉思\"\n        },\n        \"woman\": {\n          \"description\": \"年輕成年女性，自然面容，真實皮膚紋理，穿著樸素的緞面藍色連衣裙\",\n          \"pose\": \"側臥在床上，頭轉向鏡頭，表情平靜而疲憊\"\n        }\n      },\n      \"composition\": \"肖像構圖，主體居中，淺景深，背景雜物最少，藍色星星投影可見但不明顯\",\n      \"micro_details\": [\n        \"真實\"\n      ]\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582018472_65it6b_G_sMNQ5XwAE_e09-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "fddc9d59b5bbb5584f605b2b8e485f72",
-    "title": "豪華轎車後座的高端編輯閃光照片",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_luxury_car_interior_editorial_flash\",\n      \"version\": \"v1.0_BACKSEAT_RED_DRESS_EDITORIAL_FLASH_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n\n    \"references\": {\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": true,\n        \"face_similarity_priority\": \"MAX\",\n        \"no_identity_blending\": true,\n        \"no_beautify\": true,\n        \"no_age_shift\": true,\n        \"preserve_skin_texture\": true,\n        \"preserve_facial_proportions\": true,\n        \"preserve_moles_freckles_scars\": true,\n        \"preserve_eye_shape\": true,\n        \"preserve_nose_shape\": true,\n        \"preserve_lip_shape\": true,\n        \"preserve_jawline\": true\n      },\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"STYLE_COMPOSITION_LIGHTING_ANCHOR\",\n        \"strict_lock\": false,\n        \"preserve_composition\": true,\n        \"preserve_palette\": true,\n        \"preserve_vibe\": true,\n        \"preserve_lighting\": true\n      }\n    },\n\n    \"global_constraints\": {\n      \"rating\": \"PG-13\",\n      \"no_nudity\": true,\n      \"no_explicit_sexual_content\": true,\n      \"no_logos\": true,\n      \"no_watermark\": true,\n      \"no_readable_text\": true\n    },\n\n    \"output_settings\": {\n      \"aspect_ratio\": \"4:5\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"high_end_editorial_flash_photo\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle\",\n      \"color_grade\": \"deep_crimson_red_on_black_leather\",\n      \"dynamic_range\": \"natural_not_hdr\",\n      \"skin_rendering\": \"real_texture_no_retouch\"\n    },\n\n    \"creative_prompt\": {\n      \"scene_summary\": \"一張在夜晚豪華黑色汽車後座的寫實高端時尚閃光燈照片。同一位成年女性（如果提供，臉部與參考圖完全匹配）優雅自信地坐在黑色皮革座椅上。強烈的直射機載閃光燈營造出清晰的高光和深邃的陰影。整體色調嚴格為深緋紅色 + 黑色內飾，乾淨且具電影感。沒有任何文字。\",\n\n      \"subject_and_pose\": {\n        \"pose\": \"女性側身坐在後座上，軀幹朝向鏡頭，雙腿向一側彎曲；一隻手靠近太陽穴/耳朵，彷彿在整理頭髮，另一隻手臂沿著座椅靠背伸展\",\n        \"expression\": \"自信的時尚凝視，看向鏡頭右側（不微笑），雙唇微啟\",\n        \"hair\": \"光滑的盤髮或緊緻的馬尾，可選幾縷柔軟的髮絲\"\n      },\n\n      \"wardrobe_makeup\": {\n        \"outfit\": \"深緋紅色長袖高領（高領款式）緊身連衣裙，面料光滑，褶皺整齊，端莊優雅\",\n        \"makeup\": \"清晰的 b\"\n      }\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581950315_ptcupa_G_sJXBDWcAAwi98-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "bda9bf5ad2505f4250a8f3cb223cb0e3",
-    "title": "羅馬競技場黃金時段編輯人像攝影",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_travel_editorial_portrait_landmark\",\n      \"version\": \"v1.0_ROME_COLOSSEUM_RED_DRESS_GOLDEN_HOUR_EDITORIAL_FACELOCK_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (REQUIRED)\",\n        \"purpose\": \"STYLE_COMPOSITION_ANCHOR\",\n        \"strict_lock\": true,\n        \"preserve_composition\": true,\n        \"preserve_lighting\": true,\n        \"preserve_palette\": true,\n        \"preserve_vibe\": true\n      },\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": true,\n        \"face_similarity_priority\": \"MAX\",\n        \"no_identity_blending\": true,\n        \"no_beautify\": true,\n        \"no_age_shift\": true,\n        \"preserve_skin_texture\": true,\n        \"preserve_facial_proportions\": true,\n        \"preserve_eye_shape\": true,\n        \"preserve_nose_shape\": true,\n        \"preserve_lip_shape\": true,\n        \"preserve_jawline\": true\n      }\n    },\n\n    \"global_constraints\": {\n      \"rating\": \"PG-13\",\n      \"no_nudity\": true,\n      \"no_explicit_sexual_content\": true,\n      \"no_logos\": true,\n      \"no_watermark\": true,\n      \"no_readable_text\": true\n    },\n\n    \"output_settings\": {\n      \"aspect_ratio\": \"4:5\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"cinematic_photoreal_travel_editorial\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"subtle_35mm\",\n      \"color_grade\": \"warm_golden_hour_neutral_stone_red_dress\",\n      \"dynamic_range\": \"natural_not_hdr\",\n      \"skin_rendering\": \"real_texture_no_retouch\"\n    },\n\n    \"creative_prompt\": {\n      \"scene_summary\": \"在羅馬競技場的黃金時段，創作一張寫實的旅行編輯肖像。相機與視線齊平，帶有輕微廣角的編輯視角（自然比例，無扭曲）。羅馬競技場作為背景，具有強烈的建築細節和溫暖的陽光灑在石頭上。\\n\\n主體：一位成年女性，留著非常長的深色波浪髮。她坐在前景的矮石牆上，身體略微轉向左側，頭部向左傾斜，眼睛閉著或望向遠方，表情平靜而優雅。自然姿態：一隻手放在牆上，另一隻手放鬆。\\n\\n服裝：深色 {argument name=\\\"dress color\\\" default=\\\"red/burgundy\\\"} 無袖鏤空連衣裙（雅緻的側面鏤空），飄逸的長裙帶有柔和的體積感和逼真的布料褶皺。極簡珠寶，簡潔的編輯造型。\\n\\n道具：一朵單獨的紅玫瑰，帶有淺色莖葉，放在主體右側（觀看者右側）的石牆上，細緻而浪漫。\\n\\n環境：前景是帶有分層磚石紋理的石質露台/走道。綠色灌木/樹木部分地框住右側。晴朗的藍天。\\n\\n光線：溫暖的低角度陽光從\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581969247_fh1mcw_G_sGzDqXIAAEwvc-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769581933231_911rp4_G_JDloYXQAAXf5_-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -333,7 +237,9 @@
     "source_id": "3769395caa627bd4dad05d51d64b3472",
     "title": "寬版引言卡，附人像及中英文自訂選項",
     "prompt_zh": "一张宽幅的名人金句卡，棕色背景，衬线体浅金色“保持饥饿，保持愚蠢”，小字“——Steve Jobs”，文字前面带一个大的淡淡的引号。人物头像在左边，文字在右边，文字占画面比例 2/3，人物占 1/3，人物有一点渐变过渡的感觉。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763886933714_5zqn1e_G6QBjQHbgAE3Yt_-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763886933714_5zqn1e_G6QBjQHbgAE3Yt_-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -344,7 +250,9 @@
     "source_id": "9cf060c1f8cd25dac1b552fe301c59af",
     "title": "手繪風格標題圖片提示，源自照片",
     "prompt_zh": "完全重現上傳的人物。\n將其製作成一篇筆記文章的標題圖片，內容是該人物介紹「Nano Banana Pro」。\n長寬比：橫向 16:9。\n風格與顏色：簡潔、手繪風格、斜體，並帶有藍綠漸層。\n標題文字：「深入解析 Google 全新 AI『Nano Banana Pro』」。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885651870_4szbai_G6VZiROagAAqsIh-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885651870_4szbai_G6VZiROagAAqsIh-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -355,7 +263,9 @@
     "source_id": "a9777328f0010d887457eda0f4306edc",
     "title": "發明專利古董文件",
     "prompt_zh": "一份關於INVENTION的復古專利文件，其風格模仿 1800 年代末期的美國專利局檔案。頁面上印有精確的技術圖紙，並附有編號的標註（圖 1、圖 2、圖 3），展示了正面、側面和分解視圖。鋼筆墨水手寫的註釋描述了機械裝置。紙張呈陳舊的象牙色，帶有霉斑和輕微的摺痕。頁角處可見官方浮雕印章和紅色蠟封。底部有發明者的手寫簽名和日期。整張圖片給人一種從檔案中找回的感覺——權威、歷史悠久且略帶神秘。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1766940094520_1mg5pd_G8_m2ZVWEAAMG7y-300x224.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1766940094520_1mg5pd_G8_m2ZVWEAAMG7y-300x224.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -366,7 +276,9 @@
     "source_id": "b6e61ae37a8c702d0412427e8b3e81be",
     "title": "詳細的鏡中自拍御宅族房間場景",
     "prompt_zh": "### **场景**\n镜子自拍，御宅族电脑角落，蓝色调\n\n---\n\n### **主体**\n* **性别表现**: 女性\n* **年龄段**: 25岁左右\n* **种族**: 东亚\n* **身材**: 苗条，腰线分明；身材比例自然\n* **肤色**: 浅中性色调\n* **发型**:\n    * **长度**: 及腰长发\n    * **样式**: 直发，发尾微卷\n    * **颜色**: 中等棕色\n* **姿势**:\n    * **站姿**: 站立，轻微的对立式平衡站姿（contrapposto）\n    * **右手**: 手持手机挡住脸（身份被遮挡）\n    * **左臂**: 在躯干旁自然下垂\n    * **躯干**: 身体轻微后仰；露出腰腹\n* **着装**:\n    * **上衣**: 浅蓝色短款针织开衫，扣上前两颗纽扣；隐约可见蓝色法式内衣\n    * **下装**: 牛仔超短裤，两侧臀部各有一个蓝色缎带蝴蝶结\n    * **袜子**: 蓝白横条纹过膝长袜\n    * **配饰**: 蓝色可爱吉祥物手机壳\n\n---\n\n### **环境**\n* **描述**: 从挂墙镜中看到的卧室电脑角落\n* **陈设**:\n    * 白色书桌\n    * 单显示器，显示着柔和的蓝色壁纸（没有可读的文字）\n    * 机械键盘，白色键帽，放在蓝色桌垫上\n    * 鼠标，放在小号蓝色鼠标垫上\n    * PC主机在右侧，带有蓝色机箱灯效\n    * PC主机上或附近有三个动漫手办\n    * 墙上贴着一张佛塔海报\n    * 猫形台灯，带有蓝色点缀\n    * 一杯透明的玻璃水杯\n    * 窗边（镜头左侧）有一株高大的绿叶植物\n* **颜色替换**: 将所有原先的粉色元素（衣物和房间）替换为蓝色（婴儿蓝 -> 天空蓝/长春花蓝）。\n\n---\n\n### **灯光**\n* **光源**: 来自镜头左侧大窗户的日光，透过薄纱窗帘\n* **光线质感**: 柔和的漫射光\n* **白平衡 (K)**: 5200\n\n---\n\n### **相机**\n* **模式**: 智能手机后置摄像头通过镜子拍摄（无肖像/虚化模式）\n* **等效焦距 (mm)**: 26\n* **距离 (米)**:\n    * 主体到镜子: 0.6\n    * 相机到镜子: 0.5\n* **曝光**:\n    * 光圈 (f): 1.8\n    * 感光度 (ISO): 100\n    * 快门速度 (秒): 0.01\n    * 曝光补偿 (EV): -0.3\n* **对焦**: 对焦于镜中影像的躯干和短裤\n* **景深**: 自然的智能手机景深（深景深）；背景清晰可辨，无人为模糊\n* **构图**:\n    * **宽高比**: 1:1\n    * **裁剪**: 从头顶到大腿中部；画面包含书桌、显示器、PC主机和植物\n    * **角度**: 从镜子的视角轻微俯拍\n    * **构图备注**: 保持主体居中；为避免广角边缘拉伸，可以站远一些再进行方形裁剪\n\n---\n\n### **负面提示词**\n* 任何地方出现粉色/品红色\n* 美颜滤镜/磨皮皮肤；没有毛孔的外观\n* 夸张或扭曲的人体结构\n* NSFW，透视面料，走光\n* 商标，品牌名，可读的用户界面文本\n* 虚假的人像模式模糊，CGI/插画感",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763889946850_689z0h_G23i3sJW0AASGUw-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763889946850_689z0h_G23i3sJW0AASGUw-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -377,7 +289,9 @@
     "source_id": "62a47afe159c25c85a22f784edb2baea",
     "title": "江戶時代浮世繪風格的現代場景再詮釋",
     "prompt_zh": "一幅日本江戶時代的浮世繪木刻版畫。整體感覺是葛飾北齋和歌川廣重等大師的超現實合作，透過古老的視角重新詮釋現代科技。\n\n**場景：**繁忙的澀谷十字路口**江戶時代的轉化邏輯：**\n人物身著江戶時代的和服，卻在進行現代活動。所有科技都被轉化為超現實的江戶時代等效物：\n* 智慧型手機是發光的彩繪紙卷，人們正專注地閱讀。\n* 地鐵站和列車是巨大的鉸接式木製蜈蚣車廂，在人群中穿梭。\n* 摩天大樓被重新想像成無盡、高聳的木製寶塔，直入變幻莫測的雲端。\n* 機器人和機甲則以巨大的、身披盔甲的木刻魔像形象出現。\n\n構圖採用扁平視角，具有粗大、醒目的手刻墨線輪廓。背景以高度風格化的浮世繪波浪圖案和戲劇性的旋渦雲為特色，遠處地平線上可見富士山。\n\n圖像必須看起來像實體版畫，而非數位繪畫。\n* 紋理：整幅作品中，木紋紋理和粗糙的紙纖維清晰可見。\n* 印刷瑕疵：顏料滲色明顯。模擬手工壓印版畫，帶有輕微的色彩錯位，以增添真實感。\n* 調色板：嚴格限於傳統礦物顏料，主要使用普魯士藍、朱紅色和柔和的赭黃色。\n* 光線：柔和、平坦、無陰影的光線，沒有數位漸層。\n\n長寬比為 3:4 的垂直海報。包含描述場景的垂直日文書法，並在角落處有一個傳統的紅色藝術家印章。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1764915832381_renotr_G7FuPlzbYAAsuo2-300x401.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1764915832381_renotr_G7FuPlzbYAAsuo2-300x401.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -388,7 +302,9 @@
     "source_id": "df13c43c0f78ad327e7c67db0057eca9",
     "title": "為中老年受眾生成爆紅標題和文案的 AI 提示範本",
     "prompt_zh": "恭喜你，2026年有3件大喜事马上到你家！快接住\n你的心愿要显化了，所求皆如愿，好运正奔你而来\n您家马上要迎来小贵子啦，快接住这份全家好运！\n让你开心的都在旺你，让你抑郁的都在克你，千万别不信\n你家娃的贵人，正在赶来的路上\n愿你在接下来的日子，左手握健康，右手握财富，平安又顺遂！\n你要开始发达了，步步高升大财来，举步生风遇贵人，鸿运当头喜事来\n12月开始顺风顺水，所有的心愿全都超预期到账，别怀疑，整个12月就是为你开挂的幸运月\n只有福报深的人才会看到这篇文章，别不信\n能量提示：你的苦累要结束了，好日子正在赶来\n别急着走开，有人特意托我捎来三句暖心话，每句都藏着满满好运\n你就是幸运好命，想什么来什么，干什么成什么\n\n总结上面标题的书写方式，再发散思维，根据你的总结，给我书写10个类似的爆款标题\n\n我是公众号创作者，根据标题：你就是天生福命，2026 年想啥来啥，干啥啥成。给我写出一段祝福文案，结构要求：5段话，每句话2分句。文风要求：简短、接地气，口语化表达，没有ai生硬词汇、以及网络用语，中老年人都能看懂",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582014771_t3rm4i_G_unQaRaUAAVM5x-300x259.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582014771_t3rm4i_G_unQaRaUAAVM5x-300x259.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -399,7 +315,9 @@
     "source_id": "661be5008092aa2200129423f65981b4",
     "title": "極簡主義生活風格攝影提示",
     "prompt_zh": "```json\n{\n  \"image_generation\": {\n    \"subject\": {\n      \"description\": \"年輕女子隨意地坐在室內\",\n      \"pose\": \"坐在木凳上，膝蓋彎曲，雙手捧著一杯冷飲\",\n      \"expression\": \"平靜、中性、略帶內省\",\n      \"gaze\": \"直視鏡頭\"\n    },\n    \"appearance\": {\n      \"hair\": {\n        \"color\": \"自然黑\",\n        \"style\": \"長直髮，中分\"\n      },\n      \"face\": {\n        \"skin_tone\": \"白皙帶自然紅暈\",\n        \"makeup\": \"淡妝，自然妝容\"\n      },\n      \"accessories\": [\n        \"銀色耳罩式耳機\",\n        \"棕色皮革斜背包\"\n      ]\n    },\n    \"outfit\": {\n      \"top\": \"{argument name=\\\"top color\\\" default=\\\"white\\\"} 合身背心\",\n      \"outerwear\": \"淺米色紋理襯衫外套\",\n      \"bottom\": \"白色寬鬆長褲\",\n      \"footwear\": \"灰色運動鞋配白色條紋\"\n    },\n    \"environment\": {\n      \"setting\": \"現代簡約室內空間\",\n      \"background_elements\": [\n        \"水泥牆\",\n        \"黑色冰箱\",\n        \"開放式門口\",\n        \"木桌\"\n      ],\n      \"floor\": \"拋光水泥地\"\n    },\n    \"props\": {\n      \"drink\": \"透明塑膠杯裝冰咖啡，附黑色吸管\",\n      \"furniture\": \"圓形木凳\"\n    },\n    \"lighting\": {\n      \"type\": \"自然日光\",\n      \"direction\": \"窗戶側光\",\n      \"quality\": \"柔和漫射\"\n    },\n    \"camera\": {\n      \"angle\": \"視線水平\",\n      \"framing\": \"中景全身照\",\n      \"lens\": \"35mm\",\n      \"depth_of_field\": \"適中，背景柔和對焦\"\n    },\n    \"aesthetic\": {\n      \"style\": \"極簡生活攝影\",\n      \"vibe\": \"舒適、放鬆、現代\",\n      \"color_palette\": \"中性色調、米色、白色、灰色\"\n    },\n    \"quality\": {\n      \"realism\": \"高度寫實\",\n      \"resolution\": \"高解析度\",\n      \"look\": \"編輯式生活照\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582042437_hg0qhu_G_udOq6WAAATbyr-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582042437_hg0qhu_G_udOq6WAAATbyr-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -410,7 +328,9 @@
     "source_id": "3bcb1b676fc4389d3b2cdd931523c1fe",
     "title": "Alexander McQueen 運動鞋編輯網格 Nano Banana Pro 提示",
     "prompt_zh": "为高端商业营销活动创建3×3网格，以Alexander McQueen男士奢侈运动鞋为中心主题。\n\n每帧展现独特视觉概念，同时保持九张图像中完美的产品一致性。\n\n网格概念（每格一个）：\n\n1. '标志性英雄镜头'：深色光滑基座上的眼平面侧视图，强调标志性超大鞋底。\n\n2. '极致微距细节'：鞋跟或缝线特写，突显顶级皮革纹理和'Alexander McQueen'标志压纹。\n\n3. '动态交互'：鞋踏上表面产生微妙优雅的黑色液体或大理石粉溅洒效果。\n\n4. '极简雕塑感'：鞋艺术性地平衡在几何混凝土或大理石块上，强调建筑设计。\n\n5. '悬浮轻盈感'：鞋悬浮空中，鞋带动态悬挂，传达顶级舒适感和轻盈感。\n\n6. '感官质地'：聚焦天鹅绒或光滑皮革上部与粗糙石头纹理对比的触感氛围镜头。\n\n7. '单色奢华'：背景与鞋的强调色完美匹配的色块场景，营造大胆编辑感。\n\n8. '解构工艺'：原始材料的抽象排列（皮革样本、橡胶纹理）环绕鞋子，象征高质量构造。\n\n9. '超现实融合'：鞋融入超现实梦幻景观，融合现实主义与高级时尚。\n\n视觉规则：\n* '主体'：Alexander McQueen男士超大运动鞋。\n* '一致性'：鞋的形状、比例、鞋底厚度、标志位置和排版必须100%准确。\n* '无扭曲'：标志性鞋底或品牌无变形。\n* '分离'：鞋与背景清晰分离。\n\n灯光与风格：\n* 柔和受控的工作室灯光，具有戏剧性边光突显鞋的轮廓。\n* 皮革上的细微高光，鞋底下深层逼真阴影。\n* 高动态范围，8K分辨率，超锐利焦点。\n* 编辑奢侈时尚广告美学（Vogue/GQ风格）。\n* 调色板：极简主义、单色、金属和深哑光色调。\n\n整体氛围：\n* 现代、精致、视觉连贯。\n* 奢侈时尚品牌高端商业活动。\n* 超现实、电影感、精致和渴望感。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582015231_gd3cvg_G_uOL8mbAAEHFtE-300x402.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582015231_gd3cvg_G_uOL8mbAAEHFtE-300x402.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -421,73 +341,9 @@
     "source_id": "70c63d5d45a2ccf2ca764749c2435883",
     "title": "SaaS UI 的氛圍產品介面視覺提示",
     "prompt_zh": "現代 SaaS 平台的氛圍感產品介面視覺。\n清晰的層次結構、平衡的對比度、\n柔和的陰影、中性的色調，\n專注於清晰度和寧靜感，\n設計如同頂級 SaaS 體驗。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581933231_911rp4_G_JDloYXQAAXf5_-300x300.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "d89aca6684af064c6c6247ba34b09bf0",
-    "title": "咖啡館裡的休閒生活肖像",
-    "prompt_zh": "```json\n{\n  \"scene\": \"室內咖啡廳的休閒生活風格肖像\",\n  \"subject\": {\n    \"character\": \"年輕女性，友善、放鬆的舉止\",\n    \"face\": {\n      \"structure\": \"橢圓形臉，顴骨突出，酒窩明顯\",\n      \"skin\": \"曬黑，光滑，容光煥發的膚色\",\n      \"eyes\": {\n        \"shape\": \"杏仁狀\",\n        \"color\": \"深棕色\",\n        \"expression\": \"直接眼神接觸，引人入勝\"\n      },\n      \"mouth\": {\n        \"lips\": \"自然粉色，輕輕微笑\"\n      },\n      \"makeup\": \"自然「素顏」妝容，淡腮紅，修整過的眉毛\"\n    },\n    \"hair\": {\n      \"color\": \"深棕色至黑色\",\n      \"length\": \"及肩（鮑伯頭）\",\n      \"texture\": \"直髮帶有輕微蓬鬆感\",\n      \"style\": \"散髮，瀏海輕柔地修飾額頭\",\n      \"shine\": \"健康，略帶光澤\"\n    },\n    \"accessories\": {\n      \"necklace\": \"細金鍊，帶有心形吊墜\",\n      \"earrings\": \"小銀色或金色耳環\",\n      \"bracelets\": \"雙腕戴有細金屬手鍊\",\n      \"rings\": \"手指戴有簡約戒指\"\n    }\n  },\n  \"pose\": {\n    \"overall\": \"隨意坐姿，身體略微向後靠在椅子上\",\n    \"position\": {\n      \"base\": \"坐在木椅上\",\n      \"orientation\": \"面向前方，朝向鏡頭\"\n    },\n    \"torso\": {\n      \"direction\": \"正面\",\n      \"posture\": \"放鬆但挺直\"\n    },\n    \"arms\": {\n      \"position\": \"右臂拿著吸管/飲料，左臂放在桌子附近\",\n      \"other\": \"在胸部高度拿著一杯冰飲\"\n    },\n    \"legs\": {\n      \"position\": \"不對稱；右腿彎曲，膝蓋抬起，左腿向下伸展\",\n      \"visible\": \"雙腿穿著緊身衣物完全可見\"\n    },\n    \"head\": {\n      \"turn\": \"正視前方\",\n      \"expression\": \"柔和、自信的微笑\"\n    }\n  },\n  \"outfit\": {\n    \"activewear\": {\n      \"type\": \"無袖連體衣 / 連身褲\",\n      \"color\": \"米色 / 裸色\",\n      \"style\": \"運動休閒風\",\n      \"details\": {\n        \"top\": \"V 領，無袖\",\n        \"fit\": \"貼身，緊身\",\n        \"material\": \"羅紋或光滑彈性面料\"\n      }\n    },\n    \"footwear\": {\n      \"type\": \"運動鞋\",\n      \"style\": \"灰色運動跑鞋（New Balance 風格）\",\n      \"socks\": \"白色羅紋中筒襪\"\n    }\n  },\n  \"body\": {\n    \"type\": \"健美，纖細\",\n    \"skin\": \"曬黑\"\n  },\n  \"environment\": {\n    \"location\": \"咖啡店內部\",\n    \"furniture\": {\n      \"table\": \"圓形木桌，帶有板條底座\",\n      \"chair\": \"帶有簡約靠背的木椅\"\n    },\n    \"objects\": {\n      \"drink\": \"一杯冰鎮的 {argument name=\\\"drink type\\\" default=\\\"綠色抹茶拿鐵\\\"}，配玻璃吸管\",\n      \"bag\": \"桌上的 Louis Vuitton Monogram Speedy 手提包\",\n      \"sunglasses\": \"桌上的黑框太陽眼鏡\",\n      \"coaster\": \"小木盤/杯墊\"\n    },\n    \"background\": {\n      \"people\": \"模糊的人影坐在其他桌旁\",\n      \"floor\": \"混凝土或石磚地板\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581960034_99wqan_G_szpDFWkAAsYq0-300x396.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "ee5001f1bf7843dba035ca04127eea69",
-    "title": "用於生成圖像提示的系統提示",
-    "prompt_zh": "將以下系統提示複製到 ChatGPT / Claude / Gemini\n\n2⃣ 輸入一個詞：「愛」、「飢餓」、「夢想」\n\n3⃣ 收到 3 個具有 3 種不同詮釋的提示\n\n4⃣ 複製並貼上到 Nano Banana 🍌",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582041819_19ifuj_G_sq4irWQAAUI_B-300x168.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "7b08d313d6493b86519091b5d24ec4ab",
-    "title": "概念視覺故事資產提示",
-    "prompt_zh": "概念性敘事視覺。\n抽象元素排列以呈現向前移動的感覺，\n前景、中景、背景的層次深度，\n柔和的定向照明營造視覺流動感，\n柔和的電影色彩調色板，\n情感豐富但簡約，\n如同品牌電影的靜態畫面。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581942818_ikocrk_G_dKkv3WIAAlzCX-300x300.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "58966d16d03956e33e55334e93ebdb81",
-    "title": "科技戶外服飾宣傳海報生成提示",
-    "prompt_zh": "機能性外套宣傳海報\n\n此提示會建立[YOUR BRAND]與相關機能時尚品牌之間的合作企劃\n\n（它會自動為您挑選最合適的品牌）",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581985792_ohysax_G_skcsaWUAALVM3-300x375.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "7df70cbc05c71ba2e2a4a866f986c45d",
-    "title": "編輯聯絡表提示：手持粉色鬱金香的女人",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_editorial_contact_sheet_9panel\",\n      \"version\": \"v1.0_9PANEL_TULIP_CONTACT_SHEET_MINIMAL_WALL_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (RECOMMENDED)\",\n        \"purpose\": \"STYLE_GRID_LAYOUT_POSE_VIBE_ANCHOR\",\n        \"strict_lock\": true,\n        \"preserve_composition\": true,\n        \"preserve_vibe\": true\n      },\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": false\n      }\n    },\n    \"output_settings\": {\n      \"aspect_ratio\": \"1:1\",\n      \"orientation\": \"square\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"editorial_ultra_photoreal_contact_sheet\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle_35mm\",\n      \"dynamic_range\": \"natural_filmic_not_hdr\",\n      \"color_grade\": \"soft_neutral_beige_wall_pastel_pink_flowers\",\n      \"skin_rendering\": \"natural_skin_texture_no_beautify\",\n      \"grid_layout\": {\n        \"type\": \"3x3\",\n        \"borders\": \"thin_white_dividers\",\n        \"panel_consistency\": \"same_room_same_light_same_outfit\"\n      },\n      \"lens_and_camera\": {\n        \"camera\": \"full_frame_dslr_look\",\n        \"lens\": \"50mm_prime\",\n        \"aperture\": \"f2.8\",\n        \"focus_style\": \"subject_in_focus_minimal_distortion\"\n      },\n      \"lighting\": {\n        \"key\": \"soft_window_daylight\",\n        \"fill\": \"gentle_bounce\",\n        \"mood\": \"calm_minimal_editorial\"\n      },\n      \"background\": {\n        \"environment\": \"plain_beige_wall_indoor\",\n        \"clean\": \"no_clutter_no_props\"\n      }\n    },\n    \"scene\": {\n      \"global_description\": \"一張 9 格（3x3）編輯風格的聯絡表，展示同一位年輕女性在米色素牆前，手持一大束粉色鬱金香擺拍。極簡、乾淨、自然窗光。全程穿著相同服裝：淺色中性上衣和高腰藍色牛仔褲。每格展示不同的姿勢或構圖（側面、背面、四分之三身、俏皮倚靠和花束特寫）。無任何文字。\",\n      \"subject\": {\n        \"description\": \"年輕成年女性，長波浪深棕色頭髮，自然妝容，放鬆表情\",\n        \"wardrobe\": \"簡約淺色中性上衣（無肩帶或細肩帶）+ 高腰藍色牛仔褲\",\n        \"flowers\": \"一大束新鮮粉色鬱金香，帶長綠色莖葉\"\n      },\n      \"panels\": [\n        {\n          \"panel\": \"1\",\n          \"framing\": \"medium\",\n          \"pose\": \"四分之三身視角，將花束放低，看向側面\"\n        },\n        {\n          \"panel\": \"2\",\n          \"framing\": \"medium\",\n          \"pose\": \"背部微弓，下巴抬高，花束置於腰間\"\n        },\n        {\n          \"panel\": \"3\",\n          \"framing\": \"medium\",\n          \"pose\": \"側身，將花束舉至臉旁，輕輕微笑\"\n        }\n      ]\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582018272_xsceyx_G_sW6ABWcAA-VzH-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "fddc9d59b5bbb5584f605b2b8e485f72",
-    "title": "豪華轎車後座的高端編輯閃光照片",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_luxury_car_interior_editorial_flash\",\n      \"version\": \"v1.0_BACKSEAT_RED_DRESS_EDITORIAL_FLASH_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n\n    \"references\": {\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": true,\n        \"face_similarity_priority\": \"MAX\",\n        \"no_identity_blending\": true,\n        \"no_beautify\": true,\n        \"no_age_shift\": true,\n        \"preserve_skin_texture\": true,\n        \"preserve_facial_proportions\": true,\n        \"preserve_moles_freckles_scars\": true,\n        \"preserve_eye_shape\": true,\n        \"preserve_nose_shape\": true,\n        \"preserve_lip_shape\": true,\n        \"preserve_jawline\": true\n      },\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"STYLE_COMPOSITION_LIGHTING_ANCHOR\",\n        \"strict_lock\": false,\n        \"preserve_composition\": true,\n        \"preserve_palette\": true,\n        \"preserve_vibe\": true,\n        \"preserve_lighting\": true\n      }\n    },\n\n    \"global_constraints\": {\n      \"rating\": \"PG-13\",\n      \"no_nudity\": true,\n      \"no_explicit_sexual_content\": true,\n      \"no_logos\": true,\n      \"no_watermark\": true,\n      \"no_readable_text\": true\n    },\n\n    \"output_settings\": {\n      \"aspect_ratio\": \"4:5\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"high_end_editorial_flash_photo\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle\",\n      \"color_grade\": \"deep_crimson_red_on_black_leather\",\n      \"dynamic_range\": \"natural_not_hdr\",\n      \"skin_rendering\": \"real_texture_no_retouch\"\n    },\n\n    \"creative_prompt\": {\n      \"scene_summary\": \"一張在夜晚豪華黑色汽車後座的寫實高端時尚閃光燈照片。同一位成年女性（如果提供，臉部與參考圖完全匹配）優雅自信地坐在黑色皮革座椅上。強烈的直射機載閃光燈營造出清晰的高光和深邃的陰影。整體色調嚴格為深緋紅色 + 黑色內飾，乾淨且具電影感。沒有任何文字。\",\n\n      \"subject_and_pose\": {\n        \"pose\": \"女性側身坐在後座上，軀幹朝向鏡頭，雙腿向一側彎曲；一隻手靠近太陽穴/耳朵，彷彿在整理頭髮，另一隻手臂沿著座椅靠背伸展\",\n        \"expression\": \"自信的時尚凝視，看向鏡頭右側（不微笑），雙唇微啟\",\n        \"hair\": \"光滑的盤髮或緊緻的馬尾，可選幾縷柔軟的髮絲\"\n      },\n\n      \"wardrobe_makeup\": {\n        \"outfit\": \"深緋紅色長袖高領（高領款式）緊身連衣裙，面料光滑，褶皺整齊，端莊優雅\",\n        \"makeup\": \"清晰的 b\"\n      }\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581950315_ptcupa_G_sJXBDWcAAwi98-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769581933231_911rp4_G_JDloYXQAAXf5_-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -498,7 +354,9 @@
     "source_id": "563c7b655902381b795eadc3ca1758ce",
     "title": "優質液態玻璃 Bento 網格產品資訊圖表，包含 8 個模組",
     "prompt_zh": "輸入變數：[插入產品名稱]\n語言：[插入語言]\n\n系統指令：\n建立一張包含 8 個模組（卡片 2 至 8 僅顯示文字標題）的優質液態玻璃便當格產品資訊圖表。\n1) 產品分析：\n→ 識別產品的主要自然顏色 → 「主色調」\n→ 識別類別：食物 / 藥品 / 科技\n2) 色彩調色板（源自主色調）：\n→ 產品 + 點綴：完全飽和的主色調\n→ 圖示、邊框：柔和的主色調（30-40% 飽和度，絕不使用黑色）\n3) 視覺風格：\n→ 主打產品：真實攝影（真實、優質），3D 玻璃版本 [擇一]\n→ 卡片：Apple 液態玻璃（85-90% 透明），搭配極細邊框和微妙的陰影，營造浮動深度並反射背景顏色\n→ 背景保持在卡片後方，卡片所在區域高度模糊 [擇一]：\n  - 飄渺：產品精髓、輕微焦散、抽象光暈\n  - 微距：產品紋理特寫、高度模糊\n  - 圖案：產品柔和重複，10-15% 不透明度\n  - 情境：相關環境，模糊 + 去飽和\n→ 添加微妙的動態效果\n→ 不對稱便當格，16:9 橫向\n→ 主卡片：28-30% | 資訊模組：70-72%\n4) 模組內容（8 張卡片）：\nM1 — 主打：以真實照片 / 3D 玻璃 / 風格化詮釋（擇一）的美麗形式展示產品 + 產品名稱標籤\nM2 — 核心優勢：4 項獨特優勢 + 主色調圖示\nM3 — 使用方法：4 種使用方法 + 圖示\nM4 — 關鍵指標：5 個精確數據點\n格式：[圖示] [標籤] [粗體值] [單位]\n食物：熱量：[X] kcal/100g，碳水化合物：[X]g（膳食纖維 [X]g，糖 [X]g），蛋白質：[X]g，[關鍵維生素]：[X]mg（[X]% 每日建議攝取量），[關鍵礦物質]：[X]mg（[X]% 每日建議攝取量）\n藥品：活性成分：[名稱]，強度：[X] mg，起效時間：[X] 分鐘，持續時間：[X] 小時，半衰期：[X] 小時\n科技：晶片：[型號]，電池：[X] 小時，重量：[X]g，[關鍵規格]：[值]，連接性：[協議]\nM5 — 適用對象：4 個建議群組，帶綠色勾選圖示 | 3 個注意事項群組，帶琥珀色警告圖示\nM6 — 重要注意事項：4 項預防措施 + 警告圖示\nM7 — 快速參考：\n→ 食物：升糖指數 + 飲食標籤，帶圖示\n→ 藥品：副作用 + 嚴重程度，帶圖示\n→ 科技：相容性 + 認證，帶圖示\nM8 — 您知道嗎：3 個事實（來源、科學、全球統計）+ 圖示\n輸出：1 張圖片，16:9 橫向，超優質液態玻璃資訊圖表。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1768962051381_l9uih4_537980579-6f29d32a-c786-40c4-bd5a-79c640737496-300x167.png",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1768962051381_l9uih4_537980579-6f29d32a-c786-40c4-bd5a-79c640737496-300x167.png"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -509,7 +367,9 @@
     "source_id": "306b1f44fc5abd632bba02eff323ebe7",
     "title": "德國水彩地圖，附各邦標籤",
     "prompt_zh": "生成一張水彩風格的德國地圖，並用原子筆標示出所有聯邦州。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763886061720_fzgqaq_G6RIeSZXgAA7cOf-300x164.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763886061720_fzgqaq_G6RIeSZXgAA7cOf-300x164.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -520,7 +380,9 @@
     "source_id": "925eb9e002b7684b58d9c2d76777dfe9",
     "title": "新年特輯：2026 祝福四格拼圖",
     "prompt_zh": "[关键:保持精确的面部特征,保留原始脸部结构,图中角色与上传参考图完全一致] 高级摄影棚2x2宫格写真。左上格(海军蓝背景):人物穿海军蓝色制服风连衣裙,金色纽扣装饰,复古卷发配蓝色贝雷帽和珍珠耳环,她双手托举一块巨大的拼图块(左上角块,上面有\"20\"数字),向画面中心方向移动,眼神专注地看向中心拼图区域,表情认真,嘴角微笑,背景有海军条纹、船锚、\"启航新年\"字样。右上格(樱花粉背景):同一女性穿粉色蕾丝连衣裙,珍珠项链,公主头配粉色玫瑰花发夹和水晶耳环,她双手托举右上角拼图块(上面有\"26\"数字)向中心移动与左上格拼接,眼神看向拼图接缝处,表情专注期待,身体前倾,背景有粉色樱花、\"美好相遇\"字样、蝴蝶、花瓣。左下格(薄荷绿背景):同一女性穿薄荷绿色棉麻连衣裙,文艺风格,自然长发配绿色发带和木质耳环,她双手托举左下角拼图块(上面有\"元旦\"字样)向上移动与左上格对接,眼神看向拼图,表情认真,嘴巴微微抿起,背景有绿色植物、\"希望生长\"字样、新芽、叶子。右下格(柠檬黄背景):同一女性穿黄色连衣裙,向日葵图案,双马尾配黄色蝴蝶结,她双手托举最后一块右下角拼图(上面有\"快乐\"字样)完成拼图,四块拼图在画面中心完美拼成\"2026元旦快乐\"完整图案,她头后仰,眼睛看向完成的拼图,脸上洋溢着成功喜悦的笑容,画面中心爆出金色光芒和彩纸,背景有黄色太阳、\"圆满成功\"字样、笑脸、向日葵。四格之间拼图从四角汇聚到中心形成完整画面,清透妆容,明亮环形光,85mm镜头,f/1.8光圈,拼图互动四联构图,时尚杂志风格。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1767455034932_ivuvu0_G9V-MszakAEAIBw-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1767455034932_ivuvu0_G9V-MszakAEAIBw-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -531,7 +393,9 @@
     "source_id": "88cefedecea9c87e66814b6f3b2ed049",
     "title": "黑板風格的 AI 新聞摘要",
     "prompt_zh": "使用以下內容，以黑板手寫風格歸納新聞，並像老師寫的一樣，用圖表和淺顯易懂的表達方式來分解說明。\n—-\n來自 Grok 的搜尋結果",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885620059_vzaj75_G6WfVvIbAAEgvYg-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885620059_vzaj75_G6WfVvIbAAEgvYg-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -542,7 +406,9 @@
     "source_id": "9f379e1a58062de837d566ac3a3ea6a2",
     "title": "火車廣告風格的書籍廣告圖片",
     "prompt_zh": "請產生一張廣告圖片。\n\n==== 廣告規格 ===\n- 長寬比：16:9（橫向）\n- 廣告產品：第一張附加圖片中的書籍\n- 主要吸睛點：以立體方式呈現第一張附加圖片中的書籍\n- 語言：日文\n- 風格：商業書籍廣告\n\n# 包含文字：\n- 前導文案：【發售約一週後即決定再版】\n\n書籍「Designing from Zero with AI」現正熱銷中。\n\nAmazon 暢銷書排行榜\n商業設計類銷售排名第一（截至 10/15）\nhttps://t.co/QxbYpfFVj6",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885539326_yao7in_G6WBYReawAAcp2x-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885539326_yao7in_G6WBYReawAAcp2x-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -553,7 +419,9 @@
     "source_id": "5dee6c041e0d577da5cd6f91d07725d4",
     "title": "直視鏡頭的親密特寫肖像，帶有環形補光燈",
     "prompt_zh": "{\n    \"subject\": {\n        \"core_identity\": \"使用參考圖像中的相同臉孔，不改變面部特徵，白皙皮膚帶柔和暖色調，自然迷人的美感，及肩直髮為巧克力棕色帶有微妙暖色調\",\n        \"skin_and_facial_details\": \"超細緻寫實皮膚:1.4，鼻部、臉頰和下巴可見細微毛孔，微妙的次表面散射營造出柔和的光澤，自然的微小瑕疵和淡淡的紋理，高度細緻的虹膜帶有豐富的放射狀圖案，環形燈和手機閃光燈投射出銳利眼神光，眉毛清晰，睫毛捲翹濃密，豐滿光澤的嘴唇呈現豐富的珊瑚紅色並帶有高光澤:1.3\",\n        \"hair\": \"及肩直髮為巧克力棕色帶有暖色調，整齊的鈍剪波波頭，帶有柔和的修飾臉型的層次，髮絲捕捉環形燈光，呈現逼真的光澤分離和微妙的動感:1.2\",\n        \"body_figure\": \"纖細而柔和豐滿的女性輪廓，比例勻稱:1.2，低領上衣露出柔和的肩線，可見精緻的鎖骨，胸部自然輪廓輕柔地壓在布料上，特寫畫面暗示著纖細的腰部和臀部，放鬆斜倚的姿勢呈現自然的不對稱性\",\n        \"micro_expression\": \"親密的直視鏡頭，眼睛微垂，柔和微張的光澤嘴唇呈現輕柔誘人的嘟嘴，嘴角帶有微妙的會心一笑，透過半閉的眼睛和放鬆的面部表情傳達出私密的魅力、從容的自信和感性的邀請:1.2\"\n    },\n    \"apparel_and_materials\": \"黑色天鵝絨或毛絨短版上衣，低領口，柔軟奢華的面料帶有深絨毛紋理，微妙的光澤和吸光性營造出豐富的深色調，斜倚姿勢下胸部和肩部周圍的自然垂墜和壓縮褶皺:1.3\",\n    \"pose_and_action\": \"親密特寫臥室自拍姿勢，躺在床上或枕頭上，頭部略微傾向鏡頭，肩膀放鬆，身體傾斜以展示頸部和鎖骨線條，姿勢透過斜倚的姿態和直接的眼神接觸傳達出私密的放鬆、感性的親近和誘人的脆弱:1.2\",\n    \"scene_and_environment\": \"舒適的現代臥室內部，背景是柔和的青色/藍綠色窗簾，溫暖的環形燈提供主要照明，中性寢具，帶有柔和低調氛圍的私密空間:1.1\",\n    \"lighting_shadows_and_color_design\": \"來自右上方前方的強烈定向環形燈光，營造出柔和而戲劇性的\"\n}",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582035395_aoa1st_G_uj5xjaAAASH7w-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582035395_aoa1st_G_uj5xjaAAASH7w-300x537.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -564,7 +432,9 @@
     "source_id": "9a47b9c04a6035d2a3699050cf679b1c",
     "title": "電影節肖像提示",
     "prompt_zh": "創作一張電影風格、高解析度、超特寫的年輕女性肖像（使用上傳照片中的人物，無需修改），場景設定在電子音樂節。她擁有一頭深棕色黑長髮。她正喜悅地回眸，表情沉著而酷炫。她戴著圓形復古風格太陽眼鏡，反射著周圍的燈光，並穿著一件白色有紋理的夾克。燈光戲劇化且充滿活力，以青色光束為主，並帶有",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582041036_dkngl4_G_uQZdvbAAE8WuC-300x402.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582041036_dkngl4_G_uQZdvbAAE8WuC-300x402.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -575,7 +445,9 @@
     "source_id": "97e8345c715ad61f0888b5b9d7d10b81",
     "title": "Sydney Sweeney 衣櫥選擇生成器 (4 個場景)",
     "prompt_zh": "```json\n{\n  \"subject\": \"{argument name=\\\"subject name\\\" default=\\\"Sydney Sweeney\\\"}\",\n  \"images\": [\n    {\n      \"id\": \"image_01\",\n      \"scene\": \"湖上小船\",\n      \"description\": \"Sydney Sweeney 和一隻德國牧羊犬在船上放鬆。\",\n      \"action\": \"擁抱一隻大狗\",\n      \"clothing\": {\n        \"item\": \"潛水衣 泳裝\",\n        \"color\": \"黑色\",\n        \"style\": \"長袖、流線型\"\n      },\n      \"environment\": {\n        \"location\": \"湖泊\",\n        \"background\": \"松樹林和水面\",\n        \"lighting\": \"日光\"\n      }\n    },\n    {\n      \"id\": \"image_02\",\n      \"scene\": \"豪華遊艇\",\n      \"description\": \"Sydney Sweeney 在日落時分站在遊艇甲板上。\",\n      \"action\": \"手持香檳杯，優雅地擺姿勢\",\n      \"clothing\": {\n        \"item\": \"套裝\",\n        \"color\": \"米色 / 米白色\",\n        \"style\": \"寬鬆西裝外套、長褲、絲質吊帶背心\",\n        \"accessories\": \"疊戴項鍊\"\n      },\n      \"environment\": {\n        \"location\": \"沿海海域\",\n        \"background\": \"有山丘和建築物的海岸線\",\n        \"lighting\": \"黃金時段 日落\"\n      }\n    },\n    {\n      \"id\": \"image_03\",\n      \"scene\": \"豪華室內\",\n      \"description\": \"Sydney Sweeney 坐在一間富麗堂皇的酒店大堂或大廳裡。\",\n      \"action\": \"坐著微笑\",\n      \"clothing\": {\n        \"item\": \"晚禮服\",\n        \"color\": \"祖母綠\",\n        \"style\": \"緞面布料，緊身胸衣上有金色花卉刺繡\",\n        \"accessories\": \"金色手拿包、垂墜耳環\"\n      },\n      \"environment\": {\n        \"location\": \"酒店大堂 / 宴會廳\",\n        \"background\": \"大理石柱、吊燈\",\n        \"lighting\": \"溫暖的室內燈光\"\n      }\n    },\n    {\n      \"id\": \"image_04\",\n      \"scene\": \"公園長椅\",\n      \"description\": \"Sydney Sweeney 坐在公園的木製長椅上。\",\n      \"action\": \"拿著一本書休息\",\n      \"clothing\": {\n        \"item\": \"休閒服裝\",\n        \"style\": \"碎花中長裙搭配牛仔外套\",\n        \"footwear\": \"棕色涼鞋\",\n        \"accessories\": \"棕色皮革托特包\"\n      }\n    }\n  ]\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581988172_nex0ly_G_tUxEFWEAEDmFx-300x164.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769581988172_nex0ly_G_tUxEFWEAEDmFx-300x164.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -586,73 +458,9 @@
     "source_id": "9cbd8db4ca8411bb224e88fe4075502f",
     "title": "爆炸或靜態食物攝影的提示",
     "prompt_zh": "可以讓它爆炸，靜態",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582033433_2q9lrz_G_tPKcsbAAM-Fig-300x225.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "399efd34d51253c36431fd1557e72417",
-    "title": "地下停車場中的電影感時尚肖像",
-    "prompt_zh": "```json\n{\n  \"subject\": {\n    \"type\": \"年輕女性\",\n    \"style\": \"超寫實、時尚雜誌風格\",\n    \"mood\": \"平靜、自信、沉穩\",\n    \"appearance\": \"自然的皮膚紋理、真實的比例、高細節\",\n    \"identity\": \"通用角色，可替換為自訂臉部或參考對象\"\n  },\n\n  \"pose\": {\n    \"position\": \"坐在地上\",\n    \"legs\": \"側彎、向前伸展、膝蓋微抬、腳踝輕微交叉\",\n    \"arms\": \"放在身體後方支撐\",\n    \"hands\": \"手掌平放地面、手指放鬆\",\n    \"torso\": \"挺直，略微自然向後傾斜\",\n    \"shoulders\": \"放鬆\",\n    \"body_language\": \"放鬆而有目的性，自信的姿態\"\n  },\n\n  \"clothing\": {\n    \"top\": \"寬鬆的米白色長袖運動衫\",\n    \"fit\": \"寬鬆、休閒\",\n    \"fabric\": \"柔軟棉質紋理\",\n    \"bottom\": \"高腰橄欖綠短裙\",\n    \"details\": \"側面有細緻的布料綁帶細節\",\n    \"style\": \"簡約、現代、雜誌風格\"\n  },\n\n  \"shoes\": {\n    \"type\": \"高跟涼鞋\",\n    \"color\": \"{argument name=\\\"shoe color\\\" default=\\\"red\\\"}\",\n    \"design\": \"細帶、露趾\",\n    \"finish\": \"光澤\",\n    \"style\": \"優雅、女性化\"\n  },\n\n  \"accessories\": {\n    \"bag\": \"小型 {argument name=\\\"bag color\\\" default=\\\"red\\\"} 單肩包\",\n    \"bag_position\": \"掛在右肩上\",\n    \"jewelry\": \"無或極簡\",\n    \"overall_style\": \"簡潔、不雜亂\"\n  },\n\n  \"hair\": {\n    \"style\": \"鬆散波浪或柔和捲髮\",\n    \"volume\": \"中等\",\n    \"finish\": \"自然、略顯凌亂但整齊\",\n    \"texture\": \"真實髮絲\"\n  },\n\n  \"gaze\": {\n    \"direction\": \"直視鏡頭\",\n    \"expression\": \"中性至略顯嚴肅\",\n    \"eyes\": \"平靜、專注\",\n    \"lips\": \"放鬆、不微笑\",\n    \"emotion\": \"自信、內省\"\n  },\n\n  \"environment\": {\n    \"location\": \"地下停車場\",\n    \"atmosphere\": \"充滿活力、生動\",\n    \"lighting\": \"暖色燈光搭配霓虹點綴\",\n    \"background_style\": \"色彩斑斕的倒影、略微模糊\"\n  },\n\n  \"photography\": {\n    \"camera_angle\": \"與視線齊平至略低角度\",\n    \"lens\": \"35mm\",\n    \"framing\": \"中廣角鏡頭\",\n    \"focus\": \"主體清晰對焦、背景柔和模糊\",\n    \"depth_of_field\": \"淺景深\",\n    \"lighting_setup\": {\n      \"key_light\": \"左前方柔和主光\",\n      \"fill_light\": \"柔和補光以柔化陰影\",\n      \"rim_light\": \"微妙的背光以將主體與背景分離\"\n    },\n    \"style\": \"電影感時尚攝影\",\n    \"color_grading\": \"柔和的電影色調搭配微妙的色彩點綴\",\n    \"contrast\": \"平衡、自然\"\n  },\n\n  \"negative_prompt\": {\n    \"style\": \"卡通、動漫、插畫、繪畫、CGI、3D 渲染\",\n    \"anatomy\": \"身體扭曲、不真實的比例、多餘的肢體、多餘的手指\",\n    \"quality\": \"模糊的臉部、低細節、低解析度、噪點、顆粒感\",\n    \"skin\": \"塑膠皮膚\"\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581977253_66psq1_G_s3ImCWgAAIFnA-300x402.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "24848dddda05229104b948325a1de70a",
-    "title": "超逼真高端時尚編輯肖像，帶有身份鎖定",
-    "prompt_zh": "```json\n{\n  \"version_control\": {\n    \"target_style\": \"高端時尚雜誌風格\",\n    \"fidelity_level\": \"絕對 1:1 身份鎖定\",\n    \"rendering_engine_constraints\": \"無 CGI、無插畫、無 AI 平滑處理\"\n  },\n  \"subject_profile\": {\n    \"identity\": {\n      \"name\": \"{argument name=\\\"subject name\\\" default=\\\"Sophie Rain\\\"}\",\n      \"age_group\": \"成年女性\",\n      \"biometric_integrity\": \"100% 保留原始骨骼結構、面部不對稱、痣和眼睛形狀。零變形或增強。\"\n    },\n    \"anatomy_and_skin\": {\n      \"texture\": \"可見毛孔、微細紋、細微半透明感\",\n      \"physics\": \"自然水珠、柔和濕潤光澤、皮膚上逼真的表面張力\",\n      \"tone\": \"自然膚色基調、陽光親吻般的溫暖、無人工光澤\"\n    },\n    \"face_details\": {\n      \"eyes\": \"自然瞳色、柔和中性粉色光澤眼影、細緻睫毛根部眼線（無眼尾上揚）、根根分明的捲翹睫毛\",\n      \"brows\": \"自然濃密度、直型至柔和圓潤的眉型\",\n      \"nose_and_lips\": \"鼻樑處帶有細微粉色暖意；豐滿雙唇、玫瑰粉漸變、濕潤光澤感、模糊邊緣、無外擴描繪\"\n    },\n    \"hair_styling\": {\n      \"state\": \"明顯濕潤、髮根服貼、髮絲潮濕\",\n      \"arrangement\": \"鬆散、自然垂落在雙肩和背部、隨性凌亂的質感\",\n      \"match_reference\": \"1:1 顏色和造型匹配\"\n    }\n  },\n  \"composition_and_pose\": {\n    \"action\": \"斜倚在游泳池邊緣，身體呈 45 度角，雙腳浸在水中\",\n    \"arm_placement\": \"雙臂自然擱置在大腿上\",\n    \"framing\": \"中景特寫、四分之三角度\",\n    \"mood\": \"親密、平靜、沉穩、自信\"\n  },\n  \"attire_and_wardrobe\": {\n    \"primary_garment\": \"極簡主義 {argument name=\\\"swimsuit color\\\" default=\\\"紅色\\\"} 泳衣、細肩帶、簡潔線條\",\n    \"fabric_physics\": \"濕潤皮膚上逼真的張力、自然的褶皺和堆積\",\n    \"jewelry\": \"個性耳環、天然寶石/黃金、逼真的微刮痕和反光\"\n  },\n  \"environment_and_lighting\": {\n    \"background\": {\n      \"element\": \"碧綠的泳池水\",\n      \"physics\": \"折射、池底光影戲、細微漣漪、逼真動態\"\n    },\n    \"lighting_design\": {\n      \"source\": \"單向自然陽光\",\n      \"color_temp\": \"溫暖的陽光色調\",\n      \"exposure\": \"輕微曝光不足（降低曝光）\",\n      \"shadows\": \"鎖骨和胸部上物理精確的接觸陰影\"\n    }\n  },\n  \"technical_parameters\": {\n    \"optics\": \"50mm–85mm 等效焦距、逼真的攝影視角\",\n    \"depth_of_field\": \"淺景深、有機散景、自然虛化\",\n    \"resolution_quality\": \"16k 超現實\",\n    \"aspect_ratio\": \"3:4\"\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581916309_ot692r_G_sx6D9W8AAn4Ex-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "6678bc40897c5587eb4f0f761a1591db",
-    "title": "Nano Banana Pro 手寫生成提示",
-    "prompt_zh": "請使用隨附的參考圖片作為手寫風格指南（特別是第二張有手寫樣本的圖片）。請在乾淨的白紙上寫一行日文手寫文字。使用細緻的啫喱筆 / 極細筆（0.3–0.4mm 的筆觸），筆劃纖細輕盈，大部分為單線（沒有毛筆或麥克筆的感覺）。請呈現時尚、輕盈、女性化的手寫風格：柔和的曲線、輕巧的筆觸，並略微向右傾斜。透過明顯的字體大小變化（有些字體大 10–25% 或小 10–25%）、不規則的間距，以及從左到右輕微向上傾斜的基線，來增添鮮明的個性。在幾個字體上，特別是第一個字、文字中任何拉長/延伸的筆劃，以及最後一個字，加上拉長的起筆和收筆（長而漸細的起筆/收筆），同時保持所有內容清晰可讀。請精確地寫下這段文字：「The true chocolate tasted like an adult's.」。不要有額外的文字、邊框、標誌、底線、裝飾性的曲線。高解析度，清晰的細墨線，極少的紙張紋理。\n負面：\n毛筆、書法、書道、麥克筆、粗筆劃、粗墨、重壓、畫筆、方塊字、字體大小均勻、間距完美、基線完全筆直、印刷字體、排版、空心字體、多餘文字、浮水印、邊框、印章、底線、曲線、塗鴉\n額外：\n保持筆劃纖細；主要透過大小/間距/基線和漸細的筆劃末端來創造表現力，而不是粗細。增加字體大小對比和間距不規則性，但保持易讀性。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582030644_le72bb_G_o0py4akAABSoj-300x169.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "2ddf3ebb9ebbeb8b7347454867f423aa",
-    "title": "健美韓國女孩的超寫實電影研究",
-    "prompt_zh": "{ \"hardware_and_optical_fidelity\": { \"camera_tier\": \"專業級單眼相機\", \"lens_specification\": { \"focal_length\": \"50mm 定焦鏡\", \"lens_character\": \"銳利現代大師級定焦鏡\", \"aperture_blade_shape\": \"圓形（奶油般圓潤的散景光斑）\" }, \"manual_settings\": { \"exposure_mode\": \"陰鬱曝光不足 -1.5\", \"shutter_execution\": \"1/200s (靜態)\", \"iso_noise_profile\": \"ISO 400 (細膩的底片顆粒感)\", \"white_balance\": \"混合光源（冷色邊緣光與中性膚色）\" } }, \"optical_artifacts_and_filth_engine\": { \"chromatic_aberrations\": \"主體後方失焦高光處有輕微縱向色差\", \"digital_defects\": \"感光元件輸出乾淨，無任何後製瑕疵\", \"physical_defects\": \"鏡頭上的微小刮痕造成輕微光暈；光束中可見大氣塵埃顆粒\", \"lens_flare\": \"來自上方背光的朦朧面紗眩光\", \"focus_errors\": \"主眼虹膜處對焦極其銳利\" }, \"identity_and_celebrity_anchors\": { \"celebrity_base\": \"無\", \"demographics\": { \"ethnicity\": \"韓國人\", \"age\": \"24\" }, \"skin_authenticity\": \"高光澤運動油光；胸骨和額頭上可見汗珠；超細緻毛孔；下腹部有極細血管紋路\" }, \"pose_and_erotic_tension\": { \"hand_placement\": \"雙手置於腦後，手指交錯於長黑髮中，輕微向上拉伸以拉長軀幹\", \"body_geometry\": { \"tilt\": \"誇張的弓形脊椎，骨盆有明顯側傾以強調臀部曲線\", \"camera_relation\": \"視線水平，中景全身照\" }, \"erotic_markers\": \"半閉的眼神；微張的雙唇，可見濕潤感；腹斜肌和股四頭肌高度緊繃；膚色潮紅\" }, \"anatomical_physics_extreme\": { \"waist_to_hip_ratio\": \"0.65 (極致沙漏型)\", \"bust_and_gluteal_physics\": { \"mass\": \"運動型，結實 C 罩杯\", \"gravity\": \"逼真的結實上提；髂骨溝處有深邃接觸陰影；臀部肌肉線條分明，有明顯突出\", \"occlusion\": \"布料與皮膚接觸處有深邃接觸陰影；前鋸肌線條清晰\" }, \"clothing_interaction\": \"高衩黑色連身泳衣；布料在臀部處緊繃；細肩帶在斜方肌和臀部肉處造成深陷痕跡\" }, \"environment_and_lighting\": { \"lighting_control\": \"明暗對比工作室燈光；強烈邊緣光勾勒輪廓；體積霧捕捉來自後方的光線\", \"environment\": \"黑暗、極簡主義工作室，帶有輕微大氣薄霧和反光地板\" } } 最終主提示（「硬編碼」執行）指令：生成一張超現實、原始且未經濾鏡處理的攝影作品。這是一項高張力感官研究，需要精確控制硬體品質和解剖物理學。硬體與光學執行（強制）：模擬使用專業級單眼相機和 50mm 定焦鏡頭進行拍攝。應用混合光源白平衡。將曝光設定為陰鬱曝光不足",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582033932_cq4l1y_G_sbdtKbAAM8iYA-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "57d56ee88110a537f0c51c73bf15892b",
-    "title": "電影級寫實角色配對提示：藍色角色與女性",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"ultra_photoreal_cinematic_character_pair\",\n      \"version\": \"v1.0_BLUE_CHARACTER_AND_WOMAN_BLUE_DRESS_MODERN_WHITE_ROOM_BLUE_STARS_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"STYLE_MOOD_LIGHTING_ANCHOR\",\n        \"strict_lock\": false,\n        \"preserve_vibe\": true\n      }\n    },\n    \"output_settings\": {\n      \"aspect_ratio\": \"3:4\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"cinematic_ultra_photoreal_film_still\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle_35mm\",\n      \"dynamic_range\": \"natural_filmic_not_hdr\",\n      \"color_grade\": \"clean_neutral_whites_with_soft_blue_accents\",\n      \"skin_rendering\": \"natural_skin_texture_no_beautify\",\n      \"lens_and_camera\": {\n        \"camera\": \"ARRI_Alexa_Mini_LF\",\n        \"lens\": \"50mm_prime\",\n        \"aperture\": \"f2.0\",\n        \"focus_style\": \"subject_eyes_priority_shallow_dof\"\n      },\n      \"lighting\": {\n        \"key\": \"soft_window_daylight\",\n        \"fill\": \"gentle_bounce_fill\",\n        \"mood\": \"quiet_emotional_intimate\"\n      },\n      \"background\": {\n        \"environment\": \"minimal_modern_white_room_scandinavian_style\",\n        \"props\": \"white_bed_white_linen_simple_wall_art_minimal_decor\",\n        \"accent\": \"subtle_blue_star_projections_on_wall_and_ceiling\"\n      }\n    },\n    \"scene\": {\n      \"global_description\": \"一個電影級超寫實場景，設於現代簡約的白色臥室。一個藍色皮膚、類人型的情緒化角色，有著閃亮的藍色短髮和超大圓框眼鏡，輕輕地依偎在躺在白色床上的女人肩上/背部。女人穿著一件樸素優雅的藍色連衣裙。氛圍平靜而略帶憂鬱，柔和的日光和牆壁及天花板上微妙的藍色星星投影。一切看起來都真實可觸：織物紋理、皮膚毛孔、髮絲和自然陰影。沒有卡通或插畫感。\",\n      \"characters\": {\n        \"blue_character\": {\n          \"description\": \"小型類人型藍色角色，表情豐富的大眼睛，閃亮的藍色短髮，超大圓框眼鏡，穿著淺藍色針織毛衣\",\n          \"pose\": \"輕輕依偎在女人肩上/背部，看起來略帶悲傷和沉思\"\n        },\n        \"woman\": {\n          \"description\": \"年輕成年女性，自然面容，真實皮膚紋理，穿著樸素的緞面藍色連衣裙\",\n          \"pose\": \"側臥在床上，頭轉向鏡頭，表情平靜而疲憊\"\n        }\n      },\n      \"composition\": \"肖像構圖，主體居中，淺景深，背景雜物最少，藍色星星投影可見但不明顯\",\n      \"micro_details\": [\n        \"真實\"\n      ]\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582018472_65it6b_G_sMNQ5XwAE_e09-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "bda9bf5ad2505f4250a8f3cb223cb0e3",
-    "title": "羅馬競技場黃金時段編輯人像攝影",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_travel_editorial_portrait_landmark\",\n      \"version\": \"v1.0_ROME_COLOSSEUM_RED_DRESS_GOLDEN_HOUR_EDITORIAL_FACELOCK_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (REQUIRED)\",\n        \"purpose\": \"STYLE_COMPOSITION_ANCHOR\",\n        \"strict_lock\": true,\n        \"preserve_composition\": true,\n        \"preserve_lighting\": true,\n        \"preserve_palette\": true,\n        \"preserve_vibe\": true\n      },\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": true,\n        \"face_similarity_priority\": \"MAX\",\n        \"no_identity_blending\": true,\n        \"no_beautify\": true,\n        \"no_age_shift\": true,\n        \"preserve_skin_texture\": true,\n        \"preserve_facial_proportions\": true,\n        \"preserve_eye_shape\": true,\n        \"preserve_nose_shape\": true,\n        \"preserve_lip_shape\": true,\n        \"preserve_jawline\": true\n      }\n    },\n\n    \"global_constraints\": {\n      \"rating\": \"PG-13\",\n      \"no_nudity\": true,\n      \"no_explicit_sexual_content\": true,\n      \"no_logos\": true,\n      \"no_watermark\": true,\n      \"no_readable_text\": true\n    },\n\n    \"output_settings\": {\n      \"aspect_ratio\": \"4:5\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"cinematic_photoreal_travel_editorial\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"subtle_35mm\",\n      \"color_grade\": \"warm_golden_hour_neutral_stone_red_dress\",\n      \"dynamic_range\": \"natural_not_hdr\",\n      \"skin_rendering\": \"real_texture_no_retouch\"\n    },\n\n    \"creative_prompt\": {\n      \"scene_summary\": \"在羅馬競技場的黃金時段，創作一張寫實的旅行編輯肖像。相機與視線齊平，帶有輕微廣角的編輯視角（自然比例，無扭曲）。羅馬競技場作為背景，具有強烈的建築細節和溫暖的陽光灑在石頭上。\\n\\n主體：一位成年女性，留著非常長的深色波浪髮。她坐在前景的矮石牆上，身體略微轉向左側，頭部向左傾斜，眼睛閉著或望向遠方，表情平靜而優雅。自然姿態：一隻手放在牆上，另一隻手放鬆。\\n\\n服裝：深色 {argument name=\\\"dress color\\\" default=\\\"red/burgundy\\\"} 無袖鏤空連衣裙（雅緻的側面鏤空），飄逸的長裙帶有柔和的體積感和逼真的布料褶皺。極簡珠寶，簡潔的編輯造型。\\n\\n道具：一朵單獨的紅玫瑰，帶有淺色莖葉，放在主體右側（觀看者右側）的石牆上，細緻而浪漫。\\n\\n環境：前景是帶有分層磚石紋理的石質露台/走道。綠色灌木/樹木部分地框住右側。晴朗的藍天。\\n\\n光線：溫暖的低角度陽光從\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581969247_fh1mcw_G_sGzDqXIAAEwvc-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582033433_2q9lrz_G_tPKcsbAAM-Fig-300x225.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -663,7 +471,9 @@
     "source_id": "3769395caa627bd4dad05d51d64b3472",
     "title": "寬版引言卡，附人像及中英文自訂選項",
     "prompt_zh": "一张宽幅的名人金句卡，棕色背景，衬线体浅金色“保持饥饿，保持愚蠢”，小字“——Steve Jobs”，文字前面带一个大的淡淡的引号。人物头像在左边，文字在右边，文字占画面比例 2/3，人物占 1/3，人物有一点渐变过渡的感觉。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763886933714_5zqn1e_G6QBjQHbgAE3Yt_-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763886933714_5zqn1e_G6QBjQHbgAE3Yt_-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -674,7 +484,9 @@
     "source_id": "a9777328f0010d887457eda0f4306edc",
     "title": "發明專利古董文件",
     "prompt_zh": "一份關於INVENTION的復古專利文件，其風格模仿 1800 年代末期的美國專利局檔案。頁面上印有精確的技術圖紙，並附有編號的標註（圖 1、圖 2、圖 3），展示了正面、側面和分解視圖。鋼筆墨水手寫的註釋描述了機械裝置。紙張呈陳舊的象牙色，帶有霉斑和輕微的摺痕。頁角處可見官方浮雕印章和紅色蠟封。底部有發明者的手寫簽名和日期。整張圖片給人一種從檔案中找回的感覺——權威、歷史悠久且略帶神秘。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1766940094520_1mg5pd_G8_m2ZVWEAAMG7y-300x224.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1766940094520_1mg5pd_G8_m2ZVWEAAMG7y-300x224.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -685,7 +497,9 @@
     "source_id": "9f379e1a58062de837d566ac3a3ea6a2",
     "title": "火車廣告風格的書籍廣告圖片",
     "prompt_zh": "請產生一張廣告圖片。\n\n==== 廣告規格 ===\n- 長寬比：16:9（橫向）\n- 廣告產品：第一張附加圖片中的書籍\n- 主要吸睛點：以立體方式呈現第一張附加圖片中的書籍\n- 語言：日文\n- 風格：商業書籍廣告\n\n# 包含文字：\n- 前導文案：【發售約一週後即決定再版】\n\n書籍「Designing from Zero with AI」現正熱銷中。\n\nAmazon 暢銷書排行榜\n商業設計類銷售排名第一（截至 10/15）\nhttps://t.co/QxbYpfFVj6",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885539326_yao7in_G6WBYReawAAcp2x-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885539326_yao7in_G6WBYReawAAcp2x-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -696,7 +510,9 @@
     "source_id": "661be5008092aa2200129423f65981b4",
     "title": "極簡主義生活風格攝影提示",
     "prompt_zh": "```json\n{\n  \"image_generation\": {\n    \"subject\": {\n      \"description\": \"年輕女子隨意地坐在室內\",\n      \"pose\": \"坐在木凳上，膝蓋彎曲，雙手捧著一杯冷飲\",\n      \"expression\": \"平靜、中性、略帶內省\",\n      \"gaze\": \"直視鏡頭\"\n    },\n    \"appearance\": {\n      \"hair\": {\n        \"color\": \"自然黑\",\n        \"style\": \"長直髮，中分\"\n      },\n      \"face\": {\n        \"skin_tone\": \"白皙帶自然紅暈\",\n        \"makeup\": \"淡妝，自然妝容\"\n      },\n      \"accessories\": [\n        \"銀色耳罩式耳機\",\n        \"棕色皮革斜背包\"\n      ]\n    },\n    \"outfit\": {\n      \"top\": \"{argument name=\\\"top color\\\" default=\\\"white\\\"} 合身背心\",\n      \"outerwear\": \"淺米色紋理襯衫外套\",\n      \"bottom\": \"白色寬鬆長褲\",\n      \"footwear\": \"灰色運動鞋配白色條紋\"\n    },\n    \"environment\": {\n      \"setting\": \"現代簡約室內空間\",\n      \"background_elements\": [\n        \"水泥牆\",\n        \"黑色冰箱\",\n        \"開放式門口\",\n        \"木桌\"\n      ],\n      \"floor\": \"拋光水泥地\"\n    },\n    \"props\": {\n      \"drink\": \"透明塑膠杯裝冰咖啡，附黑色吸管\",\n      \"furniture\": \"圓形木凳\"\n    },\n    \"lighting\": {\n      \"type\": \"自然日光\",\n      \"direction\": \"窗戶側光\",\n      \"quality\": \"柔和漫射\"\n    },\n    \"camera\": {\n      \"angle\": \"視線水平\",\n      \"framing\": \"中景全身照\",\n      \"lens\": \"35mm\",\n      \"depth_of_field\": \"適中，背景柔和對焦\"\n    },\n    \"aesthetic\": {\n      \"style\": \"極簡生活攝影\",\n      \"vibe\": \"舒適、放鬆、現代\",\n      \"color_palette\": \"中性色調、米色、白色、灰色\"\n    },\n    \"quality\": {\n      \"realism\": \"高度寫實\",\n      \"resolution\": \"高解析度\",\n      \"look\": \"編輯式生活照\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582042437_hg0qhu_G_udOq6WAAATbyr-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582042437_hg0qhu_G_udOq6WAAATbyr-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -707,7 +523,9 @@
     "source_id": "97e8345c715ad61f0888b5b9d7d10b81",
     "title": "Sydney Sweeney 衣櫥選擇生成器 (4 個場景)",
     "prompt_zh": "```json\n{\n  \"subject\": \"{argument name=\\\"subject name\\\" default=\\\"Sydney Sweeney\\\"}\",\n  \"images\": [\n    {\n      \"id\": \"image_01\",\n      \"scene\": \"湖上小船\",\n      \"description\": \"Sydney Sweeney 和一隻德國牧羊犬在船上放鬆。\",\n      \"action\": \"擁抱一隻大狗\",\n      \"clothing\": {\n        \"item\": \"潛水衣 泳裝\",\n        \"color\": \"黑色\",\n        \"style\": \"長袖、流線型\"\n      },\n      \"environment\": {\n        \"location\": \"湖泊\",\n        \"background\": \"松樹林和水面\",\n        \"lighting\": \"日光\"\n      }\n    },\n    {\n      \"id\": \"image_02\",\n      \"scene\": \"豪華遊艇\",\n      \"description\": \"Sydney Sweeney 在日落時分站在遊艇甲板上。\",\n      \"action\": \"手持香檳杯，優雅地擺姿勢\",\n      \"clothing\": {\n        \"item\": \"套裝\",\n        \"color\": \"米色 / 米白色\",\n        \"style\": \"寬鬆西裝外套、長褲、絲質吊帶背心\",\n        \"accessories\": \"疊戴項鍊\"\n      },\n      \"environment\": {\n        \"location\": \"沿海海域\",\n        \"background\": \"有山丘和建築物的海岸線\",\n        \"lighting\": \"黃金時段 日落\"\n      }\n    },\n    {\n      \"id\": \"image_03\",\n      \"scene\": \"豪華室內\",\n      \"description\": \"Sydney Sweeney 坐在一間富麗堂皇的酒店大堂或大廳裡。\",\n      \"action\": \"坐著微笑\",\n      \"clothing\": {\n        \"item\": \"晚禮服\",\n        \"color\": \"祖母綠\",\n        \"style\": \"緞面布料，緊身胸衣上有金色花卉刺繡\",\n        \"accessories\": \"金色手拿包、垂墜耳環\"\n      },\n      \"environment\": {\n        \"location\": \"酒店大堂 / 宴會廳\",\n        \"background\": \"大理石柱、吊燈\",\n        \"lighting\": \"溫暖的室內燈光\"\n      }\n    },\n    {\n      \"id\": \"image_04\",\n      \"scene\": \"公園長椅\",\n      \"description\": \"Sydney Sweeney 坐在公園的木製長椅上。\",\n      \"action\": \"拿著一本書休息\",\n      \"clothing\": {\n        \"item\": \"休閒服裝\",\n        \"style\": \"碎花中長裙搭配牛仔外套\",\n        \"footwear\": \"棕色涼鞋\",\n        \"accessories\": \"棕色皮革托特包\"\n      }\n    }\n  ]\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581988172_nex0ly_G_tUxEFWEAEDmFx-300x164.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769581988172_nex0ly_G_tUxEFWEAEDmFx-300x164.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -718,40 +536,9 @@
     "source_id": "70c63d5d45a2ccf2ca764749c2435883",
     "title": "SaaS UI 的氛圍產品介面視覺提示",
     "prompt_zh": "現代 SaaS 平台的氛圍感產品介面視覺。\n清晰的層次結構、平衡的對比度、\n柔和的陰影、中性的色調，\n專注於清晰度和寧靜感，\n設計如同頂級 SaaS 體驗。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581933231_911rp4_G_JDloYXQAAXf5_-300x300.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "ee5001f1bf7843dba035ca04127eea69",
-    "title": "用於生成圖像提示的系統提示",
-    "prompt_zh": "將以下系統提示複製到 ChatGPT / Claude / Gemini\n\n2⃣ 輸入一個詞：「愛」、「飢餓」、「夢想」\n\n3⃣ 收到 3 個具有 3 種不同詮釋的提示\n\n4⃣ 複製並貼上到 Nano Banana 🍌",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582041819_19ifuj_G_sq4irWQAAUI_B-300x168.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "58966d16d03956e33e55334e93ebdb81",
-    "title": "科技戶外服飾宣傳海報生成提示",
-    "prompt_zh": "機能性外套宣傳海報\n\n此提示會建立[YOUR BRAND]與相關機能時尚品牌之間的合作企劃\n\n（它會自動為您挑選最合適的品牌）",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581985792_ohysax_G_skcsaWUAALVM3-300x375.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "57d56ee88110a537f0c51c73bf15892b",
-    "title": "電影級寫實角色配對提示：藍色角色與女性",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"ultra_photoreal_cinematic_character_pair\",\n      \"version\": \"v1.0_BLUE_CHARACTER_AND_WOMAN_BLUE_DRESS_MODERN_WHITE_ROOM_BLUE_STARS_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"STYLE_MOOD_LIGHTING_ANCHOR\",\n        \"strict_lock\": false,\n        \"preserve_vibe\": true\n      }\n    },\n    \"output_settings\": {\n      \"aspect_ratio\": \"3:4\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"cinematic_ultra_photoreal_film_still\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle_35mm\",\n      \"dynamic_range\": \"natural_filmic_not_hdr\",\n      \"color_grade\": \"clean_neutral_whites_with_soft_blue_accents\",\n      \"skin_rendering\": \"natural_skin_texture_no_beautify\",\n      \"lens_and_camera\": {\n        \"camera\": \"ARRI_Alexa_Mini_LF\",\n        \"lens\": \"50mm_prime\",\n        \"aperture\": \"f2.0\",\n        \"focus_style\": \"subject_eyes_priority_shallow_dof\"\n      },\n      \"lighting\": {\n        \"key\": \"soft_window_daylight\",\n        \"fill\": \"gentle_bounce_fill\",\n        \"mood\": \"quiet_emotional_intimate\"\n      },\n      \"background\": {\n        \"environment\": \"minimal_modern_white_room_scandinavian_style\",\n        \"props\": \"white_bed_white_linen_simple_wall_art_minimal_decor\",\n        \"accent\": \"subtle_blue_star_projections_on_wall_and_ceiling\"\n      }\n    },\n    \"scene\": {\n      \"global_description\": \"一個電影級超寫實場景，設於現代簡約的白色臥室。一個藍色皮膚、類人型的情緒化角色，有著閃亮的藍色短髮和超大圓框眼鏡，輕輕地依偎在躺在白色床上的女人肩上/背部。女人穿著一件樸素優雅的藍色連衣裙。氛圍平靜而略帶憂鬱，柔和的日光和牆壁及天花板上微妙的藍色星星投影。一切看起來都真實可觸：織物紋理、皮膚毛孔、髮絲和自然陰影。沒有卡通或插畫感。\",\n      \"characters\": {\n        \"blue_character\": {\n          \"description\": \"小型類人型藍色角色，表情豐富的大眼睛，閃亮的藍色短髮，超大圓框眼鏡，穿著淺藍色針織毛衣\",\n          \"pose\": \"輕輕依偎在女人肩上/背部，看起來略帶悲傷和沉思\"\n        },\n        \"woman\": {\n          \"description\": \"年輕成年女性，自然面容，真實皮膚紋理，穿著樸素的緞面藍色連衣裙\",\n          \"pose\": \"側臥在床上，頭轉向鏡頭，表情平靜而疲憊\"\n        }\n      },\n      \"composition\": \"肖像構圖，主體居中，淺景深，背景雜物最少，藍色星星投影可見但不明顯\",\n      \"micro_details\": [\n        \"真實\"\n      ]\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582018472_65it6b_G_sMNQ5XwAE_e09-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769581933231_911rp4_G_JDloYXQAAXf5_-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -762,7 +549,9 @@
     "source_id": "563c7b655902381b795eadc3ca1758ce",
     "title": "優質液態玻璃 Bento 網格產品資訊圖表，包含 8 個模組",
     "prompt_zh": "輸入變數：[插入產品名稱]\n語言：[插入語言]\n\n系統指令：\n建立一張包含 8 個模組（卡片 2 至 8 僅顯示文字標題）的優質液態玻璃便當格產品資訊圖表。\n1) 產品分析：\n→ 識別產品的主要自然顏色 → 「主色調」\n→ 識別類別：食物 / 藥品 / 科技\n2) 色彩調色板（源自主色調）：\n→ 產品 + 點綴：完全飽和的主色調\n→ 圖示、邊框：柔和的主色調（30-40% 飽和度，絕不使用黑色）\n3) 視覺風格：\n→ 主打產品：真實攝影（真實、優質），3D 玻璃版本 [擇一]\n→ 卡片：Apple 液態玻璃（85-90% 透明），搭配極細邊框和微妙的陰影，營造浮動深度並反射背景顏色\n→ 背景保持在卡片後方，卡片所在區域高度模糊 [擇一]：\n  - 飄渺：產品精髓、輕微焦散、抽象光暈\n  - 微距：產品紋理特寫、高度模糊\n  - 圖案：產品柔和重複，10-15% 不透明度\n  - 情境：相關環境，模糊 + 去飽和\n→ 添加微妙的動態效果\n→ 不對稱便當格，16:9 橫向\n→ 主卡片：28-30% | 資訊模組：70-72%\n4) 模組內容（8 張卡片）：\nM1 — 主打：以真實照片 / 3D 玻璃 / 風格化詮釋（擇一）的美麗形式展示產品 + 產品名稱標籤\nM2 — 核心優勢：4 項獨特優勢 + 主色調圖示\nM3 — 使用方法：4 種使用方法 + 圖示\nM4 — 關鍵指標：5 個精確數據點\n格式：[圖示] [標籤] [粗體值] [單位]\n食物：熱量：[X] kcal/100g，碳水化合物：[X]g（膳食纖維 [X]g，糖 [X]g），蛋白質：[X]g，[關鍵維生素]：[X]mg（[X]% 每日建議攝取量），[關鍵礦物質]：[X]mg（[X]% 每日建議攝取量）\n藥品：活性成分：[名稱]，強度：[X] mg，起效時間：[X] 分鐘，持續時間：[X] 小時，半衰期：[X] 小時\n科技：晶片：[型號]，電池：[X] 小時，重量：[X]g，[關鍵規格]：[值]，連接性：[協議]\nM5 — 適用對象：4 個建議群組，帶綠色勾選圖示 | 3 個注意事項群組，帶琥珀色警告圖示\nM6 — 重要注意事項：4 項預防措施 + 警告圖示\nM7 — 快速參考：\n→ 食物：升糖指數 + 飲食標籤，帶圖示\n→ 藥品：副作用 + 嚴重程度，帶圖示\n→ 科技：相容性 + 認證，帶圖示\nM8 — 您知道嗎：3 個事實（來源、科學、全球統計）+ 圖示\n輸出：1 張圖片，16:9 橫向，超優質液態玻璃資訊圖表。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1768962051381_l9uih4_537980579-6f29d32a-c786-40c4-bd5a-79c640737496-300x167.png",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1768962051381_l9uih4_537980579-6f29d32a-c786-40c4-bd5a-79c640737496-300x167.png"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -773,7 +562,9 @@
     "source_id": "925eb9e002b7684b58d9c2d76777dfe9",
     "title": "新年特輯：2026 祝福四格拼圖",
     "prompt_zh": "[关键:保持精确的面部特征,保留原始脸部结构,图中角色与上传参考图完全一致] 高级摄影棚2x2宫格写真。左上格(海军蓝背景):人物穿海军蓝色制服风连衣裙,金色纽扣装饰,复古卷发配蓝色贝雷帽和珍珠耳环,她双手托举一块巨大的拼图块(左上角块,上面有\"20\"数字),向画面中心方向移动,眼神专注地看向中心拼图区域,表情认真,嘴角微笑,背景有海军条纹、船锚、\"启航新年\"字样。右上格(樱花粉背景):同一女性穿粉色蕾丝连衣裙,珍珠项链,公主头配粉色玫瑰花发夹和水晶耳环,她双手托举右上角拼图块(上面有\"26\"数字)向中心移动与左上格拼接,眼神看向拼图接缝处,表情专注期待,身体前倾,背景有粉色樱花、\"美好相遇\"字样、蝴蝶、花瓣。左下格(薄荷绿背景):同一女性穿薄荷绿色棉麻连衣裙,文艺风格,自然长发配绿色发带和木质耳环,她双手托举左下角拼图块(上面有\"元旦\"字样)向上移动与左上格对接,眼神看向拼图,表情认真,嘴巴微微抿起,背景有绿色植物、\"希望生长\"字样、新芽、叶子。右下格(柠檬黄背景):同一女性穿黄色连衣裙,向日葵图案,双马尾配黄色蝴蝶结,她双手托举最后一块右下角拼图(上面有\"快乐\"字样)完成拼图,四块拼图在画面中心完美拼成\"2026元旦快乐\"完整图案,她头后仰,眼睛看向完成的拼图,脸上洋溢着成功喜悦的笑容,画面中心爆出金色光芒和彩纸,背景有黄色太阳、\"圆满成功\"字样、笑脸、向日葵。四格之间拼图从四角汇聚到中心形成完整画面,清透妆容,明亮环形光,85mm镜头,f/1.8光圈,拼图互动四联构图,时尚杂志风格。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1767455034932_ivuvu0_G9V-MszakAEAIBw-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1767455034932_ivuvu0_G9V-MszakAEAIBw-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -784,7 +575,9 @@
     "source_id": "b6e61ae37a8c702d0412427e8b3e81be",
     "title": "詳細的鏡中自拍御宅族房間場景",
     "prompt_zh": "### **场景**\n镜子自拍，御宅族电脑角落，蓝色调\n\n---\n\n### **主体**\n* **性别表现**: 女性\n* **年龄段**: 25岁左右\n* **种族**: 东亚\n* **身材**: 苗条，腰线分明；身材比例自然\n* **肤色**: 浅中性色调\n* **发型**:\n    * **长度**: 及腰长发\n    * **样式**: 直发，发尾微卷\n    * **颜色**: 中等棕色\n* **姿势**:\n    * **站姿**: 站立，轻微的对立式平衡站姿（contrapposto）\n    * **右手**: 手持手机挡住脸（身份被遮挡）\n    * **左臂**: 在躯干旁自然下垂\n    * **躯干**: 身体轻微后仰；露出腰腹\n* **着装**:\n    * **上衣**: 浅蓝色短款针织开衫，扣上前两颗纽扣；隐约可见蓝色法式内衣\n    * **下装**: 牛仔超短裤，两侧臀部各有一个蓝色缎带蝴蝶结\n    * **袜子**: 蓝白横条纹过膝长袜\n    * **配饰**: 蓝色可爱吉祥物手机壳\n\n---\n\n### **环境**\n* **描述**: 从挂墙镜中看到的卧室电脑角落\n* **陈设**:\n    * 白色书桌\n    * 单显示器，显示着柔和的蓝色壁纸（没有可读的文字）\n    * 机械键盘，白色键帽，放在蓝色桌垫上\n    * 鼠标，放在小号蓝色鼠标垫上\n    * PC主机在右侧，带有蓝色机箱灯效\n    * PC主机上或附近有三个动漫手办\n    * 墙上贴着一张佛塔海报\n    * 猫形台灯，带有蓝色点缀\n    * 一杯透明的玻璃水杯\n    * 窗边（镜头左侧）有一株高大的绿叶植物\n* **颜色替换**: 将所有原先的粉色元素（衣物和房间）替换为蓝色（婴儿蓝 -> 天空蓝/长春花蓝）。\n\n---\n\n### **灯光**\n* **光源**: 来自镜头左侧大窗户的日光，透过薄纱窗帘\n* **光线质感**: 柔和的漫射光\n* **白平衡 (K)**: 5200\n\n---\n\n### **相机**\n* **模式**: 智能手机后置摄像头通过镜子拍摄（无肖像/虚化模式）\n* **等效焦距 (mm)**: 26\n* **距离 (米)**:\n    * 主体到镜子: 0.6\n    * 相机到镜子: 0.5\n* **曝光**:\n    * 光圈 (f): 1.8\n    * 感光度 (ISO): 100\n    * 快门速度 (秒): 0.01\n    * 曝光补偿 (EV): -0.3\n* **对焦**: 对焦于镜中影像的躯干和短裤\n* **景深**: 自然的智能手机景深（深景深）；背景清晰可辨，无人为模糊\n* **构图**:\n    * **宽高比**: 1:1\n    * **裁剪**: 从头顶到大腿中部；画面包含书桌、显示器、PC主机和植物\n    * **角度**: 从镜子的视角轻微俯拍\n    * **构图备注**: 保持主体居中；为避免广角边缘拉伸，可以站远一些再进行方形裁剪\n\n---\n\n### **负面提示词**\n* 任何地方出现粉色/品红色\n* 美颜滤镜/磨皮皮肤；没有毛孔的外观\n* 夸张或扭曲的人体结构\n* NSFW，透视面料，走光\n* 商标，品牌名，可读的用户界面文本\n* 虚假的人像模式模糊，CGI/插画感",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763889946850_689z0h_G23i3sJW0AASGUw-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763889946850_689z0h_G23i3sJW0AASGUw-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -795,7 +588,9 @@
     "source_id": "df13c43c0f78ad327e7c67db0057eca9",
     "title": "為中老年受眾生成爆紅標題和文案的 AI 提示範本",
     "prompt_zh": "恭喜你，2026年有3件大喜事马上到你家！快接住\n你的心愿要显化了，所求皆如愿，好运正奔你而来\n您家马上要迎来小贵子啦，快接住这份全家好运！\n让你开心的都在旺你，让你抑郁的都在克你，千万别不信\n你家娃的贵人，正在赶来的路上\n愿你在接下来的日子，左手握健康，右手握财富，平安又顺遂！\n你要开始发达了，步步高升大财来，举步生风遇贵人，鸿运当头喜事来\n12月开始顺风顺水，所有的心愿全都超预期到账，别怀疑，整个12月就是为你开挂的幸运月\n只有福报深的人才会看到这篇文章，别不信\n能量提示：你的苦累要结束了，好日子正在赶来\n别急着走开，有人特意托我捎来三句暖心话，每句都藏着满满好运\n你就是幸运好命，想什么来什么，干什么成什么\n\n总结上面标题的书写方式，再发散思维，根据你的总结，给我书写10个类似的爆款标题\n\n我是公众号创作者，根据标题：你就是天生福命，2026 年想啥来啥，干啥啥成。给我写出一段祝福文案，结构要求：5段话，每句话2分句。文风要求：简短、接地气，口语化表达，没有ai生硬词汇、以及网络用语，中老年人都能看懂",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582014771_t3rm4i_G_unQaRaUAAVM5x-300x259.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582014771_t3rm4i_G_unQaRaUAAVM5x-300x259.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -806,7 +601,9 @@
     "source_id": "9a47b9c04a6035d2a3699050cf679b1c",
     "title": "電影節肖像提示",
     "prompt_zh": "創作一張電影風格、高解析度、超特寫的年輕女性肖像（使用上傳照片中的人物，無需修改），場景設定在電子音樂節。她擁有一頭深棕色黑長髮。她正喜悅地回眸，表情沉著而酷炫。她戴著圓形復古風格太陽眼鏡，反射著周圍的燈光，並穿著一件白色有紋理的夾克。燈光戲劇化且充滿活力，以青色光束為主，並帶有",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582041036_dkngl4_G_uQZdvbAAE8WuC-300x402.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582041036_dkngl4_G_uQZdvbAAE8WuC-300x402.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -817,51 +614,9 @@
     "source_id": "9cbd8db4ca8411bb224e88fe4075502f",
     "title": "爆炸或靜態食物攝影的提示",
     "prompt_zh": "可以讓它爆炸，靜態",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582033433_2q9lrz_G_tPKcsbAAM-Fig-300x225.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "d89aca6684af064c6c6247ba34b09bf0",
-    "title": "咖啡館裡的休閒生活肖像",
-    "prompt_zh": "```json\n{\n  \"scene\": \"室內咖啡廳的休閒生活風格肖像\",\n  \"subject\": {\n    \"character\": \"年輕女性，友善、放鬆的舉止\",\n    \"face\": {\n      \"structure\": \"橢圓形臉，顴骨突出，酒窩明顯\",\n      \"skin\": \"曬黑，光滑，容光煥發的膚色\",\n      \"eyes\": {\n        \"shape\": \"杏仁狀\",\n        \"color\": \"深棕色\",\n        \"expression\": \"直接眼神接觸，引人入勝\"\n      },\n      \"mouth\": {\n        \"lips\": \"自然粉色，輕輕微笑\"\n      },\n      \"makeup\": \"自然「素顏」妝容，淡腮紅，修整過的眉毛\"\n    },\n    \"hair\": {\n      \"color\": \"深棕色至黑色\",\n      \"length\": \"及肩（鮑伯頭）\",\n      \"texture\": \"直髮帶有輕微蓬鬆感\",\n      \"style\": \"散髮，瀏海輕柔地修飾額頭\",\n      \"shine\": \"健康，略帶光澤\"\n    },\n    \"accessories\": {\n      \"necklace\": \"細金鍊，帶有心形吊墜\",\n      \"earrings\": \"小銀色或金色耳環\",\n      \"bracelets\": \"雙腕戴有細金屬手鍊\",\n      \"rings\": \"手指戴有簡約戒指\"\n    }\n  },\n  \"pose\": {\n    \"overall\": \"隨意坐姿，身體略微向後靠在椅子上\",\n    \"position\": {\n      \"base\": \"坐在木椅上\",\n      \"orientation\": \"面向前方，朝向鏡頭\"\n    },\n    \"torso\": {\n      \"direction\": \"正面\",\n      \"posture\": \"放鬆但挺直\"\n    },\n    \"arms\": {\n      \"position\": \"右臂拿著吸管/飲料，左臂放在桌子附近\",\n      \"other\": \"在胸部高度拿著一杯冰飲\"\n    },\n    \"legs\": {\n      \"position\": \"不對稱；右腿彎曲，膝蓋抬起，左腿向下伸展\",\n      \"visible\": \"雙腿穿著緊身衣物完全可見\"\n    },\n    \"head\": {\n      \"turn\": \"正視前方\",\n      \"expression\": \"柔和、自信的微笑\"\n    }\n  },\n  \"outfit\": {\n    \"activewear\": {\n      \"type\": \"無袖連體衣 / 連身褲\",\n      \"color\": \"米色 / 裸色\",\n      \"style\": \"運動休閒風\",\n      \"details\": {\n        \"top\": \"V 領，無袖\",\n        \"fit\": \"貼身，緊身\",\n        \"material\": \"羅紋或光滑彈性面料\"\n      }\n    },\n    \"footwear\": {\n      \"type\": \"運動鞋\",\n      \"style\": \"灰色運動跑鞋（New Balance 風格）\",\n      \"socks\": \"白色羅紋中筒襪\"\n    }\n  },\n  \"body\": {\n    \"type\": \"健美，纖細\",\n    \"skin\": \"曬黑\"\n  },\n  \"environment\": {\n    \"location\": \"咖啡店內部\",\n    \"furniture\": {\n      \"table\": \"圓形木桌，帶有板條底座\",\n      \"chair\": \"帶有簡約靠背的木椅\"\n    },\n    \"objects\": {\n      \"drink\": \"一杯冰鎮的 {argument name=\\\"drink type\\\" default=\\\"綠色抹茶拿鐵\\\"}，配玻璃吸管\",\n      \"bag\": \"桌上的 Louis Vuitton Monogram Speedy 手提包\",\n      \"sunglasses\": \"桌上的黑框太陽眼鏡\",\n      \"coaster\": \"小木盤/杯墊\"\n    },\n    \"background\": {\n      \"people\": \"模糊的人影坐在其他桌旁\",\n      \"floor\": \"混凝土或石磚地板\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581960034_99wqan_G_szpDFWkAAsYq0-300x396.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "6678bc40897c5587eb4f0f761a1591db",
-    "title": "Nano Banana Pro 手寫生成提示",
-    "prompt_zh": "請使用隨附的參考圖片作為手寫風格指南（特別是第二張有手寫樣本的圖片）。請在乾淨的白紙上寫一行日文手寫文字。使用細緻的啫喱筆 / 極細筆（0.3–0.4mm 的筆觸），筆劃纖細輕盈，大部分為單線（沒有毛筆或麥克筆的感覺）。請呈現時尚、輕盈、女性化的手寫風格：柔和的曲線、輕巧的筆觸，並略微向右傾斜。透過明顯的字體大小變化（有些字體大 10–25% 或小 10–25%）、不規則的間距，以及從左到右輕微向上傾斜的基線，來增添鮮明的個性。在幾個字體上，特別是第一個字、文字中任何拉長/延伸的筆劃，以及最後一個字，加上拉長的起筆和收筆（長而漸細的起筆/收筆），同時保持所有內容清晰可讀。請精確地寫下這段文字：「The true chocolate tasted like an adult's.」。不要有額外的文字、邊框、標誌、底線、裝飾性的曲線。高解析度，清晰的細墨線，極少的紙張紋理。\n負面：\n毛筆、書法、書道、麥克筆、粗筆劃、粗墨、重壓、畫筆、方塊字、字體大小均勻、間距完美、基線完全筆直、印刷字體、排版、空心字體、多餘文字、浮水印、邊框、印章、底線、曲線、塗鴉\n額外：\n保持筆劃纖細；主要透過大小/間距/基線和漸細的筆劃末端來創造表現力，而不是粗細。增加字體大小對比和間距不規則性，但保持易讀性。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582030644_le72bb_G_o0py4akAABSoj-300x169.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "2ddf3ebb9ebbeb8b7347454867f423aa",
-    "title": "健美韓國女孩的超寫實電影研究",
-    "prompt_zh": "{ \"hardware_and_optical_fidelity\": { \"camera_tier\": \"專業級單眼相機\", \"lens_specification\": { \"focal_length\": \"50mm 定焦鏡\", \"lens_character\": \"銳利現代大師級定焦鏡\", \"aperture_blade_shape\": \"圓形（奶油般圓潤的散景光斑）\" }, \"manual_settings\": { \"exposure_mode\": \"陰鬱曝光不足 -1.5\", \"shutter_execution\": \"1/200s (靜態)\", \"iso_noise_profile\": \"ISO 400 (細膩的底片顆粒感)\", \"white_balance\": \"混合光源（冷色邊緣光與中性膚色）\" } }, \"optical_artifacts_and_filth_engine\": { \"chromatic_aberrations\": \"主體後方失焦高光處有輕微縱向色差\", \"digital_defects\": \"感光元件輸出乾淨，無任何後製瑕疵\", \"physical_defects\": \"鏡頭上的微小刮痕造成輕微光暈；光束中可見大氣塵埃顆粒\", \"lens_flare\": \"來自上方背光的朦朧面紗眩光\", \"focus_errors\": \"主眼虹膜處對焦極其銳利\" }, \"identity_and_celebrity_anchors\": { \"celebrity_base\": \"無\", \"demographics\": { \"ethnicity\": \"韓國人\", \"age\": \"24\" }, \"skin_authenticity\": \"高光澤運動油光；胸骨和額頭上可見汗珠；超細緻毛孔；下腹部有極細血管紋路\" }, \"pose_and_erotic_tension\": { \"hand_placement\": \"雙手置於腦後，手指交錯於長黑髮中，輕微向上拉伸以拉長軀幹\", \"body_geometry\": { \"tilt\": \"誇張的弓形脊椎，骨盆有明顯側傾以強調臀部曲線\", \"camera_relation\": \"視線水平，中景全身照\" }, \"erotic_markers\": \"半閉的眼神；微張的雙唇，可見濕潤感；腹斜肌和股四頭肌高度緊繃；膚色潮紅\" }, \"anatomical_physics_extreme\": { \"waist_to_hip_ratio\": \"0.65 (極致沙漏型)\", \"bust_and_gluteal_physics\": { \"mass\": \"運動型，結實 C 罩杯\", \"gravity\": \"逼真的結實上提；髂骨溝處有深邃接觸陰影；臀部肌肉線條分明，有明顯突出\", \"occlusion\": \"布料與皮膚接觸處有深邃接觸陰影；前鋸肌線條清晰\" }, \"clothing_interaction\": \"高衩黑色連身泳衣；布料在臀部處緊繃；細肩帶在斜方肌和臀部肉處造成深陷痕跡\" }, \"environment_and_lighting\": { \"lighting_control\": \"明暗對比工作室燈光；強烈邊緣光勾勒輪廓；體積霧捕捉來自後方的光線\", \"environment\": \"黑暗、極簡主義工作室，帶有輕微大氣薄霧和反光地板\" } } 最終主提示（「硬編碼」執行）指令：生成一張超現實、原始且未經濾鏡處理的攝影作品。這是一項高張力感官研究，需要精確控制硬體品質和解剖物理學。硬體與光學執行（強制）：模擬使用專業級單眼相機和 50mm 定焦鏡頭進行拍攝。應用混合光源白平衡。將曝光設定為陰鬱曝光不足",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582033932_cq4l1y_G_sbdtKbAAM8iYA-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "fddc9d59b5bbb5584f605b2b8e485f72",
-    "title": "豪華轎車後座的高端編輯閃光照片",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_luxury_car_interior_editorial_flash\",\n      \"version\": \"v1.0_BACKSEAT_RED_DRESS_EDITORIAL_FLASH_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n\n    \"references\": {\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": true,\n        \"face_similarity_priority\": \"MAX\",\n        \"no_identity_blending\": true,\n        \"no_beautify\": true,\n        \"no_age_shift\": true,\n        \"preserve_skin_texture\": true,\n        \"preserve_facial_proportions\": true,\n        \"preserve_moles_freckles_scars\": true,\n        \"preserve_eye_shape\": true,\n        \"preserve_nose_shape\": true,\n        \"preserve_lip_shape\": true,\n        \"preserve_jawline\": true\n      },\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"STYLE_COMPOSITION_LIGHTING_ANCHOR\",\n        \"strict_lock\": false,\n        \"preserve_composition\": true,\n        \"preserve_palette\": true,\n        \"preserve_vibe\": true,\n        \"preserve_lighting\": true\n      }\n    },\n\n    \"global_constraints\": {\n      \"rating\": \"PG-13\",\n      \"no_nudity\": true,\n      \"no_explicit_sexual_content\": true,\n      \"no_logos\": true,\n      \"no_watermark\": true,\n      \"no_readable_text\": true\n    },\n\n    \"output_settings\": {\n      \"aspect_ratio\": \"4:5\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"high_end_editorial_flash_photo\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle\",\n      \"color_grade\": \"deep_crimson_red_on_black_leather\",\n      \"dynamic_range\": \"natural_not_hdr\",\n      \"skin_rendering\": \"real_texture_no_retouch\"\n    },\n\n    \"creative_prompt\": {\n      \"scene_summary\": \"一張在夜晚豪華黑色汽車後座的寫實高端時尚閃光燈照片。同一位成年女性（如果提供，臉部與參考圖完全匹配）優雅自信地坐在黑色皮革座椅上。強烈的直射機載閃光燈營造出清晰的高光和深邃的陰影。整體色調嚴格為深緋紅色 + 黑色內飾，乾淨且具電影感。沒有任何文字。\",\n\n      \"subject_and_pose\": {\n        \"pose\": \"女性側身坐在後座上，軀幹朝向鏡頭，雙腿向一側彎曲；一隻手靠近太陽穴/耳朵，彷彿在整理頭髮，另一隻手臂沿著座椅靠背伸展\",\n        \"expression\": \"自信的時尚凝視，看向鏡頭右側（不微笑），雙唇微啟\",\n        \"hair\": \"光滑的盤髮或緊緻的馬尾，可選幾縷柔軟的髮絲\"\n      },\n\n      \"wardrobe_makeup\": {\n        \"outfit\": \"深緋紅色長袖高領（高領款式）緊身連衣裙，面料光滑，褶皺整齊，端莊優雅\",\n        \"makeup\": \"清晰的 b\"\n      }\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581950315_ptcupa_G_sJXBDWcAAwi98-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582033433_2q9lrz_G_tPKcsbAAM-Fig-300x225.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -872,7 +627,9 @@
     "source_id": "9cf060c1f8cd25dac1b552fe301c59af",
     "title": "手繪風格標題圖片提示，源自照片",
     "prompt_zh": "完全重現上傳的人物。\n將其製作成一篇筆記文章的標題圖片，內容是該人物介紹「Nano Banana Pro」。\n長寬比：橫向 16:9。\n風格與顏色：簡潔、手繪風格、斜體，並帶有藍綠漸層。\n標題文字：「深入解析 Google 全新 AI『Nano Banana Pro』」。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885651870_4szbai_G6VZiROagAAqsIh-300x168.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885651870_4szbai_G6VZiROagAAqsIh-300x168.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -883,7 +640,9 @@
     "source_id": "306b1f44fc5abd632bba02eff323ebe7",
     "title": "德國水彩地圖，附各邦標籤",
     "prompt_zh": "生成一張水彩風格的德國地圖，並用原子筆標示出所有聯邦州。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763886061720_fzgqaq_G6RIeSZXgAA7cOf-300x164.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763886061720_fzgqaq_G6RIeSZXgAA7cOf-300x164.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -894,7 +653,9 @@
     "source_id": "88cefedecea9c87e66814b6f3b2ed049",
     "title": "黑板風格的 AI 新聞摘要",
     "prompt_zh": "使用以下內容，以黑板手寫風格歸納新聞，並像老師寫的一樣，用圖表和淺顯易懂的表達方式來分解說明。\n—-\n來自 Grok 的搜尋結果",
-    "original_image_url": "https://cms-assets.youmind.com/media/1763885620059_vzaj75_G6WfVvIbAAEgvYg-300x300.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1763885620059_vzaj75_G6WfVvIbAAEgvYg-300x300.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -905,7 +666,9 @@
     "source_id": "62a47afe159c25c85a22f784edb2baea",
     "title": "江戶時代浮世繪風格的現代場景再詮釋",
     "prompt_zh": "一幅日本江戶時代的浮世繪木刻版畫。整體感覺是葛飾北齋和歌川廣重等大師的超現實合作，透過古老的視角重新詮釋現代科技。\n\n**場景：**繁忙的澀谷十字路口**江戶時代的轉化邏輯：**\n人物身著江戶時代的和服，卻在進行現代活動。所有科技都被轉化為超現實的江戶時代等效物：\n* 智慧型手機是發光的彩繪紙卷，人們正專注地閱讀。\n* 地鐵站和列車是巨大的鉸接式木製蜈蚣車廂，在人群中穿梭。\n* 摩天大樓被重新想像成無盡、高聳的木製寶塔，直入變幻莫測的雲端。\n* 機器人和機甲則以巨大的、身披盔甲的木刻魔像形象出現。\n\n構圖採用扁平視角，具有粗大、醒目的手刻墨線輪廓。背景以高度風格化的浮世繪波浪圖案和戲劇性的旋渦雲為特色，遠處地平線上可見富士山。\n\n圖像必須看起來像實體版畫，而非數位繪畫。\n* 紋理：整幅作品中，木紋紋理和粗糙的紙纖維清晰可見。\n* 印刷瑕疵：顏料滲色明顯。模擬手工壓印版畫，帶有輕微的色彩錯位，以增添真實感。\n* 調色板：嚴格限於傳統礦物顏料，主要使用普魯士藍、朱紅色和柔和的赭黃色。\n* 光線：柔和、平坦、無陰影的光線，沒有數位漸層。\n\n長寬比為 3:4 的垂直海報。包含描述場景的垂直日文書法，並在角落處有一個傳統的紅色藝術家印章。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1764915832381_renotr_G7FuPlzbYAAsuo2-300x401.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1764915832381_renotr_G7FuPlzbYAAsuo2-300x401.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -916,7 +679,9 @@
     "source_id": "5dee6c041e0d577da5cd6f91d07725d4",
     "title": "直視鏡頭的親密特寫肖像，帶有環形補光燈",
     "prompt_zh": "{\n    \"subject\": {\n        \"core_identity\": \"使用參考圖像中的相同臉孔，不改變面部特徵，白皙皮膚帶柔和暖色調，自然迷人的美感，及肩直髮為巧克力棕色帶有微妙暖色調\",\n        \"skin_and_facial_details\": \"超細緻寫實皮膚:1.4，鼻部、臉頰和下巴可見細微毛孔，微妙的次表面散射營造出柔和的光澤，自然的微小瑕疵和淡淡的紋理，高度細緻的虹膜帶有豐富的放射狀圖案，環形燈和手機閃光燈投射出銳利眼神光，眉毛清晰，睫毛捲翹濃密，豐滿光澤的嘴唇呈現豐富的珊瑚紅色並帶有高光澤:1.3\",\n        \"hair\": \"及肩直髮為巧克力棕色帶有暖色調，整齊的鈍剪波波頭，帶有柔和的修飾臉型的層次，髮絲捕捉環形燈光，呈現逼真的光澤分離和微妙的動感:1.2\",\n        \"body_figure\": \"纖細而柔和豐滿的女性輪廓，比例勻稱:1.2，低領上衣露出柔和的肩線，可見精緻的鎖骨，胸部自然輪廓輕柔地壓在布料上，特寫畫面暗示著纖細的腰部和臀部，放鬆斜倚的姿勢呈現自然的不對稱性\",\n        \"micro_expression\": \"親密的直視鏡頭，眼睛微垂，柔和微張的光澤嘴唇呈現輕柔誘人的嘟嘴，嘴角帶有微妙的會心一笑，透過半閉的眼睛和放鬆的面部表情傳達出私密的魅力、從容的自信和感性的邀請:1.2\"\n    },\n    \"apparel_and_materials\": \"黑色天鵝絨或毛絨短版上衣，低領口，柔軟奢華的面料帶有深絨毛紋理，微妙的光澤和吸光性營造出豐富的深色調，斜倚姿勢下胸部和肩部周圍的自然垂墜和壓縮褶皺:1.3\",\n    \"pose_and_action\": \"親密特寫臥室自拍姿勢，躺在床上或枕頭上，頭部略微傾向鏡頭，肩膀放鬆，身體傾斜以展示頸部和鎖骨線條，姿勢透過斜倚的姿態和直接的眼神接觸傳達出私密的放鬆、感性的親近和誘人的脆弱:1.2\",\n    \"scene_and_environment\": \"舒適的現代臥室內部，背景是柔和的青色/藍綠色窗簾，溫暖的環形燈提供主要照明，中性寢具，帶有柔和低調氛圍的私密空間:1.1\",\n    \"lighting_shadows_and_color_design\": \"來自右上方前方的強烈定向環形燈光，營造出柔和而戲劇性的\"\n}",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582035395_aoa1st_G_uj5xjaAAASH7w-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582035395_aoa1st_G_uj5xjaAAASH7w-300x537.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
@@ -927,62 +692,9 @@
     "source_id": "3bcb1b676fc4389d3b2cdd931523c1fe",
     "title": "Alexander McQueen 運動鞋編輯網格 Nano Banana Pro 提示",
     "prompt_zh": "为高端商业营销活动创建3×3网格，以Alexander McQueen男士奢侈运动鞋为中心主题。\n\n每帧展现独特视觉概念，同时保持九张图像中完美的产品一致性。\n\n网格概念（每格一个）：\n\n1. '标志性英雄镜头'：深色光滑基座上的眼平面侧视图，强调标志性超大鞋底。\n\n2. '极致微距细节'：鞋跟或缝线特写，突显顶级皮革纹理和'Alexander McQueen'标志压纹。\n\n3. '动态交互'：鞋踏上表面产生微妙优雅的黑色液体或大理石粉溅洒效果。\n\n4. '极简雕塑感'：鞋艺术性地平衡在几何混凝土或大理石块上，强调建筑设计。\n\n5. '悬浮轻盈感'：鞋悬浮空中，鞋带动态悬挂，传达顶级舒适感和轻盈感。\n\n6. '感官质地'：聚焦天鹅绒或光滑皮革上部与粗糙石头纹理对比的触感氛围镜头。\n\n7. '单色奢华'：背景与鞋的强调色完美匹配的色块场景，营造大胆编辑感。\n\n8. '解构工艺'：原始材料的抽象排列（皮革样本、橡胶纹理）环绕鞋子，象征高质量构造。\n\n9. '超现实融合'：鞋融入超现实梦幻景观，融合现实主义与高级时尚。\n\n视觉规则：\n* '主体'：Alexander McQueen男士超大运动鞋。\n* '一致性'：鞋的形状、比例、鞋底厚度、标志位置和排版必须100%准确。\n* '无扭曲'：标志性鞋底或品牌无变形。\n* '分离'：鞋与背景清晰分离。\n\n灯光与风格：\n* 柔和受控的工作室灯光，具有戏剧性边光突显鞋的轮廓。\n* 皮革上的细微高光，鞋底下深层逼真阴影。\n* 高动态范围，8K分辨率，超锐利焦点。\n* 编辑奢侈时尚广告美学（Vogue/GQ风格）。\n* 调色板：极简主义、单色、金属和深哑光色调。\n\n整体氛围：\n* 现代、精致、视觉连贯。\n* 奢侈时尚品牌高端商业活动。\n* 超现实、电影感、精致和渴望感。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582015231_gd3cvg_G_uOL8mbAAEHFtE-300x402.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "399efd34d51253c36431fd1557e72417",
-    "title": "地下停車場中的電影感時尚肖像",
-    "prompt_zh": "```json\n{\n  \"subject\": {\n    \"type\": \"年輕女性\",\n    \"style\": \"超寫實、時尚雜誌風格\",\n    \"mood\": \"平靜、自信、沉穩\",\n    \"appearance\": \"自然的皮膚紋理、真實的比例、高細節\",\n    \"identity\": \"通用角色，可替換為自訂臉部或參考對象\"\n  },\n\n  \"pose\": {\n    \"position\": \"坐在地上\",\n    \"legs\": \"側彎、向前伸展、膝蓋微抬、腳踝輕微交叉\",\n    \"arms\": \"放在身體後方支撐\",\n    \"hands\": \"手掌平放地面、手指放鬆\",\n    \"torso\": \"挺直，略微自然向後傾斜\",\n    \"shoulders\": \"放鬆\",\n    \"body_language\": \"放鬆而有目的性，自信的姿態\"\n  },\n\n  \"clothing\": {\n    \"top\": \"寬鬆的米白色長袖運動衫\",\n    \"fit\": \"寬鬆、休閒\",\n    \"fabric\": \"柔軟棉質紋理\",\n    \"bottom\": \"高腰橄欖綠短裙\",\n    \"details\": \"側面有細緻的布料綁帶細節\",\n    \"style\": \"簡約、現代、雜誌風格\"\n  },\n\n  \"shoes\": {\n    \"type\": \"高跟涼鞋\",\n    \"color\": \"{argument name=\\\"shoe color\\\" default=\\\"red\\\"}\",\n    \"design\": \"細帶、露趾\",\n    \"finish\": \"光澤\",\n    \"style\": \"優雅、女性化\"\n  },\n\n  \"accessories\": {\n    \"bag\": \"小型 {argument name=\\\"bag color\\\" default=\\\"red\\\"} 單肩包\",\n    \"bag_position\": \"掛在右肩上\",\n    \"jewelry\": \"無或極簡\",\n    \"overall_style\": \"簡潔、不雜亂\"\n  },\n\n  \"hair\": {\n    \"style\": \"鬆散波浪或柔和捲髮\",\n    \"volume\": \"中等\",\n    \"finish\": \"自然、略顯凌亂但整齊\",\n    \"texture\": \"真實髮絲\"\n  },\n\n  \"gaze\": {\n    \"direction\": \"直視鏡頭\",\n    \"expression\": \"中性至略顯嚴肅\",\n    \"eyes\": \"平靜、專注\",\n    \"lips\": \"放鬆、不微笑\",\n    \"emotion\": \"自信、內省\"\n  },\n\n  \"environment\": {\n    \"location\": \"地下停車場\",\n    \"atmosphere\": \"充滿活力、生動\",\n    \"lighting\": \"暖色燈光搭配霓虹點綴\",\n    \"background_style\": \"色彩斑斕的倒影、略微模糊\"\n  },\n\n  \"photography\": {\n    \"camera_angle\": \"與視線齊平至略低角度\",\n    \"lens\": \"35mm\",\n    \"framing\": \"中廣角鏡頭\",\n    \"focus\": \"主體清晰對焦、背景柔和模糊\",\n    \"depth_of_field\": \"淺景深\",\n    \"lighting_setup\": {\n      \"key_light\": \"左前方柔和主光\",\n      \"fill_light\": \"柔和補光以柔化陰影\",\n      \"rim_light\": \"微妙的背光以將主體與背景分離\"\n    },\n    \"style\": \"電影感時尚攝影\",\n    \"color_grading\": \"柔和的電影色調搭配微妙的色彩點綴\",\n    \"contrast\": \"平衡、自然\"\n  },\n\n  \"negative_prompt\": {\n    \"style\": \"卡通、動漫、插畫、繪畫、CGI、3D 渲染\",\n    \"anatomy\": \"身體扭曲、不真實的比例、多餘的肢體、多餘的手指\",\n    \"quality\": \"模糊的臉部、低細節、低解析度、噪點、顆粒感\",\n    \"skin\": \"塑膠皮膚\"\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581977253_66psq1_G_s3ImCWgAAIFnA-300x402.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "24848dddda05229104b948325a1de70a",
-    "title": "超逼真高端時尚編輯肖像，帶有身份鎖定",
-    "prompt_zh": "```json\n{\n  \"version_control\": {\n    \"target_style\": \"高端時尚雜誌風格\",\n    \"fidelity_level\": \"絕對 1:1 身份鎖定\",\n    \"rendering_engine_constraints\": \"無 CGI、無插畫、無 AI 平滑處理\"\n  },\n  \"subject_profile\": {\n    \"identity\": {\n      \"name\": \"{argument name=\\\"subject name\\\" default=\\\"Sophie Rain\\\"}\",\n      \"age_group\": \"成年女性\",\n      \"biometric_integrity\": \"100% 保留原始骨骼結構、面部不對稱、痣和眼睛形狀。零變形或增強。\"\n    },\n    \"anatomy_and_skin\": {\n      \"texture\": \"可見毛孔、微細紋、細微半透明感\",\n      \"physics\": \"自然水珠、柔和濕潤光澤、皮膚上逼真的表面張力\",\n      \"tone\": \"自然膚色基調、陽光親吻般的溫暖、無人工光澤\"\n    },\n    \"face_details\": {\n      \"eyes\": \"自然瞳色、柔和中性粉色光澤眼影、細緻睫毛根部眼線（無眼尾上揚）、根根分明的捲翹睫毛\",\n      \"brows\": \"自然濃密度、直型至柔和圓潤的眉型\",\n      \"nose_and_lips\": \"鼻樑處帶有細微粉色暖意；豐滿雙唇、玫瑰粉漸變、濕潤光澤感、模糊邊緣、無外擴描繪\"\n    },\n    \"hair_styling\": {\n      \"state\": \"明顯濕潤、髮根服貼、髮絲潮濕\",\n      \"arrangement\": \"鬆散、自然垂落在雙肩和背部、隨性凌亂的質感\",\n      \"match_reference\": \"1:1 顏色和造型匹配\"\n    }\n  },\n  \"composition_and_pose\": {\n    \"action\": \"斜倚在游泳池邊緣，身體呈 45 度角，雙腳浸在水中\",\n    \"arm_placement\": \"雙臂自然擱置在大腿上\",\n    \"framing\": \"中景特寫、四分之三角度\",\n    \"mood\": \"親密、平靜、沉穩、自信\"\n  },\n  \"attire_and_wardrobe\": {\n    \"primary_garment\": \"極簡主義 {argument name=\\\"swimsuit color\\\" default=\\\"紅色\\\"} 泳衣、細肩帶、簡潔線條\",\n    \"fabric_physics\": \"濕潤皮膚上逼真的張力、自然的褶皺和堆積\",\n    \"jewelry\": \"個性耳環、天然寶石/黃金、逼真的微刮痕和反光\"\n  },\n  \"environment_and_lighting\": {\n    \"background\": {\n      \"element\": \"碧綠的泳池水\",\n      \"physics\": \"折射、池底光影戲、細微漣漪、逼真動態\"\n    },\n    \"lighting_design\": {\n      \"source\": \"單向自然陽光\",\n      \"color_temp\": \"溫暖的陽光色調\",\n      \"exposure\": \"輕微曝光不足（降低曝光）\",\n      \"shadows\": \"鎖骨和胸部上物理精確的接觸陰影\"\n    }\n  },\n  \"technical_parameters\": {\n    \"optics\": \"50mm–85mm 等效焦距、逼真的攝影視角\",\n    \"depth_of_field\": \"淺景深、有機散景、自然虛化\",\n    \"resolution_quality\": \"16k 超現實\",\n    \"aspect_ratio\": \"3:4\"\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581916309_ot692r_G_sx6D9W8AAn4Ex-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "7b08d313d6493b86519091b5d24ec4ab",
-    "title": "概念視覺故事資產提示",
-    "prompt_zh": "概念性敘事視覺。\n抽象元素排列以呈現向前移動的感覺，\n前景、中景、背景的層次深度，\n柔和的定向照明營造視覺流動感，\n柔和的電影色彩調色板，\n情感豐富但簡約，\n如同品牌電影的靜態畫面。",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581942818_ikocrk_G_dKkv3WIAAlzCX-300x300.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "7df70cbc05c71ba2e2a4a866f986c45d",
-    "title": "編輯聯絡表提示：手持粉色鬱金香的女人",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_editorial_contact_sheet_9panel\",\n      \"version\": \"v1.0_9PANEL_TULIP_CONTACT_SHEET_MINIMAL_WALL_NO_TEXT_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (RECOMMENDED)\",\n        \"purpose\": \"STYLE_GRID_LAYOUT_POSE_VIBE_ANCHOR\",\n        \"strict_lock\": true,\n        \"preserve_composition\": true,\n        \"preserve_vibe\": true\n      },\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": false\n      }\n    },\n    \"output_settings\": {\n      \"aspect_ratio\": \"1:1\",\n      \"orientation\": \"square\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"editorial_ultra_photoreal_contact_sheet\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"very_subtle_35mm\",\n      \"dynamic_range\": \"natural_filmic_not_hdr\",\n      \"color_grade\": \"soft_neutral_beige_wall_pastel_pink_flowers\",\n      \"skin_rendering\": \"natural_skin_texture_no_beautify\",\n      \"grid_layout\": {\n        \"type\": \"3x3\",\n        \"borders\": \"thin_white_dividers\",\n        \"panel_consistency\": \"same_room_same_light_same_outfit\"\n      },\n      \"lens_and_camera\": {\n        \"camera\": \"full_frame_dslr_look\",\n        \"lens\": \"50mm_prime\",\n        \"aperture\": \"f2.8\",\n        \"focus_style\": \"subject_in_focus_minimal_distortion\"\n      },\n      \"lighting\": {\n        \"key\": \"soft_window_daylight\",\n        \"fill\": \"gentle_bounce\",\n        \"mood\": \"calm_minimal_editorial\"\n      },\n      \"background\": {\n        \"environment\": \"plain_beige_wall_indoor\",\n        \"clean\": \"no_clutter_no_props\"\n      }\n    },\n    \"scene\": {\n      \"global_description\": \"一張 9 格（3x3）編輯風格的聯絡表，展示同一位年輕女性在米色素牆前，手持一大束粉色鬱金香擺拍。極簡、乾淨、自然窗光。全程穿著相同服裝：淺色中性上衣和高腰藍色牛仔褲。每格展示不同的姿勢或構圖（側面、背面、四分之三身、俏皮倚靠和花束特寫）。無任何文字。\",\n      \"subject\": {\n        \"description\": \"年輕成年女性，長波浪深棕色頭髮，自然妝容，放鬆表情\",\n        \"wardrobe\": \"簡約淺色中性上衣（無肩帶或細肩帶）+ 高腰藍色牛仔褲\",\n        \"flowers\": \"一大束新鮮粉色鬱金香，帶長綠色莖葉\"\n      },\n      \"panels\": [\n        {\n          \"panel\": \"1\",\n          \"framing\": \"medium\",\n          \"pose\": \"四分之三身視角，將花束放低，看向側面\"\n        },\n        {\n          \"panel\": \"2\",\n          \"framing\": \"medium\",\n          \"pose\": \"背部微弓，下巴抬高，花束置於腰間\"\n        },\n        {\n          \"panel\": \"3\",\n          \"framing\": \"medium\",\n          \"pose\": \"側身，將花束舉至臉旁，輕輕微笑\"\n        }\n      ]\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769582018272_xsceyx_G_sW6ABWcAA-VzH-300x537.jpg",
-    "media_type": "image",
-    "width": null,
-    "height": null,
-    "r2_key": null,
-    "r2_url": null
-  },
-  {
-    "source_id": "bda9bf5ad2505f4250a8f3cb223cb0e3",
-    "title": "羅馬競技場黃金時段編輯人像攝影",
-    "prompt_zh": "```json\n{\n  \"generation_request\": {\n    \"meta_data\": {\n      \"tool\": \"NanoBanana Pro\",\n      \"task_type\": \"photoreal_travel_editorial_portrait_landmark\",\n      \"version\": \"v1.0_ROME_COLOSSEUM_RED_DRESS_GOLDEN_HOUR_EDITORIAL_FACELOCK_EN\",\n      \"priority\": \"highest\",\n      \"language\": \"en\"\n    },\n\n    \"references\": {\n      \"reference_image_style\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (REQUIRED)\",\n        \"purpose\": \"STYLE_COMPOSITION_ANCHOR\",\n        \"strict_lock\": true,\n        \"preserve_composition\": true,\n        \"preserve_lighting\": true,\n        \"preserve_palette\": true,\n        \"preserve_vibe\": true\n      },\n      \"reference_image_face\": {\n        \"source\": \"UPLOAD_REFERENCE_IMAGE (OPTIONAL)\",\n        \"purpose\": \"FACE_IDENTITY_LOCK\",\n        \"strict_lock\": true,\n        \"face_similarity_priority\": \"MAX\",\n        \"no_identity_blending\": true,\n        \"no_beautify\": true,\n        \"no_age_shift\": true,\n        \"preserve_skin_texture\": true,\n        \"preserve_facial_proportions\": true,\n        \"preserve_eye_shape\": true,\n        \"preserve_nose_shape\": true,\n        \"preserve_lip_shape\": true,\n        \"preserve_jawline\": true\n      }\n    },\n\n    \"global_constraints\": {\n      \"rating\": \"PG-13\",\n      \"no_nudity\": true,\n      \"no_explicit_sexual_content\": true,\n      \"no_logos\": true,\n      \"no_watermark\": true,\n      \"no_readable_text\": true\n    },\n\n    \"output_settings\": {\n      \"aspect_ratio\": \"4:5\",\n      \"orientation\": \"portrait\",\n      \"resolution_target\": \"ultra_high_res\",\n      \"render_style\": \"cinematic_photoreal_travel_editorial\",\n      \"sharpness\": \"crisp_but_natural\",\n      \"film_grain\": \"subtle_35mm\",\n      \"color_grade\": \"warm_golden_hour_neutral_stone_red_dress\",\n      \"dynamic_range\": \"natural_not_hdr\",\n      \"skin_rendering\": \"real_texture_no_retouch\"\n    },\n\n    \"creative_prompt\": {\n      \"scene_summary\": \"在羅馬競技場的黃金時段，創作一張寫實的旅行編輯肖像。相機與視線齊平，帶有輕微廣角的編輯視角（自然比例，無扭曲）。羅馬競技場作為背景，具有強烈的建築細節和溫暖的陽光灑在石頭上。\\n\\n主體：一位成年女性，留著非常長的深色波浪髮。她坐在前景的矮石牆上，身體略微轉向左側，頭部向左傾斜，眼睛閉著或望向遠方，表情平靜而優雅。自然姿態：一隻手放在牆上，另一隻手放鬆。\\n\\n服裝：深色 {argument name=\\\"dress color\\\" default=\\\"red/burgundy\\\"} 無袖鏤空連衣裙（雅緻的側面鏤空），飄逸的長裙帶有柔和的體積感和逼真的布料褶皺。極簡珠寶，簡潔的編輯造型。\\n\\n道具：一朵單獨的紅玫瑰，帶有淺色莖葉，放在主體右側（觀看者右側）的石牆上，細緻而浪漫。\\n\\n環境：前景是帶有分層磚石紋理的石質露台/走道。綠色灌木/樹木部分地框住右側。晴朗的藍天。\\n\\n光線：溫暖的低角度陽光從\"\n    }\n  }\n}\n```",
-    "original_image_url": "https://cms-assets.youmind.com/media/1769581969247_fh1mcw_G_sGzDqXIAAEwvc-300x537.jpg",
+    "original_image_url": [
+      "https://cms-assets.youmind.com/media/1769582015231_gd3cvg_G_uOL8mbAAEHFtE-300x402.jpg"
+    ],
     "media_type": "image",
     "width": null,
     "height": null,
