@@ -50,7 +50,7 @@ def fetch_and_parse():
             "source_id": None,
             "title": title_text,
             "prompt_zh": None,
-            "original_image_url": None,
+            "original_image_url": [],
             "media_type": "image",
             "width": None, "height": None, "r2_key": None, "r2_url": None, "cover_r2_key": None, "cover_r2_url": None
         }
@@ -73,15 +73,16 @@ def fetch_and_parse():
             if debug_mode: print(f"   检查: <{sibling.name}>")
 
             # --- A. 查找图片 ---
-            if not current_data['original_image_url']:
-                # 针对 markdown-accessiblity-table 这种特殊标签，递归查 img
-                img = sibling.find('img')
-                if img:
-                    src = img.get('src') or img.get('data-canonical-src')
-                    if src:
-                        if src.startswith('/'): src = BASE_DOMAIN + src
-                        src = src.replace('/blob/', '/raw/')
-                        current_data['original_image_url'] = src
+            # 针对 markdown-accessiblity-table 这种特殊标签,递归查找所有 img
+            imgs = sibling.find_all('img')
+            for img in imgs:
+                src = img.get('src') or img.get('data-canonical-src')
+                if src:
+                    if src.startswith('/'): src = BASE_DOMAIN + src
+                    src = src.replace('/blob/', '/raw/')
+                    # 避免重复添加
+                    if src not in current_data['original_image_url']:
+                        current_data['original_image_url'].append(src)
                         if debug_mode: print(f"   -> 找到图片: {src}")
 
             # --- B. 查找提示词 ---
@@ -98,7 +99,8 @@ def fetch_and_parse():
                 break
         
         if current_data['original_image_url']:
-            unique_str = current_data['original_image_url']
+            # 使用所有图片 URL 的组合生成唯一 ID
+            unique_str = "|".join(current_data['original_image_url'])
             current_data['source_id'] = generate_source_id(unique_str)
             results.append(current_data)
 

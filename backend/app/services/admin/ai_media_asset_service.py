@@ -196,7 +196,10 @@ def delete_asset(asset_id):
     # 删除R2文件
     files_to_delete = []
     if asset.r2_key:
-        files_to_delete.append(asset.r2_key)
+        if isinstance(asset.r2_key, list):
+            files_to_delete.extend(asset.r2_key)
+        else:
+            files_to_delete.append(asset.r2_key)
     if asset.cover_r2_key:
         files_to_delete.append(asset.cover_r2_key)
 
@@ -246,7 +249,10 @@ def batch_delete_assets(asset_ids):
     # 收集所有R2文件路径
     for asset in assets:
         if asset.r2_key:
-            all_r2_keys.append(asset.r2_key)
+            if isinstance(asset.r2_key, list):
+                all_r2_keys.extend(asset.r2_key)
+            else:
+                all_r2_keys.append(asset.r2_key)
         if asset.cover_r2_key:
             all_r2_keys.append(asset.cover_r2_key)
 

@@ -81,50 +81,72 @@ async def process_single_item(item, client, semaphore):
             "prompt_zh": item.get("prompt_zh"),
             "width": 0,
             "height": 0,
-            "r2_key": None,
-            "r2_url": None,
+            "r2_keys": [],
+            "r2_urls": [],
             "cover_r2_key": None,
             "cover_r2_url": None
         }
 
         # 2. 检查是否需要转存图片
-        original_url = item.get("original_image_url")
+        original_urls = item.get("original_image_url")
         
-        # 如果有原图链接，且还没有被处理过 (防止重复处理)
-        if original_url and not item.get("r2_url"):
-            try:
-                logger.info(f"Downloading: {original_url[:30]}...")
-                resp = await client.get(original_url)
-                
-                if resp.status_code == 200:
-                    image_data = BytesIO(resp.content)
+        # 兼容旧数据: 如果是字符串,转为数组
+        if isinstance(original_urls, str):
+            original_urls = [original_urls] if original_urls else []
+        elif original_urls is None:
+            original_urls = []
+        
+        # 如果有原图链接,且还没有被处理过 (防止重复处理)
+        if original_urls and not item.get("r2_urls"):
+            for idx, original_url in enumerate(original_urls):
+                try:
+                    logger.info(f"Downloading [{idx+1}/{len(original_urls)}]: {original_url[:50]}...")
+                    resp = await client.get(original_url)
                     
-                    # A. 获取尺寸
-                    try:
-                        with Image.open(image_data) as img:
-                            normalized_item["width"], normalized_item["height"] = img.size
-                            fmt = img.format.lower()
-                    except Exception:
-                        fmt = "jpg" # 默认 fallback
+                    if resp.status_code == 200:
+                        image_data = BytesIO(resp.content)
                         
-                    # B. 上传 R2
-                    date_str = datetime.now().strftime("%Y%m")
-                    file_uuid = uuid.uuid4().hex
-                    key = f"images/{date_str}/{file_uuid}.{fmt}"
-                    
-                    # 使用线程池执行同步的 boto3 上传
-                    r2_url = await asyncio.to_thread(upload_bytes_to_r2, image_data, key, f"image/{fmt}")
-                    
-                    if r2_url:
-                        normalized_item["r2_key"] = key
-                        normalized_item["r2_url"] = r2_url
-                        logger.info(f" -> Uploaded: {key}")
+                        # A. 获取尺寸 (使用第一张图片的尺寸)
+                        if idx == 0:
+                            try:
+                                with Image.open(image_data) as img:
+                                    normalized_item["width"], normalized_item["height"] = img.size
+                                    fmt = img.format.lower()
+                            except Exception:
+                                fmt = "jpg" # 默认 fallback
+                        else:
+                            # 后续图片只获取格式
+                            try:
+                                image_data.seek(0)
+                                with Image.open(image_data) as img:
+                                    fmt = img.format.lower()
+                            except Exception:
+                                fmt = "jpg"
+                                
+                        # B. 上传 R2
+                        date_str = datetime.now().strftime("%Y%m")
+                        file_uuid = uuid.uuid4().hex
+                        key = f"images/{date_str}/{file_uuid}.{fmt}"
+                        
+                        # 使用线程池执行同步的 boto3 上传
+                        r2_url = await asyncio.to_thread(upload_bytes_to_r2, image_data, key, f"image/{fmt}")
+                        
+                        if r2_url:
+                            normalized_item["r2_keys"].append(key)
+                            normalized_item["r2_urls"].append(r2_url)
+                            
+                            # 第一张图片作为封面
+                            if idx == 0:
+                                normalized_item["cover_r2_key"] = key
+                                normalized_item["cover_r2_url"] = r2_url
+                            
+                            logger.info(f" -> Uploaded [{idx+1}/{len(original_urls)}]: {key}")
+                        else:
+                            logger.warning(f" -> Upload Failed [{idx+1}/{len(original_urls)}]: {original_url}")
                     else:
-                        logger.warning(f" -> Upload Failed: {original_url}")
-                else:
-                    logger.warning(f" -> Download Failed ({resp.status_code}): {original_url}")
-            except Exception as e:
-                logger.error(f" -> Processing Error: {e}")
+                        logger.warning(f" -> Download Failed ({resp.status_code}) [{idx+1}/{len(original_urls)}]: {original_url}")
+                except Exception as e:
+                    logger.error(f" -> Processing Error [{idx+1}/{len(original_urls)}]: {e}")
         
         return normalized_item
 
@@ -147,6 +169,59 @@ async def main():
             logger.warning(f"File not found: {filename}, skipping.")
 
     logger.info(f"Total items to process: {len(all_raw_data)}")
+    
+    # 1.5. 删除旧的 R2 图片 (如果存在 final_data_to_sync.json)
+    output_filename = "final_data_to_sync.json"
+    if os.path.exists(output_filename):
+        logger.info("=" * 30)
+        logger.info("CLEANING OLD R2 FILES")
+        try:
+            with open(output_filename, 'r', encoding='utf-8') as f:
+                old_data = json.load(f)
+            
+            old_r2_keys = []
+            for item in old_data:
+                # 支持旧格式(字符串)和新格式(数组)
+                r2_key = item.get('r2_key') or item.get('r2_keys')
+                if r2_key:
+                    if isinstance(r2_key, list):
+                        old_r2_keys.extend(r2_key)
+                    elif isinstance(r2_key, str):
+                        old_r2_keys.append(r2_key)
+                
+                # 封面图也可能需要删除
+                cover_key = item.get('cover_r2_key')
+                if cover_key and cover_key not in old_r2_keys:
+                    old_r2_keys.append(cover_key)
+            
+            if old_r2_keys:
+                logger.info(f"Found {len(old_r2_keys)} old R2 files to delete")
+                r2 = get_r2_client()
+                
+                # 批量删除(R2 S3 API 每次最多删除 1000 个)
+                deleted_count = 0
+                failed_count = 0
+                
+                for i in range(0, len(old_r2_keys), 1000):
+                    batch = old_r2_keys[i:i+1000]
+                    try:
+                        delete_objects = [{'Key': key} for key in batch]
+                        response = r2.delete_objects(
+                            Bucket=BUCKET_NAME,
+                            Delete={'Objects': delete_objects}
+                        )
+                        deleted_count += len(response.get('Deleted', []))
+                        failed_count += len(response.get('Errors', []))
+                    except Exception as e:
+                        logger.error(f"Batch delete error: {e}")
+                        failed_count += len(batch)
+                
+                logger.info(f"Deleted: {deleted_count}, Failed: {failed_count}")
+            else:
+                logger.info("No old R2 files to delete")
+        except Exception as e:
+            logger.warning(f"Failed to clean old R2 files: {e}")
+        logger.info("=" * 30)
     
     # 2. 并发处理
     semaphore = asyncio.Semaphore(MAX_CONCURRENCY)

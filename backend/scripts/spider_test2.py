@@ -110,7 +110,7 @@ def fetch_and_parse():
                 "source_id": generate_source_id(unique_str),
                 "title": title_text,
                 "prompt_zh": prompt_text,
-                "original_image_url": original_image_url,
+                "original_image_url": [original_image_url],
                 "media_type": "image", # 默认为图片
                 "width": None, "height": None, 
                 "r2_key": None, "r2_url": None 

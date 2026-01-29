@@ -74,8 +74,8 @@ def import_media_assets(json_file='scripts/final_data_to_sync.json'):
                     prompt_zh=item.get('prompt_zh'),
                     width=item.get('width', 0),
                     height=item.get('height', 0),
-                    r2_key=item.get('r2_key'),
-                    r2_url=item.get('r2_url'),
+                    r2_key=item.get('r2_keys', []),
+                    r2_url=item.get('r2_urls', []),
                     cover_r2_key=item.get('cover_r2_key'),
                     cover_r2_url=item.get('cover_r2_url')
                 )

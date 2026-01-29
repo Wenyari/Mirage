@@ -132,10 +132,10 @@ def create_asset_endpoint():
             "prompt_zh": "中文提示词",
             "width": 1024,
             "height": 768,
-            "r2_key": "images/202601/uuid.jpg",
-            "r2_url": "https://...",
-            "cover_r2_key": null,
-            "cover_r2_url": null
+            "r2_key": ["images/202601/uuid1.jpg", "images/202601/uuid2.jpg"],
+            "r2_url": ["https://...", "https://..."],
+            "cover_r2_key": "images/202601/uuid1.jpg",
+            "cover_r2_url": "https://..."
         }
 
     Returns:
