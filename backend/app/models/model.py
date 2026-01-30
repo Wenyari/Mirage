@@ -19,8 +19,8 @@ class Model(db.Model):
     icon_url = db.Column(db.String(255), nullable=True)  # 模型图标 URL
     max_concurrency_limit = db.Column(db.Integer, default=20, nullable=False)  # 最大并发限制
     tags = db.Column(db.JSON, nullable=True)  # 模型分类标签（如 ["video", "generation"]）
-    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
     # 关系映射
     config = db.relationship('ModelConfig', backref='model_info', uselist=False, lazy=True)
@@ -63,8 +63,8 @@ class ModelConfig(db.Model):
     params = db.Column(db.JSON, nullable=True)  # 自定义参数配置（如 durations, hd 等）
     is_active = db.Column(db.SmallInteger, default=1, nullable=False)  # 是否启用
     description = db.Column(db.Text, nullable=True)  # 配置说明
-    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
     # 索引
     __table_args__ = (
@@ -105,8 +105,8 @@ class ApiKey(db.Model):
     total_calls = db.Column(db.Integer, default=0, nullable=False)  # 累计调用次数
     total_errors = db.Column(db.Integer, default=0, nullable=False)  # 累计失败次数
     last_used_at = db.Column(db.DateTime, nullable=True)  # 最后使用时间
-    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
     # 关系映射
     # 多对多关系：一个 ApiKey 可以支持多个 Model
@@ -179,7 +179,7 @@ class ApiKeyModel(db.Model):
     api_key_id = db.Column(db.Integer, db.ForeignKey('api_keys.id', ondelete='CASCADE'), nullable=False)
     model = db.Column(db.String(50), db.ForeignKey('models.key', ondelete='CASCADE'), nullable=False)
     api_base = db.Column(db.String(512), nullable=False, default='')  # 该模型的API端点地址
-    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
     # 索引
     __table_args__ = (

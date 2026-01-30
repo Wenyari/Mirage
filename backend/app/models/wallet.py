@@ -21,7 +21,7 @@ class CDK(db.Model):
     used_at = db.Column(db.DateTime, nullable=True)  # 使用时间
     expire_at = db.Column(db.DateTime, nullable=True)  # 过期时间
     grant_level = db.Column(db.SmallInteger, nullable=True)  # 可授予的会员等级 (1-5)
-    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
     def __repr__(self):
         return f'<CDK {self.code}>'
@@ -59,7 +59,7 @@ class Transaction(db.Model):
     activity_id = db.Column(db.Integer, nullable=True, comment='关联活动ID')
     remark = db.Column(db.String(255), nullable=True)  # 备注
     model = db.Column(db.String(50), nullable=True, comment='关联模型标识，例如 sora-2 或 gpt-4')
-    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False, index=True)
 
     # 组合索引：用户查看账单
     __table_args__ = (
