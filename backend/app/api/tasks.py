@@ -166,6 +166,31 @@ def get_task_history():
         return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
 
 
+@bp.route('/<task_id>', methods=['DELETE'])
+@jwt_and_redis_required()
+def delete_task(task_id):
+    """
+    删除任务记录
+    DELETE /api/tasks/{task_id}
+    """
+    try:
+        user_id = int(get_jwt_identity())
+
+        # 调用服务层删除任务
+        result = TaskService.delete_task(user_id, task_id)
+
+        return jsonify({
+            "code": 200,
+            "msg": result['msg'],
+            "data": None
+        }), 200
+
+    except ValueError as e:
+        return jsonify({"code": 400, "msg": str(e), "data": None}), 400
+    except Exception as e:
+        return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
+
+
 @bp.route('/queue/status', methods=['GET'])
 @jwt_and_redis_required()
 def get_queue_status():
