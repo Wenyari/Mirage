@@ -27,7 +27,7 @@ class Task(db.Model):
     token_usage = db.Column(db.JSON, nullable=True)  # Token 使用情况 {"input": 1000, "output": 500}
     api_key_id = db.Column(db.Integer, db.ForeignKey('api_keys.id'), nullable=True)  # 使用的密钥 ID
     fail_reason = db.Column(db.String(255), nullable=True)  # 失败原因
-    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False, index=True)
     finished_at = db.Column(db.DateTime, nullable=True)
 
     # 组合索引：用于快速统计用户当前运行中的任务数（并发控制）
