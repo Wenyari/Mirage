@@ -57,10 +57,10 @@ def create_model(key, name, enabled=True, description=None, color=None, icon_url
     Raises:
         ValueError: 参数无效或模型已存在
     """
-    # 验证key格式（只允许小写字母、数字、下划线、中划线）
+    # 验证key格式（只允许小写字母、数字、下划线、中划线、小数点）
     import re
-    if not re.match(r'^[a-z0-9_-]+$', key):
-        raise ValueError("Model key must contain only lowercase letters, numbers, underscores, and hyphens")
+    if not re.match(r'^[a-z0-9_.-]+$', key):
+        raise ValueError("Model key must contain only lowercase letters, numbers, underscores, hyphens, and periods")
 
     # 检查是否已存在
     existing = Model.query.filter_by(key=key).first()
