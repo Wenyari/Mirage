@@ -103,4 +103,9 @@ export const taskService = {
   cancelTask: async (taskId: string) => {
     return api.post<ApiResponse<void>>(`/tasks/${taskId}/cancel`);
   },
+
+  // 删除任务
+  deleteTask: async (taskId: string) => {
+    return api.delete<ApiResponse<void>>(`/tasks/${taskId}`);
+  },
 };

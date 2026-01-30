@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Loader2, Trash2, Upload } from 'lucide-react';
+import { Loader2, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -21,9 +21,9 @@ export function ImageUploader({
   className,
 }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  const processFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     // Check file count limit
@@ -39,6 +39,12 @@ export function ImageUploader({
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+          toast.error(`文件 ${file.name} 不是图片格式`);
+          continue;
+        }
+
         // Check file size
         if (file.size > maxSizeMB * 1024 * 1024) {
           toast.error(`文件 ${file.name} 超过 ${maxSizeMB}MB 限制`);
@@ -49,7 +55,7 @@ export function ImageUploader({
         const res: any = await uploadService.uploadFile(file);
         // Handle different response structures (unwrapped vs wrapped)
         const url = res?.data?.url || res?.url;
-        
+
         if (url) {
           newUrls.push(url);
         } else {
@@ -63,12 +69,47 @@ export function ImageUploader({
       }
     } catch (error: any) {
       console.error('Upload failed:', error);
-      toast.error(error.message || '上传失败');
+      toast.error((error.data ? error.data.msg : error.message) || '上传失败');
     } finally {
       setIsUploading(false);
-      // Reset input value to allow selecting same file again
-      e.target.value = '';
     }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    await processFiles(e.target.files);
+    // Reset input value to allow selecting same file again
+    e.target.value = '';
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // 只有当离开整个上传区域时才设置为false
+    if (e.currentTarget === e.target) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (isUploading) return;
+
+    const files = e.dataTransfer.files;
+    await processFiles(files);
   };
 
   const handleRemove = async (index: number) => {
@@ -118,8 +159,13 @@ export function ImageUploader({
         <label
           className={cn(
             "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/5 p-4 text-center transition-colors hover:bg-muted/20",
-            isUploading && "cursor-not-allowed opacity-50"
+            isUploading && "cursor-not-allowed opacity-50",
+            isDragging && "border-primary bg-primary/10"
           )}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
           <input
             type="file"

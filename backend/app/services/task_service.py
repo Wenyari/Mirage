@@ -166,10 +166,10 @@ class TaskService:
         else:
             # 无资源 -> 进等待队列（慢车道）
             # 根据用户等级分流
-            target_queue = KeyManager.QUEUE_VIP if user.level >= 4 else KeyManager.QUEUE_NORMAL
+            target_queue = KeyManager.QUEUE_VIP if user.level >= 3 else KeyManager.QUEUE_NORMAL
 
             get_redis().rpush(target_queue, json.dumps(payload))
-            msg = "Task is in priority queue" if user.level >= 4 else "Task is in queue"
+            msg = "Task is in priority queue" if user.level >= 3 else "Task is in queue"
             logger.info(f"Task {task_id} added to {target_queue}")
 
         return {
@@ -262,7 +262,7 @@ class TaskService:
         # 如果任务还在排队，附带队列信息
         elif task.status == 'pending':
             user = User.query.get(user_id)
-            is_vip = user.level >= 4 if user else False
+            is_vip = user.level >= 3 if user else False
 
             # 获取队列长度
             vip_count = get_redis().llen(KeyManager.QUEUE_VIP)
@@ -432,6 +432,78 @@ class TaskService:
         result_models.sort(key=lambda x: (not x['is_available'], x['cost_per_call']))
 
         return result_models
+
+    @classmethod
+    def delete_task(cls, user_id: int, task_id: str) -> dict:
+        """
+        删除任务记录（仅限已完成的任务）
+        
+        Args:
+            user_id: 用户 ID
+            task_id: 任务 ID
+            
+        Returns:
+            dict: {"msg": "..."}
+            
+        Raises:
+            ValueError: 业务错误
+        """
+        from app.services.storage_service import storage_service
+        from urllib.parse import urlparse
+        
+        task = Task.query.get(task_id)
+        
+        if not task:
+            raise ValueError("Task not found")
+        
+        if task.user_id != user_id:
+            raise ValueError("Permission denied")
+        
+        # 只允许删除已完成的任务（成功、失败或已取消）
+        if task.status not in ['success', 'failed', 'cancelled']:
+            raise ValueError("Only completed tasks can be deleted")
+        
+        try:
+            # 删除关联的输入文件
+            files_to_delete = []
+            
+            # 收集 input_file_url 中的文件
+            if task.input_file_url and isinstance(task.input_file_url, list):
+                for url in task.input_file_url:
+                    if url and isinstance(url, str):
+                        try:
+                            parsed = urlparse(url)
+                            object_key = parsed.path.lstrip('/')
+                            if object_key:
+                                files_to_delete.append(object_key)
+                        except Exception as e:
+                            logger.warning(f"Failed to parse URL {url}: {e}")
+            
+            # 删除文件
+            deleted_files_count = 0
+            if files_to_delete:
+                delete_result = storage_service.delete_multiple_files(files_to_delete)
+                deleted_files_count = delete_result.get('deleted', 0)
+                
+                if delete_result.get('errors'):
+                    logger.warning(f"Some files failed to delete for task {task_id}: {delete_result['errors']}")
+            
+            # 删除任务记录
+            db.session.delete(task)
+            db.session.commit()
+            
+            logger.info(f"Task {task_id} deleted by user {user_id}, {deleted_files_count} files removed")
+            
+            return {
+                "msg": "Task deleted successfully",
+                "deleted_files": deleted_files_count
+            }
+            
+        except Exception as e:
+            db.session.rollback()
+            error_msg = f"Failed to delete task {task_id}: {str(e)}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
 
     @classmethod
     def cleanup_old_tasks(cls, days: int = 3) -> dict:
