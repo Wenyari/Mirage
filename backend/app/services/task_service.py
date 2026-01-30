@@ -166,10 +166,10 @@ class TaskService:
         else:
             # 无资源 -> 进等待队列（慢车道）
             # 根据用户等级分流
-            target_queue = KeyManager.QUEUE_VIP if user.level >= 4 else KeyManager.QUEUE_NORMAL
+            target_queue = KeyManager.QUEUE_VIP if user.level >= 3 else KeyManager.QUEUE_NORMAL
 
             get_redis().rpush(target_queue, json.dumps(payload))
-            msg = "Task is in priority queue" if user.level >= 4 else "Task is in queue"
+            msg = "Task is in priority queue" if user.level >= 3 else "Task is in queue"
             logger.info(f"Task {task_id} added to {target_queue}")
 
         return {
@@ -262,7 +262,7 @@ class TaskService:
         # 如果任务还在排队，附带队列信息
         elif task.status == 'pending':
             user = User.query.get(user_id)
-            is_vip = user.level >= 4 if user else False
+            is_vip = user.level >= 3 if user else False
 
             # 获取队列长度
             vip_count = get_redis().llen(KeyManager.QUEUE_VIP)
