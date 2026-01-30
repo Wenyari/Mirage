@@ -266,7 +266,7 @@ export default function ImageGeneration() {
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error.message || '提交失败');
+      toast.error((error.data ? error.data.msg : error.message) || '提交失败');
     } finally {
       setIsSubmitting(false);
     }
@@ -293,7 +293,7 @@ export default function ImageGeneration() {
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error.message || '取消失败');
+      toast.error((error.data ? error.data.msg : error.message) || '取消失败');
     }
   };
 

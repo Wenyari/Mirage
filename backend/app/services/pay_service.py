@@ -189,9 +189,12 @@ def check_and_deduct_balance(user_id: int, amount: float, task_id: str, model: s
 
 def execute_refund(user_id: int, amount: float, task_id: str, reason: str = "Task failed"):
     """
-    执行退款 (任务失败时调用)
-
-    简化处理：统一退到 recharge_balance
+    执行退款 (任务失败或取消时调用)
+    
+    修复逻辑：
+    查询该任务的扣费流水，将积分原路退回（活动积分退回活动余额，充值积分退回充值余额）
+    如果只有充值积分扣除，则全退充值
+    如果找不到流水（极少见），兜底退回充值余额
 
     Args:
         user_id: 用户 ID
@@ -200,26 +203,100 @@ def execute_refund(user_id: int, amount: float, task_id: str, reason: str = "Tas
         reason: 退款原因
     """
     from decimal import Decimal
-
-    user = User.query.get(user_id)
+    
+    # 使用悲观锁获取用户，防止并发问题
+    user = User.query.with_for_update().get(user_id)
     if not user:
         return  # 用户不存在，无法退款
 
-    # 退款到充值余额（转换为 Decimal）
     amount_decimal = Decimal(str(amount))
-    user.recharge_balance += amount_decimal
+    
+    # 1. 查询该任务的原始扣费记录
+    cost_transactions = Transaction.query.filter_by(
+        related_id=task_id, 
+        type='task_cost'
+    ).all()
+    
+    # 统计从各处扣除的金额（取绝对值，因为 cost 记录是负数）
+    deducted_activity = Decimal('0')
+    deducted_recharge = Decimal('0')
+    
+    # 标记是否找到了对应的扣费记录
+    found_transactions = False
+    
+    for tx in cost_transactions:
+        found_transactions = True
+        abs_amount = abs(tx.amount)
+        if tx.balance_type == 'activity':
+            deducted_activity += abs_amount
+        else:
+            # recharge or other types default to recharge refund
+            deducted_recharge += abs_amount
+            
+    # 2. 计算退款分配
+    # 正常情况下，退款金额应该等于（或小于）总扣除金额
+    # 如果系统有部分退款逻辑，这里按比例或者优先退充值可能更合理？
+    # 但目前 execute_refund 通常是全额退款
+    
+    refund_activity = Decimal('0')
+    refund_recharge = Decimal('0')
+    
+    if found_transactions:
+        # 如果找到了流水，按实际扣除情况退款
+        # 防止退款金额超过实际扣除金额（以防调用端传错 amount）
+        total_deducted = deducted_activity + deducted_recharge
+        
+        if amount_decimal >= total_deducted:
+            # 全额退款（或超额退款，正常不应发生），按原路返回
+            refund_activity = deducted_activity
+            refund_recharge = amount_decimal - deducted_activity # 剩余的都退充值（如果 amount > total，多出来的也退充值）
+        else:
+            # 部分退款（极少见）：策略 -> 优先退充值，再退活动？还是优先退活动？
+            # 既然扣费是优先扣活动，退款理应优先退充值（对用户有利）？
+            # 或者原路退回？为了逻辑一致性，这里简化为：
+            # 如果是全额退款场景，直接按扣除比例退。
+            # 如果是部分退款，这里简单处理：优先退还充值部分（也就是真正值钱的部分）
+            
+            if amount_decimal <= deducted_recharge:
+                refund_recharge = amount_decimal
+            else:
+                refund_recharge = deducted_recharge
+                refund_activity = amount_decimal - deducted_recharge
+    else:
+        # 兜底：没找到流水（可能是旧数据或异常），全部退到充值余额
+        # 或者 amount 为 0
+        refund_recharge = amount_decimal
 
-    # 记录流水
-    transaction = Transaction(
-        user_id=user_id,
-        type='refund',
-        balance_type='recharge',  # 标记为充值积分
-        amount=amount_decimal,  # 正数表示收入
-        balance_snapshot=user.recharge_balance,
-        related_id=task_id,
-        remark=f"Refund: {reason}"
-    )
-    db.session.add(transaction)
+    # 3. 执行退款更新
+    if refund_activity > 0:
+        user.activity_balance += refund_activity
+        
+        # 记录活动积分退款流水
+        t1 = Transaction(
+            user_id=user_id,
+            type='refund',
+            balance_type='activity',
+            amount=refund_activity,
+            balance_snapshot=user.activity_balance,
+            related_id=task_id,
+            remark=f"Refund (activity): {reason}"
+        )
+        db.session.add(t1)
+        
+    if refund_recharge > 0:
+        user.recharge_balance += refund_recharge
+        
+        # 记录充值积分退款流水
+        t2 = Transaction(
+            user_id=user_id,
+            type='refund',
+            balance_type='recharge',
+            amount=refund_recharge,
+            balance_snapshot=user.recharge_balance,
+            related_id=task_id,
+            remark=f"Refund (recharge): {reason}"
+        )
+        db.session.add(t2)
 
     try:
         db.session.commit()
