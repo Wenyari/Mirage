@@ -196,9 +196,6 @@ export default function ImageGeneration() {
 
   const handleDeleteTask = async (e: React.MouseEvent, historyItem: TaskHistoryItem) => {
     e.stopPropagation();
-    if (!confirm('确定要删除这条记录吗？关联的文件也将一并删除。')) {
-      return;
-    }
 
     try {
       await taskService.deleteTask(historyItem.id);
@@ -542,7 +539,7 @@ export default function ImageGeneration() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 top-2 z-20 size-6 opacity-0 transition-opacity hover:bg-red-100 group-hover:opacity-100"
+                      className="absolute right-2 top-2 z-20 size-6 opacity-0 transition-opacity bg-white hover:bg-red-100 group-hover:opacity-100 shadow-sm rounded-md"
                       onClick={(e) => handleDeleteTask(e, item)}
                     >
                       <Trash2 className="size-3 text-red-500" />
