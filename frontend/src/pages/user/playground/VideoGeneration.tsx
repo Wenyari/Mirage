@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { AlertCircle, ChevronLeft, ChevronRight, Coins, FilePlus, History, Loader2, Lock, Play, Trash2, XCircle } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,18 @@ export default function VideoGeneration() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
   const pollingTimersRef = useRef<Map<string, number>>(new Map());
   const historyRefreshTimerRef = useRef<number | null>(null);
+
+  // 加载 assets 目录下的图片
+  const assetMap = useMemo(() => {
+    const modules = (import.meta as any).glob('/src/assets/*.{png,jpg,jpeg,svg}', { eager: true, as: 'url' }) as Record<string, string>;
+    const map: Record<string, string> = {};
+    for (const p in modules) {
+      const filename = p.split('/').pop() || '';
+      const name = filename.replace(/\.(png|jpe?g|svg)$/, '');
+      map[name] = modules[p];
+    }
+    return map;
+  }, []);
 
   // 检查当前模型是否支持首尾帧
   const supportsFrames = () => {
@@ -763,6 +775,11 @@ export default function VideoGeneration() {
                       className="flex items-center justify-between"
                     >
                       <div className="flex w-full items-center gap-2">
+                        {assetMap[m.key] ? (
+                          <img src={assetMap[m.key]} alt={m.name} className="size-5 object-contain" />
+                        ) : m.icon_url ? (
+                          <img src={m.icon_url} alt={m.name} className="size-5 object-contain" />
+                        ) : null}
                         <span>{m.name}</span>
                         {!m.is_available && (
                           <div className="ml-auto flex items-center gap-2">
