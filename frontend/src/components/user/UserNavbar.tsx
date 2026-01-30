@@ -1,9 +1,10 @@
-import { ChevronDown, Coins, CreditCard, Crown, LogOut, Settings, User as UserIcon, Wallet, Zap } from 'lucide-react';
+import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, Settings, User as UserIcon, Wallet, Zap } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import Logo from '@/assets/logo.svg';
+import { AnnouncementNotifier } from '@/components/user/AnnouncementNotifier';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,8 +16,10 @@ import { USER_NAVIGATION } from '@/config/user-navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 import { authService } from '@/services/auth';
+import { getAnnouncements } from '@/services/announcement';
 import { useAuthStore } from '@/store/authStore';
 import { LEVEL_COLORS, USER_LEVEL_LABELS } from '@/types/user';
+import type { Announcement } from '@/types/announcement';
 
 export function UserNavbar() {
   const navigate = useNavigate();
@@ -28,8 +31,23 @@ export function UserNavbar() {
   const [exploreOpen, setExploreOpen] = React.useState(false);
   const [playgroundOpen, setPlaygroundOpen] = React.useState(false);
   const [moreOpen, setMoreOpen] = React.useState(false);
+  const [announcements, setAnnouncements] = React.useState<Announcement[]>([]);
 
+  // 获取公告列表
+  React.useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await getAnnouncements(5); // 获取最近5条公告
+        if (response.code === 0) {
+          setAnnouncements(response.data);
+        }
+      } catch {
+        // 静默失败，不影响导航栏显示
+      }
+    };
 
+    fetchAnnouncements();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -37,7 +55,7 @@ export function UserNavbar() {
       logout();
       toast.success('已安全退出');
       navigate(USER_NAVIGATION.AUTH.LOGIN.path);
-    } catch (error) {
+    } catch {
       // 即使后端报错，前端也要执行登出
       logout();
       navigate(USER_NAVIGATION.AUTH.LOGIN.path);
@@ -117,7 +135,7 @@ export function UserNavbar() {
                 sideOffset={4}
               >
                 <div className="py-1">
-                  <Link
+                  {/* <Link
                     to={USER_NAVIGATION.PLAYGROUND.path}
                     className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                   >
@@ -128,7 +146,7 @@ export function UserNavbar() {
                     className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                   >
                     {USER_NAVIGATION.PLAYGROUND.children.CHAT.label}
-                  </Link>
+                  </Link> */}
                   <Link
                     to={USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.path}
                     className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
@@ -190,6 +208,13 @@ export function UserNavbar() {
             {/* 搜索框占位 */}
           </div>
           <nav className="flex items-center space-x-2">
+            {/* 公告图标 */}
+            <Link to={USER_NAVIGATION.MORE.children.UPDATES.path}>
+              <Button variant="ghost" size="icon" className="size-8">
+                <Bell className="size-4" />
+              </Button>
+            </Link>
+
             {isAuthenticated ? (
               <HoverCard>
                 <HoverCardTrigger asChild>
@@ -310,6 +335,9 @@ export function UserNavbar() {
           </nav>
         </div>
       </div>
+
+      {/* 公告通知弹窗 */}
+      <AnnouncementNotifier announcements={announcements} />
     </header>
   );
 }

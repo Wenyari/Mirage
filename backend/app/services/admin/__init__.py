@@ -52,6 +52,14 @@ from .ai_media_asset_service import (
     delete_asset,
     batch_delete_assets,
 )
+from .announcement_service import (
+    create_announcement,
+    update_announcement,
+    delete_announcement,
+    get_announcement_list,
+    get_announcement_detail,
+    get_active_announcements,
+)
 
 __all__ = [
     # Dashboard服务
@@ -99,4 +107,11 @@ __all__ = [
     'update_asset',
     'delete_asset',
     'batch_delete_assets',
+    # 公告管理服务
+    'create_announcement',
+    'update_announcement',
+    'delete_announcement',
+    'get_announcement_list',
+    'get_announcement_detail',
+    'get_active_announcements',
 ]
