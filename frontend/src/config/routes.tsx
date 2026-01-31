@@ -89,17 +89,17 @@ export const router = createBrowserRouter([
 
   // User Routes
   {
-    path: '/login',
-    element: <UserLogin />,
-  },
-  {
-    path: '/register',
-    element: <UserRegister />,
-  },
-  {
     path: '/',
     element: <UserLayout />,
     children: [
+      {
+        path: 'login',
+        element: <UserLogin />,
+      },
+      {
+        path: 'register',
+        element: <UserRegister />,
+      },
       {
         index: true,
         element: <Home />,

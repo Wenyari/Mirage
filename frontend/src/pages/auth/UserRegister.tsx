@@ -33,7 +33,7 @@ export default function UserRegister() {
       toast.error('请完成人机验证');
       return;
     }
-    
+
     // 简单的邮箱格式校验
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -45,7 +45,7 @@ export default function UserRegister() {
       setIsSendingCode(true);
       await authService.sendCode({ email, cf_token: turnstileToken });
       toast.success('验证码已发送，请查收邮箱');
-      
+
       // 开始倒计时
       setCountdown(60);
       const timer = setInterval(() => {
@@ -91,7 +91,7 @@ export default function UserRegister() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-8">
+    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-muted/40 px-4 py-8">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <div className="mb-2 flex justify-center">
@@ -112,19 +112,19 @@ export default function UserRegister() {
               <div className="relative flex gap-2">
                 <div className="relative flex-1">
                   <Mail className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="name@example.com" 
-                    required 
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    required
                     className="pl-9"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                <Button 
-                  type="button" 
-                  variant="secondary" 
+                <Button
+                  type="button"
+                  variant="secondary"
                   className="w-28 px-0 font-medium"
                   onClick={handleSendCode}
                   disabled={isSendingCode || countdown > 0 || !turnstileToken}
@@ -150,11 +150,11 @@ export default function UserRegister() {
               <Label htmlFor="code" className="text-sm font-medium">验证码</Label>
               <div className="relative">
                 <KeyRound className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                <Input 
-                  id="code" 
-                  type="text" 
-                  placeholder="请输入6位验证码" 
-                  required 
+                <Input
+                  id="code"
+                  type="text"
+                  placeholder="请输入6位验证码"
+                  required
                   className="pl-9 tracking-widest"
                   maxLength={6}
                   value={code}
@@ -168,11 +168,11 @@ export default function UserRegister() {
               <Label htmlFor="password" className="text-sm font-medium">设置密码</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                <Input 
-                  id="password" 
-                  type="password" 
+                <Input
+                  id="password"
+                  type="password"
                   placeholder="设置您的登录密码"
-                  required 
+                  required
                   className="pl-9"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -185,11 +185,11 @@ export default function UserRegister() {
               <Label htmlFor="confirmPassword" className="text-sm font-medium">确认密码</Label>
               <div className="relative">
                 <CheckCircle2 className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                <Input 
-                  id="confirmPassword" 
-                  type="password" 
+                <Input
+                  id="confirmPassword"
+                  type="password"
                   placeholder="再次输入密码"
-                  required 
+                  required
                   className="pl-9"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -204,8 +204,8 @@ export default function UserRegister() {
             </Button>
             <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
               <span>已有账号？</span>
-              <Link 
-                to={USER_NAVIGATION.AUTH.LOGIN.path} 
+              <Link
+                to={USER_NAVIGATION.AUTH.LOGIN.path}
                 className="font-medium text-primary transition-all hover:underline"
               >
                 直接登录

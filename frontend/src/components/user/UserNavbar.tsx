@@ -2,6 +2,7 @@ import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, Settings, User as 
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Logo from '@/assets/logo.svg';
 import { AnnouncementNotifier } from '@/components/user/AnnouncementNotifier';
@@ -23,6 +24,7 @@ import type { Announcement } from '@/types/announcement';
 
 export function UserNavbar() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { data: currentUser } = useCurrentUser();
 
@@ -42,7 +44,7 @@ export function UserNavbar() {
           setAnnouncements(response.data);
         }
       } catch {
-        // 静默失败，不影响导航栏显示
+        // 静默失败,不影响导航栏显示
       }
     };
 
@@ -53,11 +55,15 @@ export function UserNavbar() {
     try {
       await authService.logout();
       logout();
+      // 清除所有 React Query 缓存，确保切换用户后不会显示旧数据
+      queryClient.clear();
       toast.success('已安全退出');
       navigate(USER_NAVIGATION.AUTH.LOGIN.path);
     } catch {
-      // 即使后端报错，前端也要执行登出
+      // 即使后端报错,前端也要执行登出
       logout();
+      // 清除所有 React Query 缓存
+      queryClient.clear();
       navigate(USER_NAVIGATION.AUTH.LOGIN.path);
     }
   };

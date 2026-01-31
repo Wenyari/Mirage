@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { AlertCircle, ChevronLeft, ChevronRight, FilePlus, History, Loader2, Lock, Play, XCircle } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { AlertCircle, ChevronLeft, ChevronRight, Coins, FilePlus, History, Loader2, Lock, Play, Trash2, XCircle } from 'lucide-react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,18 @@ export default function VideoGeneration() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
   const pollingTimersRef = useRef<Map<string, number>>(new Map());
   const historyRefreshTimerRef = useRef<number | null>(null);
+
+  // 加载 assets 目录下的图片
+  const assetMap = useMemo(() => {
+    const modules = (import.meta as any).glob('/src/assets/*.{png,jpg,jpeg,svg}', { eager: true, as: 'url' }) as Record<string, string>;
+    const map: Record<string, string> = {};
+    for (const p in modules) {
+      const filename = p.split('/').pop() || '';
+      const name = filename.replace(/\.(png|jpe?g|svg)$/, '');
+      map[name] = modules[p];
+    }
+    return map;
+  }, []);
 
   // 检查当前模型是否支持首尾帧
   const supportsFrames = () => {
@@ -249,6 +261,26 @@ export default function VideoGeneration() {
     }
   };
 
+  const handleDeleteTask = async (e: React.MouseEvent, historyItem: TaskHistoryItem) => {
+    e.stopPropagation();
+
+    try {
+      await taskService.deleteTask(historyItem.id);
+      toast.success('删除成功');
+
+      // If deleting currently viewed task, clear view
+      if (historyItem.id === taskId) {
+        setTaskId(null);
+        setTaskStatus(null);
+      }
+
+      refreshHistory();
+    } catch (error: any) {
+      console.error('Delete failed:', error);
+      toast.error(error.data?.msg || '删除失败');
+    }
+  };
+
   // 提交任务
   const handleSubmit = async () => {
     if (!prompt) {
@@ -318,7 +350,7 @@ export default function VideoGeneration() {
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error.message || '提交失败');
+      toast.error((error.data ? error.data.msg : error.message) || '提交失败');
     } finally {
       setIsSubmitting(false);
     }
@@ -345,7 +377,7 @@ export default function VideoGeneration() {
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error.message || '取消失败');
+      toast.error((error.data ? error.data.msg : error.message) || '取消失败');
     }
   };
 
@@ -649,6 +681,18 @@ export default function VideoGeneration() {
                     taskId === item.id ? "border-[#1677ff]" : "border-[#f2f3f7]"
                   )}
                 >
+                  {/* Delete Button */}
+                  {['success', 'failed', 'cancelled'].includes(item.status) && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-2 z-20 size-6 opacity-0 transition-opacity bg-white hover:bg-red-100 group-hover:opacity-100 shadow-sm rounded-md"
+                      onClick={(e) => handleDeleteTask(e, item)}
+                    >
+                      <Trash2 className="size-3 text-red-500" />
+                    </Button>
+                  )}
+
                   <div className="relative z-10 flex gap-3">
                     <div className="pt-1.5">
                       <div className={cn(
@@ -731,6 +775,11 @@ export default function VideoGeneration() {
                       className="flex items-center justify-between"
                     >
                       <div className="flex w-full items-center gap-2">
+                        {assetMap[m.key] ? (
+                          <img src={assetMap[m.key]} alt={m.name} className="size-5 object-contain" />
+                        ) : m.icon_url ? (
+                          <img src={m.icon_url} alt={m.name} className="size-5 object-contain" />
+                        ) : null}
                         <span>{m.name}</span>
                         {!m.is_available && (
                           <div className="ml-auto flex items-center gap-2">
@@ -812,7 +861,7 @@ export default function VideoGeneration() {
               ) : (
                 <>
                   <Play className="mr-2 size-4 fill-current" />
-                  生成视频 (20 积分)
+                  生成视频 ({selectedModelInfo?.cost_per_call || 0} 积分)
                 </>
               )}
             </Button>
@@ -861,37 +910,103 @@ export default function VideoGeneration() {
                             任务详情
                           </Button>
                         </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>任务详情</DialogTitle>
-                          <DialogDescription>
-                            以下为该任务的详细信息。
+                        <DialogContent className="max-w-2xl">
+                          <DialogTitle className="text-xl font-bold">任务详情</DialogTitle>
+                          <DialogDescription className="text-muted-foreground">
+                            ID: {taskStatus?.id}
                           </DialogDescription>
-                          <div className="mt-4 space-y-3">
-                            <div>
-                              <div className="text-sm text-muted-foreground">模型</div>
-                              <div className="font-medium">{(taskStatus as any)?.model || selectedModelInfo?.name || '-'}</div>
+
+                          <div className="space-y-4">
+                            {/* 模型信息卡片 */}
+                            <div className="rounded-lg border bg-muted/30 p-4">
+                              <div className="mb-2 flex items-center gap-2">
+                                <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+                                  <Play className="size-4 text-primary" />
+                                </div>
+                                <h3 className="font-semibold">模型</h3>
+                              </div>
+                              <p className="ml-10 text-sm">{(taskStatus as any)?.model || selectedModelInfo?.name || '-'}</p>
                             </div>
-                            <div>
-                              <div className="text-sm text-muted-foreground">提示词</div>
-                              <div className="whitespace-pre-wrap break-words rounded bg-muted/10 p-3">{stripImagePrefix((taskStatus as any)?.prompt || '-')}</div>
+
+                            {/* 提示词卡片 */}
+                            <div className="rounded-lg border bg-muted/30 p-4">
+                              <div className="mb-2 flex items-center gap-2">
+                                <div className="flex size-8 items-center justify-center rounded-full bg-blue-500/10">
+                                  <svg className="size-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </div>
+                                <h3 className="font-semibold">提示词</h3>
+                              </div>
+                              <div className="ml-10 max-h-40 overflow-y-auto rounded-md bg-background/50 p-3 text-sm leading-relaxed">
+                                {stripImagePrefix((taskStatus as any)?.prompt || '-')}
+                              </div>
                             </div>
-                            <div>
-                              <div className="text-sm text-muted-foreground">参数</div>
-                              <div className="font-medium">{JSON.stringify((taskStatus as any)?.params || {})}</div>
-                            </div>
-                            {(taskStatus as any)?.input_file_url && (
-                              <div>
-                                <div className="text-sm text-muted-foreground">输入文件</div>
-                                <img src={(taskStatus as any).input_file_url} alt="input" className="max-h-48 max-w-full rounded object-contain" />
+
+                            {/* 参数卡片 */}
+                            {(taskStatus as any)?.params && Object.keys((taskStatus as any).params).length > 0 && (
+                              <div className="rounded-lg border bg-muted/30 p-4">
+                                <div className="mb-2 flex items-center gap-2">
+                                  <div className="flex size-8 items-center justify-center rounded-full bg-purple-500/10">
+                                    <svg className="size-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                    </svg>
+                                  </div>
+                                  <h3 className="font-semibold">参数配置</h3>
+                                </div>
+                                <div className="ml-10 grid gap-2">
+                                  {Object.entries((taskStatus as any)?.params || {}).map(([key, value]) => (
+                                    <div key={key} className="flex items-center justify-between rounded-md bg-background/50 px-3 py-2 text-sm">
+                                      <span className="text-muted-foreground">{key}</span>
+                                      <span className="font-medium">{String(value)}</span>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
-                            <div>
-                              <div className="text-sm text-muted-foreground">消耗积分</div>
-                              <div className="font-medium">{(taskStatus as any)?.cost_points ?? '-'}</div>
-                            </div>
-                            <div>
-                              <div className="text-sm text-muted-foreground">创建时间</div>
-                              <div className="font-medium">{(taskStatus as any)?.created_at || '-'}</div>
+
+                            {/* 输入文件卡片 */}
+                            {(taskStatus as any)?.input_file_url && (
+                              <div className="rounded-lg border bg-muted/30 p-4">
+                                <div className="mb-2 flex items-center gap-2">
+                                  <div className="flex size-8 items-center justify-center rounded-full bg-green-500/10">
+                                    <Play className="size-4 text-green-500" />
+                                  </div>
+                                  <h3 className="font-semibold">参考图片</h3>
+                                </div>
+                                <div className="ml-10">
+                                  <img
+                                    src={(taskStatus as any).input_file_url}
+                                    alt="input"
+                                    className="max-h-48 rounded-lg border object-contain shadow-sm"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 底部信息 */}
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="rounded-lg border bg-muted/30 p-4">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Coins className="size-4" />
+                                  <span>消耗积分</span>
+                                </div>
+                                <p className="mt-2 text-2xl font-bold text-primary">
+                                  {(taskStatus as any)?.cost_points ?? '-'}
+                                </p>
+                              </div>
+
+                              <div className="rounded-lg border bg-muted/30 p-4">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  <span>创建时间</span>
+                                </div>
+                                <p className="mt-2 text-sm font-medium">
+                                  {(taskStatus as any)?.created_at ? new Date((taskStatus as any).created_at).toLocaleString('zh-CN') : '-'}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </DialogContent>

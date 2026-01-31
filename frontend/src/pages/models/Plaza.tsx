@@ -110,7 +110,7 @@ export default function ModelPlaza() {
                           className="flex h-28 w-full max-w-[520px] items-center gap-4 overflow-hidden rounded-xl border p-4 transition hover:shadow-md"
                           onClick={() => (window.location.href = `/models/${m.key}`)}
                         >
-                          <div className="flex size-14 shrink-0 items-center justify-center rounded-md text-white" style={{ background: m.color || '#eef2ff' }}>
+                          <div className={`flex size-14 shrink-0 items-center justify-center rounded-md text-white ${(m.icon_url || assetMap[m.key]) ? '' : ''}`} style={{ background: (m.icon_url || assetMap[m.key]) ? 'transparent' : (m.color || '#eef2ff') }}>
                             { (m.icon_url || assetMap[m.key]) ? (
                               <img src={m.icon_url || assetMap[m.key]} alt={m.name} className="size-10 object-contain" />
                             ) : (

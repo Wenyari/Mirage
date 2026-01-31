@@ -21,8 +21,8 @@ class Announcement(db.Model):
     # 状态
     is_active = db.Column(db.SmallInteger, default=1, nullable=False, comment='是否启用(0=禁用,1=启用)')
     
-    created_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=datetime.now(ZoneInfo("Asia/Shanghai")))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Shanghai")))
 
     # 索引
     __table_args__ = (

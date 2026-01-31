@@ -2,6 +2,7 @@ import { Lock, LogIn, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Turnstile from '@/components/auth/Turnstile';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { useAuthStore } from '@/store/authStore';
 
 export default function UserLogin() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,10 +37,13 @@ export default function UserLogin() {
     try {
       setIsLoading(true);
       const response = await authService.login({ email, password, cf_token: turnstileToken });
-      
+
+      // 清除旧的查询缓存，确保新用户数据能被正确获取
+      queryClient.clear();
+
       // 更新全局 Auth Store
       login((response as any).token, (response as any).user);
-      
+
       toast.success('登录成功');
       navigate(USER_NAVIGATION.HOME.path);
     } catch (error: any) {
@@ -50,7 +55,7 @@ export default function UserLogin() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-8">
+    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-muted/40 px-4 py-8">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <div className="mb-2 flex justify-center">
@@ -69,11 +74,11 @@ export default function UserLogin() {
               <Label htmlFor="email" className="text-sm font-medium">邮箱</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@example.com" 
-                  required 
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  required
                   className="pl-9"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -87,11 +92,11 @@ export default function UserLogin() {
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                <Input 
-                  id="password" 
-                  type="password" 
+                <Input
+                  id="password"
+                  type="password"
                   placeholder="请输入您的密码"
-                  required 
+                  required
                   className="pl-9"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -114,8 +119,8 @@ export default function UserLogin() {
             </Button>
             <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
               <span>还没有账号？</span>
-              <Link 
-                to={USER_NAVIGATION.AUTH.REGISTER.path} 
+              <Link
+                to={USER_NAVIGATION.AUTH.REGISTER.path}
                 className="font-medium text-primary transition-all hover:underline"
               >
                 立即注册
