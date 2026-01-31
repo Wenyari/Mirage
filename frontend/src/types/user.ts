@@ -15,11 +15,9 @@ export interface User {
   email: string;
   name?: string;                 // 用户名（可选）
   password_hash: string;         // 加盐加密后的密码
-  balance: number;               // 积分余额（DECIMAL(10, 2)）
-  balance_detail?: {             // 余额详情（可选）
-    recharge_balance: number;    // 充值余额
-    activity_balance: number;    // 活动余额
-  };
+  recharge_balance: number;      // 充值积分
+  activity_balance: number;      // 活动积分
+  total_balance: number;         // 总积分
   level: UserLevel;              // 会员等级：1-5
   role: UserRole;                // 角色：user/admin
   status: UserStatus;            // 状态：1=正常, 0=封禁
@@ -49,6 +47,7 @@ export interface UserListResponse {
 export interface UpdateBalanceRequest {
   amount: number;
   reason: string;
+  balance_type?: 'recharge' | 'activity';
 }
 
 // 修改用户资料请求

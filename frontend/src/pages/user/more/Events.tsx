@@ -86,7 +86,7 @@ export default function Events() {
           title="每日签到"
           description={`已连续签到 ${status?.consecutive_days || 0} 天。保持连胜，获取更多积分奖励！`}
           icon={Calendar}
-          points={10 + (status?.consecutive_days || 0) * 5} // Approximate logic for display
+          points={status?.next_reward} // Approximate logic for display
           actionText={status?.has_checked_today ? "今日已签" : "立即签到"}
           onClick={handleCheckin}
           disabled={status?.has_checked_today || checkinMutation.isPending || isStatusLoading}
