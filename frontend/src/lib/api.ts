@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { useAuthStore } from '@/store/authStore';
+
 const api = axios.create({
   baseURL: '/api',
   timeout: 10000,
@@ -30,7 +32,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // 401 未授权，清除 token 并跳转登录
       localStorage.removeItem('auth_token');
-      
+
+      // 清除 zustand store 状态，防止循环请求
+      useAuthStore.getState().logout();
+
       // 根据当前路径判断跳转到哪个登录页
       if (window.location.pathname.startsWith('/wadminw')) {
         window.location.href = '/wadminw/login';

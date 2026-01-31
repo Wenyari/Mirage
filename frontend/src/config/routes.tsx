@@ -1,8 +1,9 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import AdminGuard from '@/components/auth/AdminGuard';
-// Admin Imports
+// Layout Imports
 import AdminLayout from '@/layouts/AdminLayout';
+import AuthLayout from '@/layouts/AuthLayout';
 import UserLayout from '@/layouts/UserLayout';
 import CDKManager from '@/pages/admin/CDKManager';
 import ActivityManager from '@/pages/admin/ActivityManager';
@@ -87,10 +88,10 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // User Routes
+  // Auth Routes (Login/Register - No UserNavbar)
   {
     path: '/',
-    element: <UserLayout />,
+    element: <AuthLayout />,
     children: [
       {
         path: 'login',
@@ -100,6 +101,14 @@ export const router = createBrowserRouter([
         path: 'register',
         element: <UserRegister />,
       },
+    ],
+  },
+
+  // User Routes (With UserNavbar)
+  {
+    path: '/',
+    element: <UserLayout />,
+    children: [
       {
         index: true,
         element: <Home />,
