@@ -101,7 +101,7 @@ export default function UserRegister() {
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">{USER_NAVIGATION.AUTH.REGISTER.label}</CardTitle>
           <CardDescription>
-            创建一个新账号以开始使用 Mirage
+            创建一个新账号以开始使用 GoGen
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleRegister}>

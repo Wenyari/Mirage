@@ -60,7 +60,7 @@ export default function UserLogin() {
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">{USER_NAVIGATION.AUTH.LOGIN.label}</CardTitle>
           <CardDescription>
-            请输入您的账号和密码登录 Mirage
+            请输入您的账号和密码登录 GoGen
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
