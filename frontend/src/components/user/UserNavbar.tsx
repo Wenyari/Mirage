@@ -1,8 +1,8 @@
-import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, QrCode, Settings, User as UserIcon, Wallet, Zap } from 'lucide-react';
+import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, QrCode, Settings, User as UserIcon, Wallet, Zap, Wifi } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import Logo from '@/assets/logo.svg';
 import wechatJpg from '@/assets/wechat.jpg';
@@ -233,6 +233,9 @@ export function UserNavbar() {
             {/* 搜索框占位 */}
           </div>
           <nav className="flex items-center space-x-2">
+            {/* 在线统计 */}
+            <UserStatsIndicator />
+
             {/* 公告图标 */}
             <Link to={USER_NAVIGATION.MORE.children.UPDATES.path}>
               <Button variant="ghost" size="icon" className="size-8">
@@ -364,6 +367,11 @@ export function UserNavbar() {
       {/* 公告通知弹窗 */}
       <AnnouncementNotifier announcements={announcements} />
 
+      {/* Connectivity/Stats Indicator */}
+      <div className="fixed bottom-4 left-4 z-50 hidden md:block">
+        {/* This is just a placeholder if we wanted floating, but user asked for "left of announcement icon" in navbar. */}
+      </div>
+
       {/* QR Code Dialog */}
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
         <DialogContent className="sm:max-w-2xl">
@@ -389,6 +397,60 @@ export function UserNavbar() {
         </DialogContent>
       </Dialog>
     </header>
+  );
+}
+
+function UserStatsIndicator() {
+  const [open, setOpen] = React.useState(false);
+  const { data: stats } = useQuery({
+    queryKey: ['public-stats'],
+    queryFn: authService.getPublicStats,
+    refetchInterval: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000,
+  });
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case '1': return 'text-gray-500';
+      case '2': return 'text-green-500';
+      case '3': return 'text-blue-500';
+      case '4': return 'text-purple-500';
+      case '5': return 'text-orange-500';
+      default: return 'text-foreground';
+    }
+  };
+
+  const getLevelLabel = (level: string) => `T${level}`;
+
+  return (
+    <HoverCard open={open} onOpenChange={setOpen} openDelay={20} closeDelay={20}>
+      <HoverCardTrigger asChild>
+        <Button variant="ghost" size="icon" className="size-8">
+          <Wifi className="size-4" />
+        </Button>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-64" align="end">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">当前在线</span>
+            <span className="text-xl font-bold text-primary">{stats?.online_count || 0}</span>
+          </div>
+          <div className="space-y-1.5">
+            <span className="text-xs text-muted-foreground">用户分布</span>
+            <div className="grid grid-cols-5 gap-2 text-center text-xs">
+              {['1', '2', '3', '4', '5'].map((level) => (
+                <div key={level} className="flex flex-col items-center gap-1">
+                  <span className={cn("font-bold", getLevelColor(level))}>
+                    {getLevelLabel(level)}
+                  </span>
+                  <span>{stats?.level_distribution?.[level] || 0}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
