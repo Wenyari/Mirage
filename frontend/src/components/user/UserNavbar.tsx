@@ -1,13 +1,12 @@
-import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, QrCode, Settings, User as UserIcon, Wallet, Zap, Wifi } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, QrCode, Settings, User as UserIcon, Wallet, Wifi,Zap } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import Logo from '@/assets/logo.svg';
-import wechatJpg from '@/assets/wechat.jpg';
 import qqJpg from '@/assets/qq.jpg';
-import { AnnouncementNotifier } from '@/components/user/AnnouncementNotifier';
+import wechatJpg from '@/assets/wechat.jpg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,14 +20,15 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import { AnnouncementNotifier } from '@/components/user/AnnouncementNotifier';
 import { USER_NAVIGATION } from '@/config/user-navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
-import { authService } from '@/services/auth';
 import { getAnnouncements } from '@/services/announcement';
+import { authService, UserStats } from '@/services/auth';
 import { useAuthStore } from '@/store/authStore';
-import { LEVEL_COLORS, USER_LEVEL_LABELS } from '@/types/user';
 import type { Announcement } from '@/types/announcement';
+import { LEVEL_COLORS, USER_LEVEL_LABELS } from '@/types/user';
 
 export function UserNavbar() {
   const navigate = useNavigate();
@@ -433,7 +433,7 @@ function UserStatsIndicator() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">当前在线</span>
-            <span className="text-xl font-bold text-primary">{stats?.online_count || 0}</span>
+            <span className="text-xl font-bold text-primary">{(stats as unknown as UserStats)?.online_count || 0}</span>
           </div>
           <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">用户分布</span>
@@ -443,7 +443,7 @@ function UserStatsIndicator() {
                   <span className={cn("font-bold", getLevelColor(level))}>
                     {getLevelLabel(level)}
                   </span>
-                  <span>{stats?.level_distribution?.[level] || 0}</span>
+                  <span>{(stats as unknown as UserStats)?.level_distribution?.[level] || 0}</span>
                 </div>
               ))}
             </div>
