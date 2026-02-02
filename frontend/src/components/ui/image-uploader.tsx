@@ -141,8 +141,8 @@ export function ImageUploader({
       {value.length > 0 && (
         <div className={cn("grid gap-3", maxFiles > 1 ? "grid-cols-2" : "grid-cols-1")}>
           {value.map((url, index) => (
-            <div key={index} className="relative group aspect-video overflow-hidden rounded-lg border bg-muted">
-              <img src={url} alt={`Uploaded ${index + 1}`} className="h-full w-full object-cover" />
+            <div key={index} className="group relative aspect-video overflow-hidden rounded-lg border bg-muted">
+              <img src={url} alt={`Uploaded ${index + 1}`} className="size-full object-cover" />
               <button
                 onClick={() => handleRemove(index)}
                 className="absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white opacity-0 transition-opacity hover:bg-red-500 group-hover:opacity-100"

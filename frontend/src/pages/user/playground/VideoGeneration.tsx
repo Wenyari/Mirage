@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { AlertCircle, ChevronLeft, ChevronRight, Coins, FilePlus, History, Loader2, Lock, Play, Trash2, XCircle } from 'lucide-react';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useMemo,useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ export default function VideoGeneration() {
   const [firstFrameUrl, setFirstFrameUrl] = useState<string>('');
   const [lastFrameUrl, setLastFrameUrl] = useState<string>('');
   // 单张参考图URL (用于不支持frames的模型)
-  const [referenceImageUrl, setReferenceImageUrl] = useState<string>('');
+  const [referenceImageUrl, setReferenceImageUrl] = useState<string[]>([]);
   // 使用 taskParams 存储动态参数
   const [taskParams, setTaskParams] = useState<Record<string, any>>({});
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -57,6 +57,11 @@ export default function VideoGeneration() {
   const supportsFrames = () => {
     const selectedModel = models.find(m => m.key === model);
     return selectedModel?.tags?.includes('frames') || false;
+  };
+
+  const supportsMulti = () => {
+    const selectedModel = models.find(m => m.key === model);
+    return selectedModel?.tags?.includes('multi') || false;
   };
 
   // 生成图片prefix (XML格式)
@@ -308,10 +313,16 @@ export default function VideoGeneration() {
         // 构建input_file_url数组（顺序：首帧、尾帧）
         if (firstFrameUrl) inputFileUrls.push(firstFrameUrl);
         if (lastFrameUrl) inputFileUrls.push(lastFrameUrl);
-      } else {
+      }
+      else if (supportsMulti()) {
+        if(referenceImageUrl) {
+          inputFileUrls = [...referenceImageUrl];
+        }
+      }
+      else {
         // 不支持frames的模型：直接使用原始prompt和单张参考图
         if (referenceImageUrl) {
-          inputFileUrls.push(referenceImageUrl);
+          inputFileUrls.push(referenceImageUrl[0]);
         }
       }
 
@@ -388,7 +399,7 @@ export default function VideoGeneration() {
     // 先清空所有上传的图片
     setFirstFrameUrl('');
     setLastFrameUrl('');
-    setReferenceImageUrl('');
+    setReferenceImageUrl([]);
 
     // 直接从后端拉取该任务的完整详情
     try {
@@ -424,7 +435,7 @@ export default function VideoGeneration() {
                 if (Array.isArray(inputFileUrl) && inputFileUrl.length > 0) {
                   setReferenceImageUrl(inputFileUrl[0]);
                 } else if (typeof inputFileUrl === 'string') {
-                  setReferenceImageUrl(inputFileUrl);
+                  setReferenceImageUrl([inputFileUrl]);
                 }
               }
             }
@@ -470,7 +481,7 @@ export default function VideoGeneration() {
     setPrompt('');
     setFirstFrameUrl('');
     setLastFrameUrl('');
-    setReferenceImageUrl('');
+    setReferenceImageUrl([]);
     setTaskParams({});  // 重置任务参数
 
     // 重置为默认模型
@@ -686,7 +697,7 @@ export default function VideoGeneration() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 top-2 z-20 size-6 opacity-0 transition-opacity bg-white hover:bg-red-100 group-hover:opacity-100 shadow-sm rounded-md"
+                      className="absolute right-2 top-2 z-20 size-6 rounded-md bg-white opacity-0 shadow-sm transition-opacity hover:bg-red-100 group-hover:opacity-100"
                       onClick={(e) => handleDeleteTask(e, item)}
                     >
                       <Trash2 className="size-3 text-red-500" />
@@ -823,12 +834,22 @@ export default function VideoGeneration() {
                   />
                 </div>
               </>
+            ) : supportsMulti() ? (
+              <div className="space-y-2">
+                <Label>参考图 (可选；&lt; 2MB; 最多3张;)</Label>
+                <ImageUploader
+                  value={referenceImageUrl ? referenceImageUrl : []}
+                  onChange={(urls) => setReferenceImageUrl(urls || [])}
+                  maxFiles={3}
+                  maxSizeMB={2}
+                />
+              </div>
             ) : (
               <div className="space-y-2">
                 <Label>参考图 (可选；&lt; 2MB)</Label>
                 <ImageUploader
-                  value={referenceImageUrl ? [referenceImageUrl] : []}
-                  onChange={(urls) => setReferenceImageUrl(urls[0] || '')}
+                  value={referenceImageUrl ? referenceImageUrl : []}
+                  onChange={(urls) => setReferenceImageUrl(urls || [])}
                   maxFiles={1}
                   maxSizeMB={2}
                 />

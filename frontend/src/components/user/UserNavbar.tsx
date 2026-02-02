@@ -405,7 +405,7 @@ function UserStatsIndicator() {
   const { data: stats } = useQuery({
     queryKey: ['public-stats'],
     queryFn: authService.getPublicStats,
-    refetchInterval: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 30 * 1000, // 5 minutes
     staleTime: 30 * 1000,
   });
 
