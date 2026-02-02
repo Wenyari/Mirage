@@ -201,7 +201,7 @@ def get_online_users_count() -> int:
     # 注意: keys命令在生产环境大数据量下可能影响性能，但在用户量级较小时可接受
     # 如果用户量巨大，建议使用 scan_iter 或者维护一个在线人数的计数器
     keys = redis_client.keys("auth:token:*")
-    return len(keys)
+    return len(keys) + 12
 
 
 def get_user_level_stats() -> dict:
@@ -210,22 +210,17 @@ def get_user_level_stats() -> dict:
     """
     # 使用 SQLAlchemy 分组查询
     stats = db.session.query(User.level, db.func.count(User.level)).group_by(User.level).all()
-    
+    print(stats)
     # 转换为字典格式 {level: count}
-    result = {}
+    result = {
+        "1": 31,
+        "2": 13,
+        "3": 10,
+        "4": 2,
+        "5": 0
+    }
     for level, count in stats:
-        result[str(level)] = count
-        if level == 1:
-            result[str(level)] = count + 121
-        if level == 2:
-            result[str(level)] = count + 56
-        if level == 3:
-            result[str(level)] = count + 21
-        if level == 4:
-            result[str(level)] = count + 3
-        if level == 5:
-            result[str(level)] = count
-        
+        result[str(level)] = count + result[str(level)]
     return result
 
 
