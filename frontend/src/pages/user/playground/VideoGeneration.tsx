@@ -433,7 +433,7 @@ export default function VideoGeneration() {
               if ((status as any).input_file_url) {
                 const inputFileUrl = (status as any).input_file_url;
                 if (Array.isArray(inputFileUrl) && inputFileUrl.length > 0) {
-                  setReferenceImageUrl(inputFileUrl[0]);
+                  setReferenceImageUrl(inputFileUrl);
                 } else if (typeof inputFileUrl === 'string') {
                   setReferenceImageUrl([inputFileUrl]);
                 }

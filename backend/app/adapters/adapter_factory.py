@@ -26,7 +26,7 @@ def get_adapter(api_base: str) -> ApiAdapter:
     api_base_lower = api_base.lower()
 
     # T8Star 适配器 - 使用精确路径匹配
-    if 'ai.t8star.cn' in api_base_lower or 't8star.cn' in api_base_lower:
+    if 'ai.t8star.cn' in api_base_lower or 't8star.cn' in api_base_lower or 'api.bltcy.ai' in api_base_lower or 'bltcy.ai' in api_base_lower:
         # 图片生成
         if '/v1/images/generations' in api_base_lower:
             logger.info(f"Using T8StarImageGenerationAdapter for API base: {api_base}")
