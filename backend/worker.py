@@ -256,8 +256,9 @@ def process_task(payload):
         submit_payload = adapter.build_submit_payload(payload)
 
         logger.info(f"Submitting task payload: {submit_payload}")
+        print(submit_url, headers, submit_payload)
         resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=300)
-
+        print(resp)
         # 错误处理
         if resp.status_code in [401, 403]:
             logger.error(f"Authentication error with key {key_id}: {resp.status_code}")

@@ -75,6 +75,10 @@ export const USER_NAVIGATION = {
       },
     },
   },
+  CREDIT: {
+    label: '立即充值',
+    path: '/setting/credits'
+  },
   AUTH: {
     LOGIN: {
       label: '登录',
