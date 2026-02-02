@@ -119,30 +119,8 @@ def claim_activity(user_id: int, activity_code: str) -> dict:
 
 def daily_checkin(user_id: int) -> dict:
     """
-    每日签到
-
-    业务流程：
-    1. 检查今天是否已签到
-    2. 判断连续签到天数
-    3. 获取奖励积分
-    4. 更新 activity_balance
-    5. 更新签到信息
-    6. 创建流水
-
-    Args:
-        user_id: 用户 ID
-
-    Returns:
-        dict: {
-            "points": 20,
-            "consecutive_days": 3,
-            "total_checkin_days": 15,
-            "current_activity_balance": 520,
-            "total_balance": 1520
-        }
-
-    Raises:
-        ValueError: 今日已签到、配置错误等
+    每日签到 - 修复版
+    核心变更：计算好 consecutive_days 后直接存入数据库
     """
     user = User.query.with_for_update().get(user_id)
     if not user:
@@ -150,39 +128,39 @@ def daily_checkin(user_id: int) -> dict:
 
     now = datetime.now(ZoneInfo("Asia/Shanghai"))
     today_date = now.strftime('%Y-%m-%d')
-
-    # 检查今天是否已签到
+    yesterday = (now - timedelta(days=1)).strftime('%Y-%m-%d')
+    print("1111111111111111111111111111111111111111111111", user.consecutive_days)
+    # 1. 检查是否重复签到
     if user.last_checkin_at:
         last_date = user.last_checkin_at.strftime('%Y-%m-%d')
         if last_date == today_date:
             raise ValueError("Already checked in today")
-
-        # 判断是否连续签到
-        yesterday = (now - timedelta(days=1)).strftime('%Y-%m-%d')
+        
+        # 2. 判断是否连续
         if last_date == yesterday:
-            # 连续签到，天数+1（循环1-7）
-            consecutive_days = (user.total_checkin_days % 7) + 1
+            # 连续：天数+1。如果超过7天，看你的需求是循环(1-7)还是累加
+            # 这里保持你原有的循环逻辑：
+            current_consecutive = (user.consecutive_days % 7) + 1
         else:
-            # 断签，重置为第1天
-            consecutive_days = 1
+            # 断签：重置为1
+            current_consecutive = 1
     else:
-        consecutive_days = 1
+        # 首次签到
+        current_consecutive = 1
 
-    # 从配置获取奖励积分
+    # 3. 获取奖励配置
     checkin_config = CheckinConfig.query.filter_by(
-        day=consecutive_days,
+        day=current_consecutive, 
         is_active=1
     ).first()
 
-    if not checkin_config:
-        raise ValueError("Checkin config not found")
+    points = checkin_config.points if checkin_config else 0
 
-    points = checkin_config.points
-
-    # 更新用户数据
+    # 4. 更新数据库状态 (关键步骤)
     user.activity_balance += points
     user.last_checkin_at = now
     user.total_checkin_days += 1
+    user.consecutive_days = current_consecutive  # <--- 直接保存计算好的连续天数
 
     # 创建流水
     transaction = Transaction(
@@ -191,7 +169,7 @@ def daily_checkin(user_id: int) -> dict:
         balance_type='activity',
         amount=points,
         balance_snapshot=user.activity_balance,
-        remark=f"Daily checkin (day {consecutive_days})"
+        remark=f"Daily checkin (day {current_consecutive})"
     )
     db.session.add(transaction)
 
@@ -200,10 +178,10 @@ def daily_checkin(user_id: int) -> dict:
     except Exception as e:
         db.session.rollback()
         raise ValueError(f"Failed to checkin: {str(e)}")
-
+    print("consecutive_days", current_consecutive)
     return {
         "points": float(points),
-        "consecutive_days": consecutive_days,
+        "consecutive_days": current_consecutive,
         "total_checkin_days": user.total_checkin_days,
         "current_activity_balance": float(user.activity_balance),
         "total_balance": float(user.recharge_balance + user.activity_balance)
@@ -288,19 +266,8 @@ def expire_activity_points() -> dict:
 
 def get_checkin_status(user_id: int) -> dict:
     """
-    获取签到状态
-
-    Args:
-        user_id: 用户 ID
-
-    Returns:
-        dict: {
-            "has_checked_today": false,
-            "consecutive_days": 2,
-            "total_checkin_days": 15,
-            "last_checkin_at": "2024-03-01T08:00:00",
-            "next_reward": 20.00
-        }
+    获取签到状态 - 修复版
+    核心变更：不再反推天数，而是根据 last_checkin_at 和存储的 consecutive_days 判断
     """
     user = User.query.get(user_id)
     if not user:
@@ -308,34 +275,53 @@ def get_checkin_status(user_id: int) -> dict:
 
     now = datetime.now(ZoneInfo("Asia/Shanghai"))
     today_date = now.strftime('%Y-%m-%d')
-
-    # 检查今天是否已签到
+    
     has_checked_today = False
-    consecutive_days = 0
+    display_consecutive_days = 0
 
     if user.last_checkin_at:
         last_date = user.last_checkin_at.strftime('%Y-%m-%d')
-        if last_date == today_date:
-            has_checked_today = True
-            consecutive_days = (user.total_checkin_days % 7)
-            if consecutive_days == 0:
-                consecutive_days = 7
-        else:
-            # 判断是否连续签到
-            yesterday = (now - timedelta(days=1)).strftime('%Y-%m-%d')
-            if last_date == yesterday:
-                consecutive_days = (user.total_checkin_days % 7)
-            else:
-                consecutive_days = 0
+        yesterday = (now - timedelta(days=1)).strftime('%Y-%m-%d')
 
-    # 获取下次签到奖励
-    next_day = consecutive_days + 1 if consecutive_days < 7 else 1
-    next_config = CheckinConfig.query.filter_by(day=next_day, is_active=1).first()
+        if last_date == today_date:
+            # 情况A：今天已签到
+            has_checked_today = True
+            # 直接读取数据库中存储的连续天数
+            display_consecutive_days = user.consecutive_days
+        elif last_date == yesterday:
+            # 情况B：今天没签，但昨天签了（还在连续中）
+            has_checked_today = False
+            display_consecutive_days = user.consecutive_days
+        else:
+            # 情况C：断签了（昨天没签）
+            has_checked_today = False
+            display_consecutive_days = 0 
+    else:
+        # 新用户
+        display_consecutive_days = 0
+
+    # 计算下一个奖励
+    # 逻辑：
+    # 如果今天已签到(Day 3)，下个奖励是 Day 4 (3+1)
+    # 如果今天没签到且没断签(Day 2)，今天要签的是 Day 3 (2+1)，所以"下个"奖励其实是当前的待领取奖励
+    # 如果断签(0)，今天要签的是 Day 1 (0+1)
+    
+    # 注意：这里取决于前端对于"Next Reward"的定义。
+    # 通常前端展示为：
+    # 已签到 -> "明日可领 X 分"
+    # 未签到 -> "今日签到可领 Y 分"
+    
+    if has_checked_today:
+        next_day_cycle = (display_consecutive_days % 7) + 1
+    else:
+        next_day_cycle = (display_consecutive_days % 7) + 1
+        
+    next_config = CheckinConfig.query.filter_by(day=next_day_cycle, is_active=1).first()
     next_reward = float(next_config.points) if next_config else 0.00
 
     return {
         "has_checked_today": has_checked_today,
-        "consecutive_days": consecutive_days,
+        "consecutive_days": display_consecutive_days,
         "total_checkin_days": user.total_checkin_days,
         "last_checkin_at": user.last_checkin_at.isoformat() if user.last_checkin_at else None,
         "next_reward": next_reward

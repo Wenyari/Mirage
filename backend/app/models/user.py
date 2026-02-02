@@ -23,6 +23,7 @@ class User(db.Model):
     register_ip = db.Column(db.String(45), nullable=True)
     last_login_at = db.Column(db.DateTime, nullable=True)
     last_checkin_at = db.Column(db.DateTime, nullable=True, comment='最后签到时间')
+    consecutive_days = db.Column(db.Integer, default=0, comment="当前连续签到天数")
     total_checkin_days = db.Column(db.Integer, default=0, nullable=False, comment='累计签到天数')
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
@@ -55,6 +56,7 @@ class User(db.Model):
             'last_active': self.last_login_at.isoformat() if self.last_login_at else None,
             'last_checkin_at': self.last_checkin_at.isoformat() if self.last_checkin_at else None,
             'total_checkin_days': self.total_checkin_days,
+            'consecutive_days': self.consecutive_days
         }
 
 
