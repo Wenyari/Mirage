@@ -1,13 +1,21 @@
-import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, Settings, User as UserIcon, Wallet, Zap } from 'lucide-react';
+import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, QrCode, Settings, User as UserIcon, Wallet, Zap } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
 import Logo from '@/assets/logo.svg';
+import wechatJpg from '@/assets/wechat.jpg';
+import qqJpg from '@/assets/qq.jpg';
 import { AnnouncementNotifier } from '@/components/user/AnnouncementNotifier';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   HoverCard,
   HoverCardContent,
@@ -33,6 +41,7 @@ export function UserNavbar() {
   const [exploreOpen, setExploreOpen] = React.useState(false);
   const [playgroundOpen, setPlaygroundOpen] = React.useState(false);
   const [moreOpen, setMoreOpen] = React.useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
   const [announcements, setAnnouncements] = React.useState<Announcement[]>([]);
 
   // 获取公告列表
@@ -207,6 +216,16 @@ export function UserNavbar() {
                 </div>
               </HoverCardContent>
             </HoverCard>
+
+            {/* QR Code Dialog Trigger */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-9"
+              onClick={() => setQrDialogOpen(true)}
+            >
+              <QrCode className="size-4" />
+            </Button>
           </div>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
@@ -344,6 +363,31 @@ export function UserNavbar() {
 
       {/* 公告通知弹窗 */}
       <AnnouncementNotifier announcements={announcements} />
+
+      {/* QR Code Dialog */}
+      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>联系我们</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-8 py-4">
+            <div className="flex flex-col items-center justify-center">
+              <div className="mb-2 rounded-lg border bg-white p-2">
+                <img src={wechatJpg} alt="WeChat Support" className="h-auto w-full max-w-[250px] object-contain" />
+              </div>
+              <p className="font-medium">客服微信</p>
+              <p className="text-sm text-muted-foreground">扫码添加客服微信</p>
+            </div>
+            <div className="flex flex-col items-center justify-center">
+              <div className="mb-2 rounded-lg border bg-white p-2">
+                <img src={qqJpg} alt="QQ Community" className="h-auto w-full max-w-[250px] object-contain" />
+              </div>
+              <p className="font-medium">官方社群</p>
+              <p className="text-sm text-muted-foreground">扫码加入官方QQ社群</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
