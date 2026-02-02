@@ -234,7 +234,8 @@ def get_current_user():
                 "role": user.role,
                 "status": user.status,
                 "created_at": user.created_at.isoformat() if user.created_at else None,
-                "last_active": getattr(user, 'last_active', None)
+                "last_active": getattr(user, 'last_active', None),
+                "recharge_balance_expire_at": user.recharge_balance_expire_at.isoformat() if user.recharge_balance_expire_at else None
             }
         }), 200
 

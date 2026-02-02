@@ -41,11 +41,33 @@ def get_dashboard_overview():
     # 4. 当前活跃任务数（status='processing' 的任务）
     active_tasks = Task.query.filter(Task.status == 'processing').count()
 
+    # 5. 历史总发放积分 (排除退款)
+    # 来源: Transaction 表，包括充值、签到、活动赠送、系统正向调整
+    # type != 'refund' and amount > 0
+    total_points_distributed = db.session.query(
+        func.coalesce(func.sum(Transaction.amount), 0)
+    ).filter(
+        and_(
+            Transaction.type != 'refund',
+            Transaction.amount > 0
+        )
+    ).scalar()
+
+    # 6. 历史总消耗积分 (仅统计任务消耗，不减去退款，反映总业务量)
+    # 来源: Transaction 表，type='task_cost'
+    total_points_consumed = db.session.query(
+        func.coalesce(func.sum(Transaction.amount), 0)
+    ).filter(
+        Transaction.type == 'task_cost'
+    ).scalar()
+
     return {
         'today_new_users': today_new_users,
         'today_points_consumed': float(today_points_consumed or 0),
         'today_cdk_recharge': float(today_cdk_recharge or 0),
-        'active_tasks': active_tasks
+        'active_tasks': active_tasks,
+        'total_points_distributed': float(total_points_distributed or 0),
+        'total_points_consumed': abs(float(total_points_consumed or 0))
     }
 
 

@@ -50,7 +50,7 @@ def generate_batch_no():
     return f'BATCH{date_part}{seq}'
 
 
-def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=None):
+def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=None, expire_at=None):
     """
     批量生成CDK
 
@@ -59,6 +59,8 @@ def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=
         count: 生成数量
         type: 类型 (once/multi)，接口使用multi，数据库存储为universal
         batch_name: 批次名称
+        grant_level: 授予等级
+        expire_at: 过期时间 (str, ISO format)
 
     Returns:
         dict: {
@@ -90,6 +92,19 @@ def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=
         # 将batch_name存储在batch_no中，格式：BATCH20240320001|春节活动
         batch_no = f"{batch_no}|{batch_name}"
 
+    # 处理过期时间
+    expire_dt = None
+    if expire_at:
+        try:
+            # 尝试解析 ISO 格式 (YYYY-MM-DDTHH:mm)
+            expire_dt = datetime.fromisoformat(expire_at)
+        except ValueError:
+            # 如果解析失败，尝试加上秒 (YYYY-MM-DDTHH:mm:ss)
+            try:
+                expire_dt = datetime.strptime(expire_at, "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                 pass # 如果还是失败，保持None或者抛出异常？这里暂时忽略错误格式
+    
     # 批量生成CDK
     cdks = []
     for _ in range(count):
@@ -110,7 +125,8 @@ def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=
             type=db_type,
             batch_no=batch_no,
             status=0,  # 未使用
-            grant_level=grant_level
+            grant_level=grant_level,
+            expire_at=expire_dt
         )
         db.session.add(cdk)
         cdks.append(cdk)
@@ -275,5 +291,6 @@ def _cdk_to_api_dict(cdk):
         'status': status,
         'used_at': cdk.used_at.isoformat() if cdk.used_at else None,
         'grant_level': cdk.grant_level,
+        'expire_at': cdk.expire_at.isoformat() if cdk.expire_at else None,
         'created_at': cdk.created_at.isoformat() if cdk.created_at else None,
     }

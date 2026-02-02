@@ -17,6 +17,7 @@ export async function generateCDK(data: CDKGenerateRequest): Promise<CDKGenerate
     type: data.type,
     batch_name: data.batch_no || undefined, // 后端字段名为 batch_name
     grant_level: data.grant_level,
+    expire_at: data.expire_at || undefined, // 新增过期时间
   };
   return api.post('/admin/cdk/generate', payload);
 }

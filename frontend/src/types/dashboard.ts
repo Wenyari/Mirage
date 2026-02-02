@@ -6,6 +6,8 @@ export interface DashboardOverview {
   today_points_consumed: number;
   today_cdk_recharge: number;
   active_tasks: number;
+  total_points_distributed: number;
+  total_points_consumed: number;
 }
 
 // 趋势图数据点

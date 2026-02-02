@@ -1,4 +1,4 @@
-import { Activity, AlertCircle,DollarSign, Users, Zap } from 'lucide-react';
+import { Activity, AlertCircle, DollarSign, Users, Zap, Wallet, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
 
 import { CdkRechargeChart } from '@/components/charts/CdkRechargeChart';
@@ -8,8 +8,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useChartData,useDashboardOverview } from '@/hooks/useDashboard';
-import { formatCurrency,formatNumber } from '@/utils/format';
+import { useChartData, useDashboardOverview } from '@/hooks/useDashboard';
+import { formatCurrency, formatNumber } from '@/utils/format';
 
 export default function Dashboard() {
   const [chartDays, setChartDays] = useState<'7' | '30'>('7');
@@ -45,7 +45,7 @@ export default function Dashboard() {
       </div>
 
       {/* 统计卡片 */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* 今日新增用户 */}
         {overviewLoading ? (
           <Card>
@@ -70,7 +70,32 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* 积分消耗 */}
+        {/* 活跃任务数 */}
+        {overviewLoading ? (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="size-4 rounded-full" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="mt-1 h-3 w-32" />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">活跃任务数</CardTitle>
+              <Zap className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{overview?.active_tasks || 0}</div>
+              <p className="text-xs text-muted-foreground">当前正在处理</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 今日积分消耗 */}
         {overviewLoading ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -97,7 +122,7 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* CDK 兑换 */}
+        {/* 今日 CDK 兑换 */}
         {overviewLoading ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -124,7 +149,7 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* 活跃任务数 */}
+        {/* 总发放积分 */}
         {overviewLoading ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -139,12 +164,41 @@ export default function Dashboard() {
         ) : (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">活跃任务数</CardTitle>
-              <Zap className="size-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">总发放积分</CardTitle>
+              <Wallet className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{overview?.active_tasks || 0}</div>
-              <p className="text-xs text-muted-foreground">当前正在处理</p>
+              <div className="text-2xl font-bold">
+                {formatNumber(overview?.total_points_distributed || 0)}
+              </div>
+              <p className="text-xs text-muted-foreground">历史累计发放</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 总消耗积分 */}
+        {overviewLoading ? (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="size-4 rounded-full" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="mt-1 h-3 w-32" />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">总消耗积分</CardTitle>
+              <BarChart3 className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {formatNumber(overview?.total_points_consumed || 0)}
+              </div>
+              <p className="text-xs text-muted-foreground">历史累计消耗</p>
             </CardContent>
           </Card>
         )}

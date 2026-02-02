@@ -18,6 +18,7 @@ from app import create_app
 from app.services.key_manager import KeyManager
 from app.services.task_service import TaskService
 from app.services.activity_service import expire_activity_points
+from app.services.pay_service import expire_recharge_points
 
 # 创建 Flask 应用上下文
 app = create_app()
@@ -84,6 +85,20 @@ def expire_points_job():
             logger.error(f"Activity points expiration failed: {str(e)}", exc_info=True)
 
 
+def expire_recharge_job():
+    """充值积分过期任务 (每天 00:00)"""
+    logger.info("Running recharge points expiration job...")
+    with app.app_context():
+        try:
+            result = expire_recharge_points()
+            logger.info(
+                f"Recharge points expiration completed: {result['expired_count']} users expired, "
+                f"{result['total_points_expired']:.2f} points cleared"
+            )
+        except Exception as e:
+            logger.error(f"Recharge points expiration failed: {str(e)}", exc_info=True)
+
+
 def main():
     """主循环"""
     logger.info("=" * 60)
@@ -104,6 +119,7 @@ def main():
     logger.info("  - Watchdog:            Every 1 minute")
     logger.info("  - Task cleanup:        Daily at 02:00")
     logger.info("  - Activity points:     Every 1 hour")
+    logger.info("  - Recharge expire:     Daily at 00:00")
     logger.info("=" * 60)
 
     # 注册定时任务
@@ -111,6 +127,7 @@ def main():
     schedule.every(1).minutes.do(watchdog_job)
     schedule.every().day.at("02:00").do(cleanup_tasks_job)
     schedule.every(1).hours.do(expire_points_job)
+    schedule.every().day.at("00:00").do(expire_recharge_job)
 
     # 启动时立即执行一次
     logger.info("Running initial jobs...")

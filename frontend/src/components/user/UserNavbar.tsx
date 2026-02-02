@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, ChevronDown, Coins, CreditCard, Crown, LogOut, QrCode, Settings, User as UserIcon, Wallet, Wifi,Zap } from 'lucide-react';
+import { Bell, ChevronDown, Clock, Coins, CreditCard, Crown, LogOut, QrCode, Settings, User as UserIcon, Wallet, Wifi, Zap } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -35,6 +35,7 @@ export function UserNavbar() {
   const queryClient = useQueryClient();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { data: currentUser } = useCurrentUser();
+  const [now] = React.useState(() => Date.now());
 
   const displayUser = currentUser || user;
 
@@ -221,10 +222,10 @@ export function UserNavbar() {
               className="inline-flex h-9 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent"
             >
               <Link
-                  to={USER_NAVIGATION.SETTINGS.children.CREDITS.path}
-                  className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                >
-                  {USER_NAVIGATION.CREDIT.label}
+                to={USER_NAVIGATION.SETTINGS.children.CREDITS.path}
+                className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+              >
+                {USER_NAVIGATION.CREDIT.label}
               </Link>
             </Button>
             {/* QR Code Dialog Trigger */}
@@ -292,6 +293,14 @@ export function UserNavbar() {
                             <div className="flex items-center gap-1">
                               <Coins className="size-3 text-yellow-500" />
                               <span>{displayUser.balance_detail.recharge_balance.toFixed(0)}</span>
+                              {displayUser.recharge_balance_expire_at && (
+                                <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground whitespace-nowrap ml-0.5" title={`过期时间: ${new Date(displayUser.recharge_balance_expire_at).toLocaleString()}`}>
+                                  <Clock className="size-2.5" />
+                                  <span>
+                                    {Math.max(0, Math.ceil((new Date(displayUser.recharge_balance_expire_at).getTime() - now) / (1000 * 60 * 60 * 24)))}天
+                                  </span>
+                                </span>
+                              )}
                             </div>
                             <div className="flex items-center gap-1">
                               <Zap className="size-3 text-blue-500" />

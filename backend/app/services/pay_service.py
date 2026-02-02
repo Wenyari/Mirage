@@ -50,8 +50,14 @@ def redeem_cdk(user_id: int, code: str) -> dict:
         raise ValueError("CDK has been invalidated")
 
     # 检查过期时间
-    if cdk.expire_at and cdk.expire_at < datetime.now(ZoneInfo("Asia/Shanghai")):
-        raise ValueError("CDK has expired")
+    if cdk.expire_at:
+        # 确保 cdk.expire_at 为 offset-aware
+        expire_at = cdk.expire_at
+        if expire_at.tzinfo is None:
+            expire_at = expire_at.replace(tzinfo=ZoneInfo("Asia/Shanghai"))
+            
+        if expire_at < datetime.now(ZoneInfo("Asia/Shanghai")):
+            raise ValueError("CDK has expired")
 
     # 4. 根据 CDK 类型处理
     # 一次性码: 标记已使用
@@ -64,6 +70,33 @@ def redeem_cdk(user_id: int, code: str) -> dict:
     # 5. 更新用户余额（充值到 recharge_balance）
     points = cdk.points
     user.recharge_balance += points
+
+    # 更新过期时间 (取两者较大值)
+    if cdk.expire_at:
+        # 确保 cdk.expire_at 是 aware 的 (前面已处理，这里复用 logic 或直接转换)
+        new_expire_at = cdk.expire_at
+        if new_expire_at.tzinfo is None:
+            new_expire_at = new_expire_at.replace(tzinfo=ZoneInfo("Asia/Shanghai"))
+
+        if user.recharge_balance_expire_at:
+            # 如果用户已有过期时间，取较晚的那个
+            current_expire_at = user.recharge_balance_expire_at
+            if current_expire_at.tzinfo is None:
+                current_expire_at = current_expire_at.replace(tzinfo=ZoneInfo("Asia/Shanghai"))
+
+            if new_expire_at > current_expire_at:
+                user.recharge_balance_expire_at = new_expire_at
+        else:
+            # 如果用户没有过期时间（或者是首次充值/之前已过期清理），直接设置为 CDK 过期时间
+            user.recharge_balance_expire_at = new_expire_at
+    # 注意：如果 CDK 没有过期时间（永久），这里逻辑如何？
+    # 假设 CDK 积分都有时效性。如果 CDK 是永久的，是否应该清除用户的过期时间？
+    # 根据需求描述 "充值积分唯一来源渠道为CDK兑换，因此该时效与CDK的过期时间绑定"
+    # 且 "当用户充值时会根据该CDK的时间重置过期时间，取CDK过期时间和当前充值积分过期时间较大的那个"
+    # 如果 cdk.expire_at 为 None (永久)，则 user.recharge_balance_expire_at 也应设为 None (永久) ?
+    # 或者保持原样？通常充值卡都有有效期。假设 expire_at 为 None 表示无限期。
+    if cdk.expire_at is None:
+        user.recharge_balance_expire_at = None
 
     # 6. 记录流水
     new_balance = user.recharge_balance
@@ -305,3 +338,69 @@ def execute_refund(user_id: int, amount: float, task_id: str, reason: str = "Tas
         # 记录日志但不抛出异常
         from flask import current_app
         current_app.logger.error(f"Failed to execute refund: {e}")
+
+
+def expire_recharge_points() -> dict:
+    """
+    清理过期的充值积分 (定时任务调用)
+
+    逻辑：
+    1. 查询所有 recharge_balance_expire_at < now 且 recharge_balance > 0 的用户
+    2. 将 recharge_balance 重置为 0
+    3. 插入 Transaction 记录
+
+    Returns:
+        dict: {"expired_count": 10, "total_points_expired": 5000}
+    """
+    now = datetime.now(ZoneInfo("Asia/Shanghai"))
+    
+    # 查询过期用户 (recharge_balance > 0 且 expire_at < now)
+    # 注意：这里我们不对管理员特殊处理，只要有 expired_at 且过期了就清空。
+    # 如果管理员账号不应该过期，则不应该设置 expire_at。
+    expired_users = User.query.filter(
+        User.recharge_balance > 0,
+        User.recharge_balance_expire_at.isnot(None),
+        User.recharge_balance_expire_at < now
+    ).all()
+
+    expired_count = 0
+    total_points = 0.0
+
+    for user in expired_users:
+        try:
+            points_to_expire = user.recharge_balance
+            if points_to_expire <= 0:
+                continue
+
+            user.recharge_balance = 0
+            user.recharge_balance_expire_at = None # 清空过期时间
+
+            # 记录流水
+            tx = Transaction(
+                user_id=user.id,
+                type='system',
+                balance_type='recharge',
+                amount=-points_to_expire,
+                balance_snapshot=0,
+                remark=f"Points expired at {now.strftime('%Y-%m-%d %H:%M:%S')}"
+            )
+            db.session.add(tx)
+            
+            expired_count += 1
+            total_points += float(points_to_expire)
+            
+        except Exception as e:
+            # 单个用户失败不影响整体
+            print(f"Failed to expire points for user {user.id}: {e}")
+            continue
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        raise ValueError(f"Failed to commit expiration: {str(e)}")
+
+    return {
+        "expired_count": expired_count,
+        "total_points_expired": total_points
+    }

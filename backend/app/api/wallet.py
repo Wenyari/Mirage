@@ -131,6 +131,7 @@ def get_balance():
             "data": {
                 "total_balance": float(user.recharge_balance + user.activity_balance),
                 "recharge_balance": float(user.recharge_balance),
+                "recharge_balance_expire_at": user.recharge_balance_expire_at.isoformat() if user.recharge_balance_expire_at else None,
                 "activity_balance": float(user.activity_balance)
             }
         }), 200

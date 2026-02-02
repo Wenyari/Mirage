@@ -16,6 +16,7 @@ export interface User {
   name?: string;                 // 用户名（可选）
   password_hash: string;         // 加盐加密后的密码
   recharge_balance: number;      // 充值积分
+  recharge_balance_expire_at: string | null; // 充值积分过期时间
   activity_balance: number;      // 活动积分
   total_balance: number;         // 总积分
   level: UserLevel;              // 会员等级：1-5

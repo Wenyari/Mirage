@@ -16,6 +16,7 @@ class User(db.Model):
     name = db.Column(db.String(50), nullable=True, comment='用户名')
     password_hash = db.Column(db.String(255), nullable=False)
     recharge_balance = db.Column(db.Numeric(10, 2), default=0.00, nullable=False, comment='充值积分')
+    recharge_balance_expire_at = db.Column(db.DateTime, nullable=True, comment='充值积分过期时间')
     activity_balance = db.Column(db.Numeric(10, 2), default=0.00, nullable=False, comment='活动积分')
     level = db.Column(db.SmallInteger, default=1, nullable=False)  # T1-T5
     role = db.Column(db.Enum('user', 'admin'), default='user', nullable=False)
@@ -49,6 +50,7 @@ class User(db.Model):
             'avatar': None,  # 头像URL（可选，暂未实现）
             'level': self.level,
             'recharge_balance': float(self.recharge_balance),
+            'recharge_balance_expire_at': self.recharge_balance_expire_at.isoformat() if self.recharge_balance_expire_at else None,
             'activity_balance': float(self.activity_balance),
             'total_balance': float(self.recharge_balance + self.activity_balance),
             'status': self.status,  # 1=正常，0=封禁

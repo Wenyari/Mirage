@@ -65,6 +65,7 @@ def generate_cdks():
         cdk_type = data.get('type', 'once')
         batch_name = data.get('batch_name')
         grant_level = data.get('grant_level')
+        expire_at = data.get('expire_at')
 
         # 参数验证
         try:
@@ -98,13 +99,14 @@ def generate_cdks():
                 "data": None
             }), 400
 
-        # 调用服务层生成CDK，传递 grant_level 如果存在
+        # 调用服务层生成CDK，传递 grant_level 和 expire_at 如果存在
         result = generate_cdk_batch(
             amount=amount,
             count=count,
             type=cdk_type,
             batch_name=batch_name,
-            grant_level=grant_level
+            grant_level=grant_level,
+            expire_at=expire_at
         )
 
         return jsonify({

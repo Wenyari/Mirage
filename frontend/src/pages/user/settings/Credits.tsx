@@ -1,4 +1,4 @@
-import { Coins, CreditCard, Gift, History, Wallet, Zap } from 'lucide-react';
+import { Clock, Coins, CreditCard, Gift, History, Wallet, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -30,8 +30,10 @@ export default function Credits() {
   const [balanceDetail, setBalanceDetail] = useState<{
     total_balance: number;
     recharge_balance: number;
+    recharge_balance_expire_at?: string | null;
     activity_balance: number;
   } | null>(null);
+  const [now] = useState(() => Date.now()); // For expiration calculation
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMsg, setDialogMsg] = useState('');
   const [dialogSuccess, setDialogSuccess] = useState(false);
@@ -147,6 +149,7 @@ export default function Credits() {
         setBalanceDetail({
           total_balance: data.total_balance ?? data.balance ?? 0,
           recharge_balance: data.recharge_balance ?? 0,
+          recharge_balance_expire_at: data.recharge_balance_expire_at,
           activity_balance: data.activity_balance ?? 0,
         });
       }
@@ -196,7 +199,7 @@ export default function Credits() {
                       key={pkg.title}
                       className="relative flex min-w-[260px] flex-col justify-between rounded-xl border p-6 text-center"
                     >
-                  
+
                       <div>
                         <div className="text-sm text-muted-foreground">{pkg.title}</div>
                         <div className="my-4 text-2xl font-bold">{pkg.price}</div>
@@ -268,6 +271,12 @@ export default function Credits() {
                     充值余额:
                   </span>
                   <span className="font-medium">{balanceDetail.recharge_balance.toFixed(2)}</span>
+                  {balanceDetail.recharge_balance_expire_at && (
+                    <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground whitespace-nowrap ml-2" title={`过期时间: ${new Date(balanceDetail.recharge_balance_expire_at).toLocaleString()}`}>
+                      <Clock className="size-3" />
+                      {Math.max(0, Math.ceil((new Date(balanceDetail.recharge_balance_expire_at).getTime() - now) / (1000 * 60 * 60 * 24)))}天后过期
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
