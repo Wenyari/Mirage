@@ -1,5 +1,5 @@
 import { Lock, LogIn, Mail } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,6 +21,17 @@ export default function UserLogin() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState('');
+  const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [countdown]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +60,7 @@ export default function UserLogin() {
     } catch (error: any) {
       toast.error(error.data.msg || '登录失败，请检查邮箱或密码');
       setTurnstileToken('');
+      setCountdown(10);
     } finally {
       setIsLoading(false);
     }
@@ -114,8 +126,8 @@ export default function UserLogin() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-2">
-            <Button className="w-full text-base font-semibold shadow-sm" type="submit" disabled={isLoading || !turnstileToken} size="lg">
-              {isLoading ? '登录中...' : '登录'}
+            <Button className="w-full text-base font-semibold shadow-sm" type="submit" disabled={isLoading || !turnstileToken || countdown > 0} size="lg">
+              {isLoading ? '登录中...' : (countdown > 0 ? `登录 (${countdown}s)` : '登录')}
             </Button>
             <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
               <span>还没有账号？</span>

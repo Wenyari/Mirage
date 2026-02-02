@@ -1,5 +1,5 @@
 import { CheckCircle2, KeyRound, Lock, Mail, UserPlus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -21,6 +21,17 @@ export default function UserRegister() {
   const [countdown, setCountdown] = useState(0);
   const [isRegistering, setIsRegistering] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState('');
+  const [registerCountdown, setRegisterCountdown] = useState(0);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (registerCountdown > 0) {
+      timer = setTimeout(() => setRegisterCountdown((c) => c - 1), 1000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [registerCountdown]);
 
   // 发送验证码
   const handleSendCode = async () => {
@@ -85,6 +96,7 @@ export default function UserRegister() {
       navigate(USER_NAVIGATION.AUTH.LOGIN.path);
     } catch (error: any) {
       toast.error(error.data.msg || '注册失败');
+      setRegisterCountdown(10);
     } finally {
       setIsRegistering(false);
     }
@@ -199,8 +211,8 @@ export default function UserRegister() {
 
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-2">
-            <Button className="w-full text-base font-semibold shadow-sm" type="submit" disabled={isRegistering} size="lg">
-              {isRegistering ? '正在注册...' : '立即注册'}
+            <Button className="w-full text-base font-semibold shadow-sm" type="submit" disabled={isRegistering || registerCountdown > 0} size="lg">
+              {isRegistering ? '正在注册...' : (registerCountdown > 0 ? `立即注册 (${registerCountdown}s)` : '立即注册')}
             </Button>
             <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
               <span>已有账号？</span>
