@@ -8,6 +8,7 @@ from app.utils.auth import jwt_and_redis_required
 from app.utils.turnstile import verify_turnstile
 # avoid name collision with route function 'send_verify_code'
 from app.services import send_verify_code as send_verify_code_service, register_user, login_user
+from app.services.auth_service import get_online_users_count, get_user_level_stats
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -238,4 +239,28 @@ def get_current_user():
         }), 200
 
     except Exception as e:
+        return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500
+
+
+@bp.route('/stats/public', methods=['GET'])
+def get_public_stats():
+    """
+    获取公开统计信息 (在线人数、等级分布)
+    GET /api/auth/stats/public
+    Auth: None (Public)
+    """
+    try:
+        online_count = get_online_users_count()
+        level_stats = get_user_level_stats()
+        
+        return jsonify({
+            "code": 200,
+            "msg": "Success",
+            "data": {
+                "online_count": online_count,
+                "level_distribution": level_stats
+            }
+        }), 200
+    except Exception as e:
+        current_app.logger.exception(f"Unexpected error in get_public_stats: {e}")
         return jsonify({"code": 500, "msg": "Internal error", "data": None}), 500

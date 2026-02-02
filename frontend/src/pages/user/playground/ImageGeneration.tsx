@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { AlertCircle, ChevronLeft, ChevronRight, Coins, FilePlus, History, Image as ImageIcon, Loader2, Lock, Trash2, XCircle } from 'lucide-react';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useMemo,useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -510,7 +510,7 @@ export default function ImageGeneration() {
               <History className="size-5 text-muted-foreground" />
               <div className="flex flex-col">
                 <h3 className="font-semibold leading-none">历史记录</h3>
-                <span className="text-[10px] text-muted-foreground">最多保存3天！</span>
+                <span className="text-[10px] text-muted-foreground">最多保存3天！图片仅1天，请尽快保存！</span>
               </div>
             </div>
             <Button variant="ghost" size="icon" className="size-8" onClick={() => setIsHistoryOpen(false)}>
@@ -551,7 +551,7 @@ export default function ImageGeneration() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 top-2 z-20 size-6 opacity-0 transition-opacity bg-white hover:bg-red-100 group-hover:opacity-100 shadow-sm rounded-md"
+                      className="absolute right-2 top-2 z-20 size-6 rounded-md bg-white opacity-0 shadow-sm transition-opacity hover:bg-red-100 group-hover:opacity-100"
                       onClick={(e) => handleDeleteTask(e, item)}
                     >
                       <Trash2 className="size-3 text-red-500" />

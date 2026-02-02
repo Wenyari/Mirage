@@ -20,6 +20,7 @@ import { authService } from '@/services/auth';
 import { useAuthStore } from '@/store/authStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
+import wechatJpg from '@/assets/wechat.jpg';
 
 export default function Credits() {
   const queryClient = useQueryClient();
@@ -35,6 +36,7 @@ export default function Credits() {
   const [dialogMsg, setDialogMsg] = useState('');
   const [dialogSuccess, setDialogSuccess] = useState(false);
   const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const [paymentQROpen, setPaymentQROpen] = useState(false);
   const { user, setUser } = useAuthStore();
 
   const translateFailure = (msg: string) => {
@@ -218,7 +220,15 @@ export default function Credits() {
                         </ul>
                       </div>
                       <div className="mt-4">
-                        <Button className="w-full">立即购买</Button>
+                        <Button
+                          className="w-full"
+                          onClick={() => {
+                            setPurchaseOpen(false);
+                            setPaymentQROpen(true);
+                          }}
+                        >
+                          立即购买
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -227,6 +237,24 @@ export default function Credits() {
                 <DialogFooter>
                   <DialogClose asChild>
                     <Button onClick={() => setPurchaseOpen(false)}>关闭</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* 扫码支付弹窗 */}
+            <Dialog open={paymentQROpen} onOpenChange={setPaymentQROpen}>
+              <DialogContent className="sm:max-w-lg">
+                <DialogTitle className="hidden">扫码支付</DialogTitle>
+                <DialogDescription className="text-center text-lg font-medium">
+                  请添加客服微信完成支付
+                </DialogDescription>
+                <div className="flex justify-center py-4">
+                  <img src={wechatJpg} alt="WeChat Pay" className="h-auto w-full max-w-[400px] object-contain" />
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button onClick={() => setPaymentQROpen(false)}>关闭</Button>
                   </DialogClose>
                 </DialogFooter>
               </DialogContent>

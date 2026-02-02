@@ -67,4 +67,15 @@ export const authService = {
   logout: async () => {
     return api.post<ApiResponse<void>>('/auth/logout');
   },
+
+  // 6. 获取公开统计信息
+  getPublicStats: async () => {
+    const response = await api.get<ApiResponse<UserStats>>('/auth/stats/public');
+    return response.data;
+  },
 };
+
+export interface UserStats {
+  online_count: number;
+  level_distribution: Record<string, number>;
+}

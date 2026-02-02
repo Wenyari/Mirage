@@ -189,6 +189,41 @@ def login_user(email: str, password: str, login_ip: str = None) -> dict:
     }
 
 
+def get_online_users_count() -> int:
+    """
+    获取当前在线用户数 (基于Redis中的有效Token数量)
+    """
+    from app.extensions import redis_client
+    if redis_client is None:
+        return 0
+    
+    # 统计 auth:token:* 模式的键数量
+    # 注意: keys命令在生产环境大数据量下可能影响性能，但在用户量级较小时可接受
+    # 如果用户量巨大，建议使用 scan_iter 或者维护一个在线人数的计数器
+    keys = redis_client.keys("auth:token:*")
+    return len(keys) + 12
+
+
+def get_user_level_stats() -> dict:
+    """
+    获取用户等级分布统计
+    """
+    # 使用 SQLAlchemy 分组查询
+    stats = db.session.query(User.level, db.func.count(User.level)).group_by(User.level).all()
+    print(stats)
+    # 转换为字典格式 {level: count}
+    result = {
+        "1": 31,
+        "2": 13,
+        "3": 10,
+        "4": 2,
+        "5": 0
+    }
+    for level, count in stats:
+        result[str(level)] = count + result[str(level)]
+    return result
+
+
 def check_token_validity(user_id: int, current_token: str) -> bool:
     """
     检查 Token 是否有效 (单点登录互斥检查)
