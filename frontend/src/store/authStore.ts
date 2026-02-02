@@ -37,6 +37,8 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         localStorage.removeItem('auth_token');
+        // 清除 zustand persist 存储的认证状态，防止页面刷新后恢复
+        localStorage.removeItem('auth-storage');
         set({
           token: null,
           user: null,
