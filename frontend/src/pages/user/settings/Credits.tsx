@@ -179,34 +179,24 @@ export default function Credits() {
                     {
                       title: '体验包',
                       price: '¥9.9',
-                      bullets: ['100 积分', '解锁T2权限'],
-                    },
-                    {
-                      title: 'T3体验包',
-                      price: '¥29.9',
-                      bullets: ['360 积分 (送60)', '解锁T3权限', '解锁电影级 Pro 模型', 'Sora-2可享8折优惠'],
-                      limited: true,
+                      bullets: ['1000 积分', '解锁T2权限'],
                     },
                     {
                       title: '标准包',
                       price: '¥49.9',
-                      bullets: ['550 积分 (送50)', '解锁T3权限', '解锁电影级 Pro 模型', 'Sora-2可享8折优惠'],
+                      bullets: ['5500 积分 (送500)', '解锁T3权限', '解锁电影级 Pro 模型'],
                     },
                     {
                       title: '专业包',
                       price: '¥199',
-                      bullets: ['2300 积分 (送300)', '解锁T4权限', 'Sora-2低至6折优惠'],
+                      bullets: ['24000积分 (送4000)', '解锁T4权限'],
                     },
                   ].map((pkg) => (
                     <div
                       key={pkg.title}
                       className="relative flex min-w-[260px] flex-col justify-between rounded-xl border p-6 text-center"
                     >
-                      {pkg.limited && (
-                        <div className="absolute -top-3 right-3">
-                          <span className="rounded-full bg-orange-400 px-2 py-1 text-xs text-white">用户每周限购一次！</span>
-                        </div>
-                      )}
+                  
                       <div>
                         <div className="text-sm text-muted-foreground">{pkg.title}</div>
                         <div className="my-4 text-2xl font-bold">{pkg.price}</div>
