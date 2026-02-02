@@ -30,10 +30,8 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // 401 未授权，清除 token 并跳转登录
-      localStorage.removeItem('auth_token');
-
-      // 清除 zustand store 状态，防止循环请求
+      // 401 未授权，清除所有认证状态并跳转登录
+      // logout() 会同时清除 localStorage 中的 auth_token 和 auth-storage
       useAuthStore.getState().logout();
 
       // 根据当前路径判断跳转到哪个登录页
