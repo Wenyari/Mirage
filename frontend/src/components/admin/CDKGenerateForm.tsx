@@ -107,9 +107,10 @@ export function CDKGenerateForm() {
           </CardDescription>
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 1000); form.setValue('grant_level', 2); }}>9.9 体验包</Button>
-          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 5500); form.setValue('grant_level', 3); }}>49.9 标准包</Button>
-          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 24000); form.setValue('grant_level', 4); }}>199 专业包</Button>
+          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 1000); form.setValue('grant_level', 2); }}>9.9 体验包（一个月）</Button>
+          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 3150); form.setValue('grant_level', 2); }}>29.9 Pro体验包（一个月）</Button>
+          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 5500); form.setValue('grant_level', 3); }}>49.9 标准包（三个月）</Button>
+          <Button variant="ghost" size="sm" onClick={() => { form.setValue('points', 24000); form.setValue('grant_level', 4); }}>199 专业包（半年）</Button>
         </div>
       </CardHeader>
       <CardContent>

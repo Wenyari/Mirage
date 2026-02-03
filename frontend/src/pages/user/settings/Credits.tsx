@@ -180,17 +180,22 @@ export default function Credits() {
                 <div className="mt-4 grid grid-cols-4 gap-6">
                   {[
                     {
-                      title: '体验包',
+                      title: '体验包（一个月）',
                       price: '¥9.9',
                       bullets: ['1000 积分', '解锁T2权限'],
                     },
                     {
-                      title: '标准包',
+                      title: 'Pro体验包（一个月）',
+                      price: '¥29.9',
+                      bullets: ['3150 积分', '解锁T3权限'],
+                    },
+                    {
+                      title: '标准包（三个月）',
                       price: '¥49.9',
                       bullets: ['5500 积分 (送500)', '解锁T3权限', '解锁电影级 Pro 模型'],
                     },
                     {
-                      title: '专业包',
+                      title: '专业包（半年）',
                       price: '¥199',
                       bullets: ['24000积分 (送4000)', '解锁T4权限'],
                     },
