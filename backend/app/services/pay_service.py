@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from app.extensions import db
-from app.models import User, CDK, Transaction
+from app.models import User, CDK, Transaction, ActivityPointGrant
 
 
 def redeem_cdk(user_id: int, code: str) -> dict:
@@ -197,8 +197,42 @@ def check_and_deduct_balance(user_id: int, amount: float, task_id: str, model: s
     deduct_from_recharge = amount_decimal - deduct_from_activity
 
     # 扣除积分
-    user.activity_balance -= deduct_from_activity
+    # user.activity_balance -= deduct_from_activity (移动到 grant 处理中同步扣除)
     user.recharge_balance -= deduct_from_recharge
+
+    # 处理活动积分 Ledger 扣除 (FIFO: 优先扣除快过期的)
+    if deduct_from_activity > 0:
+        remaining = deduct_from_activity
+        
+        # 查询所有余额 > 0 的 grants
+        grants = ActivityPointGrant.query.filter(
+            ActivityPointGrant.user_id == user_id,
+            ActivityPointGrant.current_balance > 0
+        ).with_for_update().all()
+        
+        # Python 排序: expire_at 越早越优先。None (永久) 排在最后。
+        # key 逻辑: (True, min_date) < (True, max_date) < (False, ...) ? 
+        # 我们希望有日期的 (not None) 排在前面。
+        # 所以 key: (g.expire_at is None, g.expire_at)
+        # False (0) < True (1). 
+        # 日期: (0, 2024-01-01), (0, 2024-01-02), (1, None) -> 正确
+        grants.sort(key=lambda g: (g.expire_at is None, g.expire_at))
+        
+        for grant in grants:
+            if remaining <= 0:
+                break
+            
+            # 本次能从该 grant 扣除多少
+            # 注意类型转换: grant.current_balance 是 Decimal
+            can_deduct = min(grant.current_balance, remaining)
+            
+            grant.current_balance -= can_deduct
+            remaining -= can_deduct
+            
+        # 扣除总的 activity_balance (作为缓存)
+        # 如果 remaining > 0，说明 ledger 总额小于 user.activity_balance，数据不一致。
+        # 此时强制扣除 deduct_from_activity，让 user.activity_balance 保持正确（虽然可能变成负数或与ledger不符，但保证扣费成功）
+        user.activity_balance -= deduct_from_activity
 
     # 记录流水（活动积分部分）
     if deduct_from_activity > 0:
