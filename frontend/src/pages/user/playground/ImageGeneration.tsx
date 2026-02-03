@@ -206,6 +206,11 @@ export default function ImageGeneration() {
     }
   };
 
+  const supportsMulti = () => {
+    const selectedModel = models.find(m => m.key === model);
+    return selectedModel?.tags?.includes('multi') || false;
+  };
+
   const handleDeleteTask = async (e: React.MouseEvent, historyItem: TaskHistoryItem) => {
     e.stopPropagation();
 
@@ -655,16 +660,28 @@ export default function ImageGeneration() {
                 </p>
               )}
             </div>
-
-            <div className="space-y-2">
-              <Label>上传参考图 (可选；最多1张, &lt; 2MB)</Label>
-              <ImageUploader
-                value={uploadedFiles}
-                onChange={setUploadedFiles}
-                maxFiles={1}
-                maxSizeMB={2}
-              />
-            </div>
+            {
+              supportsMulti() ? (
+                <div className="space-y-2">
+                  <Label>参考图 (可选；&lt; 2MB; 最多3张;)</Label>
+                  <ImageUploader
+                    value={uploadedFiles}
+                    onChange={setUploadedFiles}
+                    maxFiles={3}
+                    maxSizeMB={2}
+                  />
+                </div>
+              ) :
+              (<div className="space-y-2">
+                <Label>上传参考图 (可选；最多1张, &lt; 2MB)</Label>
+                <ImageUploader
+                  value={uploadedFiles}
+                  onChange={setUploadedFiles}
+                  maxFiles={1}
+                  maxSizeMB={2}
+                />
+              </div>)
+            }
 
             <div className="space-y-2">
               <Label>提示词</Label>

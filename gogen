@@ -14,6 +14,8 @@ server {
     ssl_certificate     /etc/nginx/cert/gogen.top.pem;  # 证书路径
     ssl_certificate_key /etc/nginx/cert/gogen.top.key;  # 密钥路径
 
+    client_max_body_size 20M;
+
     # --- SSL 优化配置 (推荐) ---
     ssl_session_timeout 5m;
     ssl_protocols TLSv1.2 TLSv1.3;
