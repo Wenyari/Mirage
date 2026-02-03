@@ -20,6 +20,7 @@ class CDK(db.Model):
     used_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # 使用者
     used_at = db.Column(db.DateTime, nullable=True)  # 使用时间
     expire_at = db.Column(db.DateTime, nullable=True)  # 过期时间
+    valid_days = db.Column(db.Integer, nullable=True)  # 积分有效期 (天)
     grant_level = db.Column(db.SmallInteger, nullable=True)  # 可授予的会员等级 (1-5)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
 
@@ -38,9 +39,31 @@ class CDK(db.Model):
             'used_by': self.used_by,
             'used_at': self.used_at.isoformat() if self.used_at else None,
             'expire_at': self.expire_at.isoformat() if self.expire_at else None,
+            'valid_days': self.valid_days,
             'grant_level': self.grant_level,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
+
+
+class ActivityPointGrant(db.Model):
+    """活动积分发放记录 (积分账本)"""
+    __tablename__ = 'activity_point_grants'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    initial_amount = db.Column(db.Numeric(10, 2), nullable=False)  # 初始金额
+    current_balance = db.Column(db.Numeric(10, 2), nullable=False)  # 当前剩余金额
+    expire_at = db.Column(db.DateTime, nullable=True)  # 过期时间 (NULL=无限期)
+    source = db.Column(db.String(100), nullable=False)  # 来源 (checkin, activity:CODE, etc.)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Shanghai")), nullable=False)
+
+    # 索引：方便查询过期积分和用户积分
+    __table_args__ = (
+        db.Index('idx_grants_user_expire', 'user_id', 'expire_at'),
+    )
+
+    def __repr__(self):
+        return f'<ActivityPointGrant {self.id} user={self.user_id} bal={self.current_balance}>'
 
 
 class Transaction(db.Model):
