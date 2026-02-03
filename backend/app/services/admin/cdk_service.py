@@ -50,7 +50,7 @@ def generate_batch_no():
     return f'BATCH{date_part}{seq}'
 
 
-def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=None, expire_at=None):
+def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=None, expire_at=None, valid_days=None):
     """
     批量生成CDK
 
@@ -61,6 +61,7 @@ def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=
         batch_name: 批次名称
         grant_level: 授予等级
         expire_at: 过期时间 (str, ISO format)
+        valid_days: 积分有效期 (天)
 
     Returns:
         dict: {
@@ -126,7 +127,8 @@ def generate_cdk_batch(amount, count, type='once', batch_name=None, grant_level=
             batch_no=batch_no,
             status=0,  # 未使用
             grant_level=grant_level,
-            expire_at=expire_dt
+            expire_at=expire_dt,
+            valid_days=valid_days
         )
         db.session.add(cdk)
         cdks.append(cdk)
@@ -292,5 +294,6 @@ def _cdk_to_api_dict(cdk):
         'used_at': cdk.used_at.isoformat() if cdk.used_at else None,
         'grant_level': cdk.grant_level,
         'expire_at': cdk.expire_at.isoformat() if cdk.expire_at else None,
+        'valid_days': cdk.valid_days,
         'created_at': cdk.created_at.isoformat() if cdk.created_at else None,
     }

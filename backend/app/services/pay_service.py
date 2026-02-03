@@ -2,7 +2,7 @@
 支付服务层 (Pay Service)
 包含 CDK 兑换、积分扣除、退款等核心业务逻辑
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from app.extensions import db
@@ -72,31 +72,46 @@ def redeem_cdk(user_id: int, code: str) -> dict:
     user.recharge_balance += points
 
     # 更新过期时间 (取两者较大值)
-    if cdk.expire_at:
-        # 确保 cdk.expire_at 是 aware 的 (前面已处理，这里复用 logic 或直接转换)
-        new_expire_at = cdk.expire_at
-        if new_expire_at.tzinfo is None:
-            new_expire_at = new_expire_at.replace(tzinfo=ZoneInfo("Asia/Shanghai"))
-
-        if user.recharge_balance_expire_at:
-            # 如果用户已有过期时间，取较晚的那个
+    # 更新过期时间 (基于 cdk.valid_days)
+    if cdk.valid_days:
+        # 有效天数存在，计算新的过期时间
+        new_expire_at = datetime.now(ZoneInfo("Asia/Shanghai")) + timedelta(days=cdk.valid_days)
+        
+        # 1. 如果用户当前余额为0（说明之前的过期时间已无效或已过期），直接设为新时间
+        #    注意：用户余额在前面第5步已经加上了 points，所以我们要判断的是“加之前是否有余额”
+        #    prev_balance = user.recharge_balance - points
+        #    (或者直接检查 expire_at 是否为 None。如果余额>0但expire_at是None，说明是永久；如果余额=0，expire_at也为None)
+        
+        # 简单逻辑：
+        # 如果 user.recharge_balance_expire_at 为 None，分两种情况：
+        #   A. 之前是永久会员 (余额 > points) -> 保持 None (永久优先级最高)
+        #   B. 之前没余额 (余额 == points) -> 设置为 new_expire_at
+        
+        # 如果 user.recharge_balance_expire_at 有值 -> 取 max(old, new)
+        
+        is_first_charge = (user.recharge_balance - points) <= 0
+        
+        if user.recharge_balance_expire_at is None:
+            if is_first_charge:
+                 user.recharge_balance_expire_at = new_expire_at
+            # else: 之前有余额且expire为None，说明是永久，保持不变
+        else:
+             # 有旧的过期时间，取较大值
             current_expire_at = user.recharge_balance_expire_at
             if current_expire_at.tzinfo is None:
                 current_expire_at = current_expire_at.replace(tzinfo=ZoneInfo("Asia/Shanghai"))
-
+            
             if new_expire_at > current_expire_at:
                 user.recharge_balance_expire_at = new_expire_at
-        else:
-            # 如果用户没有过期时间（或者是首次充值/之前已过期清理），直接设置为 CDK 过期时间
-            user.recharge_balance_expire_at = new_expire_at
-    # 注意：如果 CDK 没有过期时间（永久），这里逻辑如何？
-    # 假设 CDK 积分都有时效性。如果 CDK 是永久的，是否应该清除用户的过期时间？
-    # 根据需求描述 "充值积分唯一来源渠道为CDK兑换，因此该时效与CDK的过期时间绑定"
-    # 且 "当用户充值时会根据该CDK的时间重置过期时间，取CDK过期时间和当前充值积分过期时间较大的那个"
-    # 如果 cdk.expire_at 为 None (永久)，则 user.recharge_balance_expire_at 也应设为 None (永久) ?
-    # 或者保持原样？通常充值卡都有有效期。假设 expire_at 为 None 表示无限期。
-    if cdk.expire_at is None:
+
+    elif cdk.valid_days is None:
+        # valid_days 为 None，视为“本次充值积分永久有效”
+        # 规则：永久 > 任何期限
+        # 所以直接设为 None
         user.recharge_balance_expire_at = None
+
+    # 注意：cdk.expire_at 不再参与积分过期时间的计算，仅用于判断 CDK 本身是否过期。
+    # 这样就实现了 cdk 兑换码有效期 vs 充值后的积分有效期的解耦。
 
     # 6. 记录流水
     new_balance = user.recharge_balance

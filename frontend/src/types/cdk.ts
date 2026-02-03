@@ -27,6 +27,7 @@ export interface CDK {
   used_by: string | null; // 后端返回的是邮箱字符串
   used_at: string | null;
   expire_at?: string | null; // 过期时间
+  valid_days?: number | null; // 积分有效期(天)
   created_at: string;
 }
 
@@ -39,6 +40,7 @@ export interface CDKGenerateRequest {
   count: number;
   batch_no?: string; // 前端表单字段，实际对应后端的 batch_name
   expire_at?: string;
+  valid_days?: number;
   grant_level?: number;
 }
 
