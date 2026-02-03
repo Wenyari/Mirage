@@ -34,7 +34,7 @@ server {
     # --- 后端接口反向代理 ---
     location /api/ {
         # 2. 这里的斜杠 / 非常关键，请看下文解释
-        proxy_pass http://127.0.0.1:5000/; 
+        proxy_pass http://127.0.0.1:5000; 
         
         proxy_set_header Host $host;
         
