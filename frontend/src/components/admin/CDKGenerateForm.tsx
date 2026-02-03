@@ -42,6 +42,7 @@ const formSchema = z.object({
   count: z.coerce.number().min(1, '生成数量必须大于0').max(1000, '单次最多生成1000个'),
   batch_no: z.string().optional(),
   expire_at: z.string().optional(),
+  valid_days: z.coerce.number().min(0, '积分有效期不能小于0').optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -59,6 +60,7 @@ export function CDKGenerateForm() {
       count: 10,
       batch_no: '',
       expire_at: '',
+      valid_days: undefined,
     },
   });
 
@@ -85,6 +87,7 @@ export function CDKGenerateForm() {
           count: 10,
           batch_no: '',
           expire_at: '',
+          valid_days: undefined,
         });
       }
     } catch (error: any) {
@@ -233,20 +236,22 @@ export function CDKGenerateForm() {
                 )}
               />
 
-              {/* 过期时间（可选） */}
+              {/* 积分有效期 */}
               <FormField
                 control={form.control}
-                name="expire_at"
+                name="valid_days"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>过期时间（可选）</FormLabel>
+                    <FormLabel>积分时效 (天)</FormLabel>
                     <FormControl>
                       <Input
-                        type="datetime-local"
+                        type="number"
+                        placeholder="留空表示永久有效"
                         {...field}
+                        value={field.value || ''}
                       />
                     </FormControl>
-                    <FormDescription>留空表示永不过期</FormDescription>
+                    <FormDescription>充值后积分的有效天数，留空则积分永久有效</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -8,7 +8,7 @@ from decimal import Decimal
 from sqlalchemy import and_
 from app.extensions import db
 from app.models.user import User
-from app.models.wallet import Transaction
+from app.models.wallet import Transaction, ActivityPointGrant
 from app.models.activity import Activity, ActivityClaim, CheckinConfig
 
 
@@ -80,6 +80,16 @@ def claim_activity(user_id: int, activity_code: str) -> dict:
     expire_at = None
     if activity.expire_days:
         expire_at = datetime.now(ZoneInfo("Asia/Shanghai")) + timedelta(days=activity.expire_days)
+
+    # 创建积分发放记录 (Ledger)
+    grant = ActivityPointGrant(
+        user_id=user_id,
+        initial_amount=activity.points,
+        current_balance=activity.points,
+        expire_at=expire_at,
+        source=f'activity:{activity.code}'
+    )
+    db.session.add(grant)
 
     # 创建领取记录
     claim = ActivityClaim(
@@ -162,6 +172,19 @@ def daily_checkin(user_id: int) -> dict:
     user.total_checkin_days += 1
     user.consecutive_days = current_consecutive  # <--- 直接保存计算好的连续天数
 
+    # 计算当天过期时间 (次日 00:00:00)
+    expire_at = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    # 创建积分发放记录 (Ledger)
+    grant = ActivityPointGrant(
+        user_id=user_id,
+        initial_amount=points,
+        current_balance=points,
+        expire_at=expire_at,
+        source='checkin'
+    )
+    db.session.add(grant)
+
     # 创建流水
     transaction = Transaction(
         user_id=user_id,
@@ -190,13 +213,13 @@ def daily_checkin(user_id: int) -> dict:
 
 def expire_activity_points() -> dict:
     """
-    处理过期的活动积分（定时任务调用）
+    处理过期的活动积分（定时任务调用） - 基于 ActivityPointGrant Ledger
 
     业务流程：
-    1. 查询过期的 activity_claims（expire_at <= now, status='active'）
+    1. 查询过期的 activity_point_grants（expire_at <= now, current_balance > 0）
     2. 批量处理（每次100条）
-    3. 扣除用户 activity_balance
-    4. 更新 claim status = 'expired'
+    3. 将 grant.current_balance 置为 0
+    4. 扣除用户 activity_balance
     5. 创建流水
 
     Returns:
@@ -212,43 +235,56 @@ def expire_activity_points() -> dict:
     BATCH_SIZE = 100
 
     while True:
-        expired_claims = ActivityClaim.query.filter(
-            ActivityClaim.expire_at <= datetime.now(ZoneInfo("Asia/Shanghai")),
-            ActivityClaim.status == 'active'
+        expired_grants = ActivityPointGrant.query.filter(
+            ActivityPointGrant.expire_at <= datetime.now(ZoneInfo("Asia/Shanghai")),
+            ActivityPointGrant.current_balance > 0
         ).limit(BATCH_SIZE).with_for_update().all()
 
-        if not expired_claims:
+        if not expired_grants:
             break
 
-        for claim in expired_claims:
-            user = User.query.with_for_update().get(claim.user_id)
+        for grant in expired_grants:
+            user = User.query.with_for_update().get(grant.user_id)
             if not user:
                 continue
 
-            # 计算实际扣除金额（不能超过当前余额）
-            deduct_amount = min(claim.points_granted, user.activity_balance)
+            # 过期金额 = 当前剩余金额
+            expired_amount = grant.current_balance
+            
+            if expired_amount > 0:
+                # 1. Grant 归零
+                grant.current_balance = 0
+                
+                # 2. 用户余额扣除
+                # 注意：user.activity_balance 应当 >= expired_amount
+                # 如果小于，说明数据不一致，但这只是缓存，直接减即可
+                user.activity_balance -= expired_amount
 
-            if deduct_amount > 0:
-                user.activity_balance -= deduct_amount
+                # 3. 创建流水
+                # 尝试解析 source 以获取 activity_id (例如 "activity:CODE")
+                # source 格式: "checkin", "legacy", "activity:CODE"
+                activity_id = None
+                remark = f"Points expired from {grant.source}"
+                
+                # 如果 source 是 activity:CODE，尝试反向查找 activity_id ? 
+                # 这里为了性能，可能只记录 source 字符串
+                # 或者如果需要 activity_id，可以在 Transaction model 里加 source column ?
+                # 现有的 activity_id 字段是 int。
+                # 暂时不强制填 activity_id，在 remark 里说明来源即可。
 
-                # 创建流水
                 transaction = Transaction(
-                    user_id=claim.user_id,
+                    user_id=grant.user_id,
                     type='activity_expire',
                     balance_type='activity',
-                    amount=-deduct_amount,
+                    amount=-expired_amount,
                     balance_snapshot=user.activity_balance,
-                    activity_id=claim.activity_id,
-                    remark=f"Activity points expired"
+                    activity_id=activity_id, # 暂时为 None
+                    remark=remark
                 )
                 db.session.add(transaction)
 
-            # 更新状态
-            claim.status = 'expired'
-            claim.expired_at = datetime.now(ZoneInfo("Asia/Shanghai"))
-
             expired_count += 1
-            total_points_expired += deduct_amount
+            total_points_expired += expired_amount
 
         try:
             db.session.commit()

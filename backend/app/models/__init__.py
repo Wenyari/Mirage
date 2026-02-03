@@ -4,7 +4,7 @@
 """
 from app.models.user import User, MembershipConfig
 from app.models.task import Task
-from app.models.wallet import CDK, Transaction
+from app.models.wallet import CDK, Transaction, ActivityPointGrant
 from app.models.model import Model, ModelConfig, ApiKey, ApiKeyModel
 from app.models.activity import Activity, ActivityClaim, CheckinConfig
 from app.models.ai_media_asset import AiMediaAsset
@@ -15,6 +15,7 @@ __all__ = [
     'Task',
     'CDK',
     'Transaction',
+    'ActivityPointGrant',
     'Model',
     'ModelConfig',
     'ApiKey',

@@ -66,15 +66,18 @@ def generate_cdks():
         batch_name = data.get('batch_name')
         grant_level = data.get('grant_level')
         expire_at = data.get('expire_at')
+        valid_days = data.get('valid_days')
 
         # 参数验证
         try:
             amount = int(amount)
             count = int(count)
+            if valid_days is not None:
+                valid_days = int(valid_days)
         except (ValueError, TypeError):
             return jsonify({
                 "code": 400,
-                "message": "amount and count must be integers",
+                "message": "amount, count and valid_days must be integers",
                 "data": None
             }), 400
 
@@ -89,6 +92,13 @@ def generate_cdks():
             return jsonify({
                 "code": 400,
                 "message": "count must be between 1 and 1000",
+                "data": None
+            }), 400
+            
+        if valid_days is not None and valid_days < 0:
+             return jsonify({
+                "code": 400,
+                "message": "valid_days must be non-negative",
                 "data": None
             }), 400
 
@@ -106,7 +116,8 @@ def generate_cdks():
             type=cdk_type,
             batch_name=batch_name,
             grant_level=grant_level,
-            expire_at=expire_at
+            expire_at=expire_at,
+            valid_days=valid_days
         )
 
         return jsonify({
