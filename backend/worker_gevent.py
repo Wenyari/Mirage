@@ -26,6 +26,8 @@ import gevent
 from gevent.pool import Pool
 import json
 from worker import process_task, get_redis, KeyManager, app
+from app.extensions import db
+from app.models.task import Task
 
 # 配置日志
 logging.basicConfig(

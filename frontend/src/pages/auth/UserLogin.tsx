@@ -1,8 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Lock, LogIn, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
 
 import Turnstile from '@/components/auth/Turnstile';
 import { Button } from '@/components/ui/button';
