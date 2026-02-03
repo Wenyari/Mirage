@@ -460,6 +460,207 @@ def process_task(payload):
         KeyManager.release_key_and_dispatch(key_id)
 
 
+def resume_task(task_id):
+    """
+    恢复任务（用于 Worker 重启后的断点续传）
+    """
+    logger.info(f"Resuming task {task_id}")
+    
+    # 1. 使用独立连接查询任务详情和密钥信息
+    with db.engine.connect() as conn:
+        # 查询任务和密钥 ID
+        task_sql = text("SELECT status, upstream_task_id, api_key_id, model, user_id, cost_points FROM tasks WHERE id = :task_id")
+        task_row = conn.execute(task_sql, {"task_id": task_id}).fetchone()
+        
+        if not task_row:
+            logger.error(f"Task {task_id} not found during resume")
+            return
+
+        status, upstream_task_id, api_key_id, model_key, user_id, cost_points = task_row
+        
+        # 如果任务不是 processing，无需恢复
+        if status != 'processing':
+            logger.info(f"Task {task_id} status is {status}, skip resume")
+            return
+
+        # 场景 A: 没有 upstream_task_id -> 提交前崩了 -> 标记失败并退款
+        if not upstream_task_id:
+            logger.warning(f"Task {task_id} has no upstream_id, marking as failed")
+            
+            error_msg = "System restart during submission"
+            
+            # 更新状态
+            fail_sql = text("""
+                UPDATE tasks 
+                SET status = 'failed', fail_reason = :reason, finished_at = :now 
+                WHERE id = :task_id
+            """)
+            conn.execute(fail_sql, {
+                "task_id": task_id, 
+                "reason": error_msg,
+                "now": datetime.now(ZoneInfo("Asia/Shanghai"))
+            })
+            conn.commit()
+            
+            # 这里的退款需要 app context，外层调用者应该提供或这里创建
+            # 为简单起见，这里假设外层已经有了 app context (在 gevent worker 中会处理)
+            # 或者重新使用 with app.app_context():
+            execute_refund(user_id, float(cost_points), task_id, error_msg)
+            
+            # 释放密钥
+            if api_key_id:
+                KeyManager.release_key_and_dispatch(api_key_id)
+            return
+
+        # 场景 B: 有 upstream_task_id -> 恢复轮询
+        if not api_key_id:
+            logger.error(f"Task {task_id} has upstream_id but no api_key_id, cannot resume")
+            # 这种情况比较罕见，作为失败处理
+            execute_refund(user_id, float(cost_points), task_id, "Missing API Key Info")
+            return
+
+        # 查询密钥 Secrets
+        # 注意：我们需要 api_key_secret 和 api_base
+        # api_base 可能存储在 api_key_models 表中，也可能在 api_keys 表默认值
+        # 这里需要稍微复杂的查询
+        
+        # 1. 获取 Key Secret
+        key_sql = text("SELECT key_secret, api_base FROM api_keys WHERE id = :kid")
+        key_row = conn.execute(key_sql, {"kid": api_key_id}).fetchone()
+        
+        if not key_row:
+             logger.error(f"API Key {api_key_id} not found for task {task_id}")
+             # 无法恢复，只能算失败
+             execute_refund(user_id, float(cost_points), task_id, "API Key Not Found")
+             return
+             
+        api_key_secret = key_row[0]
+        default_api_base = key_row[1]
+        
+        # 2. 尝试获取特定模型的 api_base
+        akm_sql = text("SELECT api_base FROM api_key_models WHERE api_key_id = :kid AND model = :m")
+        akm_row = conn.execute(akm_sql, {"kid": api_key_id, "m": model_key}).fetchone()
+        
+        api_base = akm_row[0] if (akm_row and akm_row[0]) else default_api_base
+        
+        if not api_base:
+            logger.error(f"No API Base found for task {task_id}")
+            return
+            
+    # ------ 准备就绪，开始轮询 ------
+    try:
+        adapter = get_adapter(api_base)
+        
+        # 处理特殊情况：查询路径与提交路径不同
+        if '|' in api_base:
+            _, status_base = api_base.split('|')
+        else:
+            status_base = api_base
+            
+        headers = {"Authorization": f"Bearer {api_key_secret}"}
+        
+        polling_config = adapter.get_polling_config()
+        status_url_pattern = polling_config['status_url_pattern']
+        status_url = status_url_pattern.format(
+            base=status_base.rstrip('/'),
+            task_id=upstream_task_id
+        )
+        
+        # 恢复时，超时时间可能需要调整，或者重置开始时间？
+        # 简单起见，我们给一个新的完整超时周期，或者根据 created_at 减去已过去的时间
+        # 这里给一个新的周期
+        max_poll_time = polling_config['max_timeout']
+        poll_interval = polling_config['interval']
+        start_time = time.time()
+        
+        logger.info(f"Resuming polling for task {task_id}, upstream={upstream_task_id}, url={status_url}")
+        
+        while True:
+            if time.time() - start_time > max_poll_time:
+                raise Exception("Task polling timeout (resumed)")
+
+            time.sleep(poll_interval)
+            
+            # 查询状态
+            check = requests.get(status_url, headers=headers, timeout=300)
+            
+            if check.status_code >= 400:
+                logger.error(f"Status check error {check.status_code}: {check.text}")
+                # 连续错误几次再抛出？暂时直接抛出
+                raise Exception(f"Status check failed: {check.status_code}")
+                
+            raw_data = check.json()
+            parsed = adapter.parse_status_response(raw_data)
+            
+            state = parsed['status']
+            progress = parsed['progress']
+            result_url = parsed['result_url']
+            fail_reason = parsed['fail_reason']
+            
+            logger.info(f"Task {task_id} (RESUMED) status: {state}, progress: {progress}%")
+            
+            if state == 'RUNNING':
+                get_redis().setex(f"task:progress:{task_id}", 86400, progress)
+                
+            elif state == 'SUCCESS':
+                success_sql = text("""
+                    UPDATE tasks
+                    SET status = 'success',
+                        progress = 100,
+                        result_url = :result_url,
+                        finished_at = :finished_at
+                    WHERE id = :task_id
+                """)
+                execute_sql(success_sql, {
+                    "task_id": task_id,
+                    "result_url": result_url,
+                    "finished_at": datetime.now(ZoneInfo("Asia/Shanghai"))
+                })
+                get_redis().delete(f"task:progress:{task_id}")
+                logger.info(f"Task {task_id} completed successfully (resumed)")
+                break
+                
+            elif state == 'FAILED':
+                raise Exception(fail_reason or 'Unknown error')
+                
+    except Exception as e:
+        logger.error(f"Resumed task {task_id} failed: {str(e)}")
+        fail_reason = _sanitize_error_message(str(e))[:255]
+        
+        # 恢复的任务失败同样适用退款逻辑
+        should_refund = _should_refund_on_failure(fail_reason)
+        
+        if should_refund:
+            fail_sql = text("""
+                UPDATE tasks 
+                SET status = 'failed', fail_reason = :reason, finished_at = :now, progress = 0
+                WHERE id = :task_id
+            """)
+            execute_sql(fail_sql, {
+                "task_id": task_id, 
+                "reason": fail_reason,
+                "now": datetime.now(ZoneInfo("Asia/Shanghai"))
+            })
+            execute_refund(user_id, float(cost_points), task_id, fail_reason)
+        else:
+            execute_sql(text("UPDATE tasks SET status='failed', fail_reason=:r, finished_at=:n, progress=0 WHERE id=:id"), {
+                "id": task_id, "r": fail_reason, "n": datetime.now(ZoneInfo("Asia/Shanghai"))
+            })
+            
+        get_redis().delete(f"task:progress:{task_id}")
+
+    finally:
+        # 无论成功失败，恢复的任务也要释放 key
+        # 注意：这里我们假设恢复任务也持有了 key 的并发计数。
+        # 但实际上，Worker 重启后，Redis 中的 pool:usage 可能已经归零（如果 Redis 也重启了）
+        # 或者如果 Redis 没重启，usage 还保留着。
+        # 这是一个棘手的问题：
+        # 1. 如果 Redis 没重启：Key usage 还是高的，我们需要释放。
+        # 2. 如果 Redis 重启了：Key usage 是 0。释放会报 warning（safe）。
+        # 所以调用 release 是安全的。
+        KeyManager.release_key_and_dispatch(api_key_id)
+
+
 def main():
     """主循环：监听执行队列"""
     logger.info("=" * 60)

@@ -26,6 +26,8 @@ import gevent
 from gevent.pool import Pool
 import json
 from worker import process_task, get_redis, KeyManager, app
+from app.extensions import db
+from app.models.task import Task
 
 # 配置日志
 logging.basicConfig(
@@ -79,19 +81,50 @@ class GeventWorker:
 
     def run(self):
         """主循环：从队列取任务并分配给协程池"""
+        import signal
+        
         logger.info("=" * 60)
         logger.info(f"Gevent Worker Started (Max Concurrency: {self.max_workers})")
-        logger.info(f"Listening on queue: {KeyManager.QUEUE_RUNNABLE}")
         logger.info("=" * 60)
 
+        # 注册信号处理 (Graceful Shutdown)
+        self.stop_signal = False
+        
+        def handle_signal(signum, frame):
+            logger.info(f"Received signal {signum}, stopping worker...")
+            self.stop_signal = True
+            
+        signal.signal(signal.SIGTERM, handle_signal)
+        signal.signal(signal.SIGINT, handle_signal)
+
+        # --- 1. 启动恢复 (Startup Recovery) ---
+        with app.app_context():
+            from worker import resume_task  # 延迟导入防止循环引用
+            
+            logger.info("Checking for stuck tasks...")
+            # 查询所有 processing 状态的任务
+            stuck_tasks = db.session.query(Task).filter(Task.status == 'processing').all()
+            
+            if stuck_tasks:
+                logger.info(f"Found {len(stuck_tasks)} stuck tasks, resuming...")
+                for task in stuck_tasks:
+                    # 使用 spawn 启动恢复任务
+                    self.pool.spawn(self.resume_wrapper, task.id)
+            else:
+                logger.info("No stuck tasks found.")
+
+        logger.info(f"Listening on queue: {KeyManager.QUEUE_RUNNABLE}")
+        
         worker_counter = 0
 
+        # --- 2. 主循环 ---
         # 注意：虽然这里有 app_context，但协程池中的子协程不会自动继承
         # 所以在 worker_wrapper 中也需要单独设置 app_context
         with app.app_context():
-            while True:
+            while not self.stop_signal:
                 try:
                     # 阻塞式取任务（Gevent会自动切换到其他协程）
+                    # 使用较短 timeout 以便响应 stop_signal
                     raw_task = get_redis().blpop(KeyManager.QUEUE_RUNNABLE, timeout=1)
 
                     if raw_task:
@@ -108,20 +141,38 @@ class GeventWorker:
                         self.pool.spawn(self.worker_wrapper, payload, worker_id)
 
                     # 如果池已满，Gevent会自动阻塞等待
-
+                    
                 except KeyboardInterrupt:
-                    logger.info("Shutting down gracefully...")
-                    logger.info(f"Waiting for {self.active_tasks} active tasks to complete...")
-
-                    # 等待所有任务完成
-                    self.pool.join(timeout=30)
-
-                    logger.info("Worker stopped")
+                    # 信号处理通常会捕获这个，但作为双重保障
+                    logger.info("KeyboardInterrupt received from loop")
+                    self.stop_signal = True
                     break
 
                 except Exception as e:
                     logger.error(f"Unexpected error in main loop: {str(e)}", exc_info=True)
                     gevent.sleep(1)  # 避免错误循环
+
+            # --- 3. 优雅退出 ---
+            logger.info("Worker run loop stopped. Waiting for active tasks...")
+            logger.info(f"Waiting for {self.active_tasks} active tasks to complete (timeout=30s)...")
+            
+            # 等待所有任务完成
+            self.pool.join(timeout=30)
+            
+            logger.info("Worker process exited.")
+
+    def resume_wrapper(self, task_id):
+        """恢复任务的包装器"""
+        try:
+            self.active_tasks += 1
+            # 恢复任务需要独立的 app context
+            with app.app_context():
+                from worker import resume_task
+                resume_task(task_id)
+        except Exception as e:
+            logger.error(f"Error resuming task {task_id}: {e}", exc_info=True)
+        finally:
+            self.active_tasks -= 1
 
 
 def main():
