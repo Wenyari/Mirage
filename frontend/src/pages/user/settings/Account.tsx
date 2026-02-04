@@ -52,9 +52,9 @@ export default function Account() {
     } catch (error: any) {
       console.error('Name update error:', error);
       const errorMessage = error?.response?.data?.msg ||
-                          error?.response?.data?.message ||
-                          error?.message ||
-                          '用户名更新失败，请稍后重试';
+        error?.response?.data?.message ||
+        error?.message ||
+        '用户名更新失败，请稍后重试';
       toast.error(errorMessage);
     } finally {
       setIsUpdatingName(false);
@@ -103,9 +103,9 @@ export default function Account() {
     } catch (error: any) {
       console.error('Password update error:', error);
       const errorMessage = error?.response?.data?.msg ||
-                          error?.response?.data?.message ||
-                          error?.message ||
-                          '密码输入错误，请重新输入';
+        error?.response?.data?.message ||
+        error?.message ||
+        '密码输入错误，请重新输入';
       toast.error(errorMessage);
     } finally {
       setIsUpdatingPassword(false);
@@ -144,24 +144,26 @@ export default function Account() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 头像区域 */}
-            <div className="flex items-center gap-6">
-              <Avatar className="size-20">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
+              <Avatar className="size-20 sm:size-24">
                 <AvatarImage src={currentUser.avatar} alt={currentUser.name || currentUser.email} />
-                <AvatarFallback className="text-lg">
+                <AvatarFallback className="text-lg sm:text-xl">
                   {(currentUser.name || currentUser.email || 'U').charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold">{currentUser.name || '未设置用户名'}</h3>
-                <p className="text-sm text-muted-foreground">{currentUser.email}</p>
-                <Badge variant="secondary">
-                  {currentUser.level === 1 ? 'T1' :
-                   currentUser.level === 2 ? 'T2' :
-                   currentUser.level === 3 ? 'T3' :
-                   currentUser.level === 4 ? 'T4' : 'T5'} 会员
-                </Badge>
-                <div className="text-sm text-muted-foreground">
-                  注册时间: {new Date(currentUser.created_at).toLocaleDateString('zh-CN')}
+                <h3 className="text-lg sm:text-xl font-semibold">{currentUser.name || '未设置用户名'}</h3>
+                <p className="text-sm text-muted-foreground break-all">{currentUser.email}</p>
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <Badge variant="secondary">
+                    {currentUser.level === 1 ? 'T1' :
+                      currentUser.level === 2 ? 'T2' :
+                        currentUser.level === 3 ? 'T3' :
+                          currentUser.level === 4 ? 'T4' : 'T5'} 会员
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    注册于: {new Date(currentUser.created_at).toLocaleDateString('zh-CN')}
+                  </span>
                 </div>
               </div>
             </div>

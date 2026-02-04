@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { AlertCircle, ChevronLeft, ChevronRight, Coins, FilePlus, History, Loader2, Lock, Play, Trash2, XCircle } from 'lucide-react';
-import { useEffect, useMemo,useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -315,7 +315,7 @@ export default function VideoGeneration() {
         if (lastFrameUrl) inputFileUrls.push(lastFrameUrl);
       }
       else if (supportsMulti()) {
-        if(referenceImageUrl) {
+        if (referenceImageUrl) {
           inputFileUrls = [...referenceImageUrl];
         }
       }
@@ -642,11 +642,11 @@ export default function VideoGeneration() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
-      {/* 历史记录侧边栏 */}
+    <div className="flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100vh-3.5rem)] md:flex-row overflow-hidden">
+      {/* 历史记录侧边栏 - Desktop Only */}
       <div
         className={cn(
-          "flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
+          "hidden md:flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
           isHistoryOpen ? "w-[300px]" : "w-0 opacity-0 overflow-hidden"
         )}
       >
@@ -750,9 +750,9 @@ export default function VideoGeneration() {
         </ScrollArea>
       </div>
 
-      {/* 展开历史记录按钮 (当侧边栏关闭时显示) */}
+      {/* 展开历史记录按钮 (当侧边栏关闭时显示) - Desktop Only */}
       {!isHistoryOpen && (
-        <div className="absolute left-4 top-20 z-10">
+        <div className="absolute left-4 top-20 z-10 hidden md:block">
           <Button
             variant="outline"
             size="icon"
@@ -765,11 +765,18 @@ export default function VideoGeneration() {
       )}
 
       {/* 主内容区域 */}
-      <div className={cn("flex flex-1 gap-6 overflow-hidden p-6", !isHistoryOpen && "pl-16")}>
+      <div className={cn(
+        "flex flex-1 flex-col md:flex-row gap-6 overflow-y-auto md:overflow-hidden p-4 md:p-6",
+        !isHistoryOpen && "md:pl-16"
+      )}>
         {/* 中间配置区 */}
-        <div className="flex w-[400px] shrink-0 flex-col gap-6">
-          <h2 className="text-xl font-bold">Generate Video</h2>
-          <div className="flex-1 space-y-4 overflow-y-auto pb-6 pl-1 pr-4">
+        <div className="flex w-full md:w-[400px] shrink-0 flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold">Generate Video</h2>
+            {/* Mobile History Button Placeholder */}
+          </div>
+
+          <div className="flex-1 space-y-4 overflow-visible md:overflow-y-auto pb-6 pl-1 pr-1 md:pr-4">
 
             <div className="space-y-2">
               <Label>模型</Label>
@@ -890,7 +897,7 @@ export default function VideoGeneration() {
         </div>
 
         {/* 右侧预览区 */}
-        <div className="flex min-w-[480px] flex-1 flex-col items-start overflow-y-auto rounded-xl border border-dashed bg-background p-6">
+        <div className="flex w-full md:min-w-[480px] flex-1 flex-col items-start overflow-visible md:overflow-y-auto rounded-xl border border-dashed bg-background p-4 md:p-6 min-h-[300px]">
           <div className="mx-auto w-full max-w-3xl space-y-6">
             {!taskStatus ? (
               <div className="flex h-[60vh] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">

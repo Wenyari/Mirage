@@ -165,19 +165,19 @@ export default function Credits() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col-reverse md:flex-row items-stretch justify-between gap-4">
         <div className="flex-1">
-          <Card className="p-6">
+          <Card className="p-6 h-full">
             <h3 className="mb-2 flex items-center gap-2 font-semibold">
               <CreditCard className="size-5 text-primary" />
               充值积分
             </h3>
             <Button onClick={() => setPurchaseOpen(true)}>立即充值</Button>
             <Dialog open={purchaseOpen} onOpenChange={setPurchaseOpen}>
-              <DialogContent className="w-[95vw] max-w-6xl">
+              <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] overflow-y-auto">
                 <DialogTitle>选择充值套餐</DialogTitle>
                 <DialogDescription>请选择适合你的充值包。</DialogDescription>
-                <div className="mt-4 grid grid-cols-4 gap-6">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   {[
                     {
                       title: '体验包（一个月）',
@@ -202,7 +202,7 @@ export default function Credits() {
                   ].map((pkg) => (
                     <div
                       key={pkg.title}
-                      className="relative flex min-w-[260px] flex-col justify-between rounded-xl border p-6 text-center"
+                      className="relative flex min-w-0 flex-col justify-between rounded-xl border p-4 md:p-6 text-center"
                     >
 
                       <div>
@@ -259,8 +259,8 @@ export default function Credits() {
             </Dialog>
           </Card>
         </div>
-        <div className="w-64">
-          <Card className="p-4">
+        <div className="w-full md:w-64">
+          <Card className="p-4 h-full">
             <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
               <Wallet className="size-4" />
               当前积分余额
@@ -326,37 +326,36 @@ export default function Credits() {
           <History className="size-5 text-gray-500" />
           最近交易
         </h4>
-        <ScrollArea className="h-48">
-          {transactions.filter((t) => t.type === 'recharge').length === 0 ? (
-            <div className="text-muted-foreground">暂无充值记录</div>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="text-left">
-                  <th>日期</th>
-                  <th>类型</th>
-                  <th>积分</th>
-                  <th>说明</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions
-                  .filter((t) => t.type === 'recharge')
-                  .map((t) => (
-                    <tr key={t.id}>
-                      <td>{t.created_at}</td>
-                      <td>
-                        {t.type}
-                        {t.balance_type && <span className="ml-1 text-xs text-gray-500">({t.balance_type})</span>}
-                      </td>
-                      <td>{t.amount}</td>
-                      <td>{t.remark || t.reason || '-'}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+        <div className="h-48 w-full overflow-auto rounded-md border">
+          <table className="w-full min-w-[500px]">
+            <thead>
+              <tr className="text-left bg-muted/50 sticky top-0">
+                <th className="p-2 whitespace-nowrap">日期</th>
+                <th className="p-2 whitespace-nowrap">类型</th>
+                <th className="p-2 whitespace-nowrap">积分</th>
+                <th className="p-2 whitespace-nowrap">说明</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions
+                .filter((t) => t.type === 'recharge')
+                .map((t) => (
+                  <tr key={t.id} className="border-t">
+                    <td className="p-2 whitespace-nowrap">{t.created_at}</td>
+                    <td className="p-2 whitespace-nowrap">
+                      {t.type}
+                      {t.balance_type && <span className="ml-1 text-xs text-gray-500">({t.balance_type})</span>}
+                    </td>
+                    <td className="p-2 whitespace-nowrap">{t.amount}</td>
+                    <td className="p-2 whitespace-nowrap">{t.remark || t.reason || '-'}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+          {transactions.filter((t) => t.type === 'recharge').length === 0 && (
+            <div className="p-4 text-center text-sm text-muted-foreground">暂无充值记录</div>
           )}
-        </ScrollArea>
+        </div>
       </Card>
     </div>
   );

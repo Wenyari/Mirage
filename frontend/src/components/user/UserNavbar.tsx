@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, ChevronDown, Clock, Coins, CreditCard, Crown, LogOut, QrCode, Settings, User as UserIcon, Wallet, Wifi, Zap } from 'lucide-react';
+import { Bell, ChevronDown, Clock, Coins, CreditCard, Crown, LogOut, Menu, QrCode, Settings, User as UserIcon, Wallet, Wifi, Zap } from 'lucide-react';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AnnouncementNotifier } from '@/components/user/AnnouncementNotifier';
 import { USER_NAVIGATION } from '@/config/user-navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -86,6 +87,121 @@ export function UserNavbar() {
             <img src={Logo} alt="GoGen Logo" className="size-8" />
             <span className="hidden text-xl font-bold sm:inline-block">GoGen</span>
           </Link>
+        </div>
+
+        {/* Mobile Menu Trigger & Logo */}
+        <div className="flex items-center md:hidden mr-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="size-6" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[80vw] sm:w-[350px] p-0">
+              <div className="flex flex-col h-full bg-background">
+                <div className="flex items-center px-6 py-4 border-b">
+                  <img src={Logo} alt="GoGen Logo" className="size-8 mr-2" />
+                  <span className="text-xl font-bold">GoGen</span>
+                </div>
+                <div className="flex-1 overflow-auto py-4">
+                  <div className="px-4 space-y-2">
+                    <Link
+                      to={USER_NAVIGATION.MODEL_SQUARE.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => { }}
+                    >
+                      {USER_NAVIGATION.MODEL_SQUARE.label}
+                    </Link>
+
+                    <div className="pt-2 pb-1 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {USER_NAVIGATION.EXPLORE.label}
+                    </div>
+                    <Link
+                      to={USER_NAVIGATION.EXPLORE.children.PROMPTS.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.EXPLORE.children.PROMPTS.label}
+                    </Link>
+                    <Link
+                      to={USER_NAVIGATION.EXPLORE.children.AGENTS.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.EXPLORE.children.AGENTS.label}
+                    </Link>
+                    <Link
+                      to={USER_NAVIGATION.EXPLORE.children.WORKFLOWS.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.EXPLORE.children.WORKFLOWS.label}
+                    </Link>
+
+                    <div className="pt-2 pb-1 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {USER_NAVIGATION.PLAYGROUND.label}
+                    </div>
+                    <Link
+                      to={USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.label}
+                    </Link>
+                    <Link
+                      to={USER_NAVIGATION.PLAYGROUND.children.IMAGE_GENERATION.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.PLAYGROUND.children.IMAGE_GENERATION.label}
+                    </Link>
+
+                    <div className="pt-2 pb-1 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {USER_NAVIGATION.MORE.label}
+                    </div>
+                    <Link
+                      to={USER_NAVIGATION.MORE.children.UPDATES.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.MORE.children.UPDATES.label}
+                    </Link>
+                    <Link
+                      to={USER_NAVIGATION.MORE.children.EVENTS.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.MORE.children.EVENTS.label}
+                    </Link>
+                    <Link
+                      to={USER_NAVIGATION.MORE.children.COMMUNITY.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.MORE.children.COMMUNITY.label}
+                    </Link>
+                    <Link
+                      to={USER_NAVIGATION.SETTINGS.children.CREDITS.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground mt-2"
+                    >
+                      {USER_NAVIGATION.CREDIT.label}
+                    </Link>
+                  </div>
+                </div>
+                <div className="p-4 border-t">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => setQrDialogOpen(true)}
+                  >
+                    <QrCode className="mr-2 size-4" />
+                    联系我们
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <Link to="/" className="flex items-center space-x-2">
+            <img src={Logo} alt="GoGen Logo" className="size-8" />
+            <span className="font-bold sm:inline-block">GoGen</span>
+          </Link>
+        </div>
+
+        {/* Desktop Nav Items */}
+        <div className="hidden md:flex items-center mr-4">
           <div className="flex items-center space-x-1">
             {/* Model Square */}
             <Link
@@ -151,18 +267,6 @@ export function UserNavbar() {
                 sideOffset={4}
               >
                 <div className="py-1">
-                  {/* <Link
-                    to={USER_NAVIGATION.PLAYGROUND.path}
-                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                  >
-                    {USER_NAVIGATION.PLAYGROUND.label}
-                  </Link>
-                  <Link
-                    to={USER_NAVIGATION.PLAYGROUND.children.CHAT.path}
-                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                  >
-                    {USER_NAVIGATION.PLAYGROUND.children.CHAT.label}
-                  </Link> */}
                   <Link
                     to={USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.path}
                     className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
@@ -239,6 +343,7 @@ export function UserNavbar() {
             </Button>
           </div>
         </div>
+
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
             {/* 搜索框占位 */}
@@ -472,4 +577,3 @@ function UserStatsIndicator() {
     </HoverCard>
   );
 }
-

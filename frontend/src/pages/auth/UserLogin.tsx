@@ -76,7 +76,7 @@ export default function UserLogin() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-muted/40 px-4 py-8">
+    <div className="flex min-h-[calc(100dvh-3.5rem)] items-center justify-center bg-muted/40 px-4 py-8">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <div className="mb-2 flex justify-center">
