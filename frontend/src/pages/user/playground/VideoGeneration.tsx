@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 import type { ModelOption, TaskHistoryItem, TaskHistoryResponse, TaskResponse, TaskStatusResponse } from '@/services/tasks';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { taskService } from '@/services/tasks';
 
 export default function VideoGeneration() {
@@ -641,8 +642,132 @@ export default function VideoGeneration() {
     models.some(m => m.key === item.model)
   );
 
+  const HistoryList = () => (
+    <div className="flex flex-col gap-3">
+      {(!filteredHistory || filteredHistory.length === 0) ? (
+        <div className="py-8 text-center text-sm text-muted-foreground">
+          暂无相关记录
+        </div>
+      ) : (
+        filteredHistory.map((item) => (
+          <div
+            key={item.id}
+            onClick={() => handleSelectTask(item)}
+            className={cn(
+              "group relative w-full cursor-pointer overflow-hidden rounded-xl border-[1.5px] p-4 transition-all duration-200 ease-in-out",
+              "bg-[#f2f3f7]",
+              "hover:border-[#1677ff]",
+              taskId === item.id ? "border-[#1677ff]" : "border-[#f2f3f7]"
+            )}
+          >
+            {/* Delete Button */}
+            {['success', 'failed', 'cancelled'].includes(item.status) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-2 z-20 size-6 rounded-md bg-white opacity-0 shadow-sm transition-opacity hover:bg-red-100 group-hover:opacity-100"
+                onClick={(e) => handleDeleteTask(e, item)}
+              >
+                <Trash2 className="size-3 text-red-500" />
+              </Button>
+            )}
+
+            <div className="relative z-10 flex gap-3">
+              <div className="pt-1.5">
+                <div className={cn(
+                  "size-2.5 rounded-full",
+                  item.status === 'success' && "bg-green-500",
+                  item.status === 'failed' && "bg-red-500",
+                  item.status === 'pending' && "bg-yellow-500",
+                  item.status === 'processing' && "bg-blue-500",
+                  item.status === 'cancelled' && "bg-gray-400"
+                )} />
+              </div>
+              <div className="flex flex-1 flex-col gap-1 pr-16">
+                <div className="text-sm text-[#333]">
+                  <span className="font-semibold text-black">{item.model}</span>
+                  {/* 对于视频任务，如果有prefix且支持frames，剥离prefix显示 */}
+                  <p className="mt-1 line-clamp-2 text-xs text-[#555]">
+                    {item.prompt ? stripImagePrefix(item.prompt) : ''}
+                  </p>
+                </div>
+
+                <p className="text-xs text-[#777]">
+                  {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: zhCN })}
+                </p>
+              </div>
+            </div>
+
+            {/* 视频缩略图 */}
+            {item.status === 'success' && (item.thumbnail_url || item.result_url) && (
+              <div className="absolute inset-y-0 right-0 w-28">
+                {/* 优先显示缩略图，视频结果也可作为封面(取决于浏览器支持) */}
+                {(item.thumbnail_url || (item.result_url && item.result_url.match(/\.(jpg|jpeg|png|gif|webp)$/i))) ? (
+                  <img
+                    src={item.thumbnail_url || item.result_url}
+                    className="size-full object-cover"
+                    alt=""
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <video
+                    src={item.result_url}
+                    className="size-full object-cover"
+                    muted
+                    preload="metadata"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#f2f3f7] to-transparent" />
+                {/* Play Icon Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-50">
+                  <Play className="size-8 fill-white text-white drop-shadow-md" />
+                </div>
+              </div>
+            )}
+          </div>
+        ))
+      )}
+    </div>
+  );
+
   return (
-    <div className="flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100vh-3.5rem)] md:flex-row overflow-hidden">
+    <div className="flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100vh-3.5rem)] md:flex-row overflow-hidden relative">
+      {/* Mobile History Sheet Button (Only visible on mobile) */}
+      <div className="md:hidden absolute top-4 right-4 z-40">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2 bg-background/80 backdrop-blur-sm shadow-sm">
+              <History className="size-4" />
+              历史记录
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[85vw] sm:w-[350px] p-0 flex flex-col">
+            <div className="flex flex-col border-b">
+              <div className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-2">
+                  <History className="size-5 text-muted-foreground" />
+                  <div className="flex flex-col">
+                    <h3 className="font-semibold leading-none">历史记录</h3>
+                    <span className="text-[10px] text-muted-foreground">最多保存3天！</span>
+                  </div>
+                </div>
+              </div>
+              <div className="px-4 pb-3">
+                <Button variant="outline" className="w-full" onClick={handleNewTask}>
+                  <FilePlus className="mr-2 size-4" />
+                  New
+                </Button>
+              </div>
+            </div>
+            <ScrollArea className="flex-1 p-4">
+              <HistoryList />
+            </ScrollArea>
+          </SheetContent>
+        </Sheet>
+      </div>
+
       {/* 历史记录侧边栏 - Desktop Only */}
       <div
         className={cn(
@@ -656,7 +781,7 @@ export default function VideoGeneration() {
               <History className="size-5 text-muted-foreground" />
               <div className="flex flex-col">
                 <h3 className="font-semibold leading-none">历史记录</h3>
-                <span className="text-[10px] text-muted-foreground">最多保存3天！</span>
+                <span className="text-[10px] text-muted-foreground">最多保存3天！图片仅1天，请尽快保存！</span>
               </div>
             </div>
             <Button variant="ghost" size="icon" className="size-8" onClick={() => setIsHistoryOpen(false)}>
@@ -675,78 +800,7 @@ export default function VideoGeneration() {
           </div>
         </div>
         <ScrollArea className="flex-1 p-4">
-          <div className="flex flex-col gap-3">
-            {(!filteredHistory || filteredHistory.length === 0) ? (
-              <div className="py-8 text-center text-sm text-muted-foreground">
-                暂无相关记录
-              </div>
-            ) : (
-              filteredHistory.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => handleSelectTask(item)}
-                  className={cn(
-                    "group relative w-full cursor-pointer overflow-hidden rounded-xl border-[1.5px] p-4 transition-all duration-200 ease-in-out",
-                    "bg-[#f2f3f7]",
-                    "hover:border-[#1677ff]",
-                    taskId === item.id ? "border-[#1677ff]" : "border-[#f2f3f7]"
-                  )}
-                >
-                  {/* Delete Button */}
-                  {['success', 'failed', 'cancelled'].includes(item.status) && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-2 top-2 z-20 size-6 rounded-md bg-white opacity-0 shadow-sm transition-opacity hover:bg-red-100 group-hover:opacity-100"
-                      onClick={(e) => handleDeleteTask(e, item)}
-                    >
-                      <Trash2 className="size-3 text-red-500" />
-                    </Button>
-                  )}
-
-                  <div className="relative z-10 flex gap-3">
-                    <div className="pt-1.5">
-                      <div className={cn(
-                        "size-2.5 rounded-full",
-                        item.status === 'success' && "bg-green-500",
-                        item.status === 'failed' && "bg-red-500",
-                        item.status === 'pending' && "bg-yellow-500",
-                        item.status === 'processing' && "bg-blue-500",
-                        item.status === 'cancelled' && "bg-gray-400"
-                      )} />
-                    </div>
-                    <div className="flex flex-1 flex-col gap-1 pr-16">
-                      <div className="text-sm text-[#333]">
-                        <span className="font-semibold text-black">{item.model}</span>
-                        <p className="mt-1 line-clamp-2 text-xs text-[#555]">{stripImagePrefix(item.prompt)}</p>
-                      </div>
-
-                      <p className="text-xs text-[#777]">
-                        {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: zhCN })}
-                      </p>
-                    </div>
-                  </div>
-
-                  {item.status === 'success' && (item.thumbnail_url || item.result_url) && (
-                    <div className="absolute inset-y-0 right-0 w-28">
-                      {item.thumbnail_url ? (
-                        <img src={item.thumbnail_url} className="size-full object-cover" alt="" />
-                      ) : (
-                        <video
-                          src={`${item.result_url}#t=0.1`}
-                          className="size-full object-cover"
-                          muted
-                          playsInline
-                          preload="metadata"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#f2f3f7] to-transparent" />
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
+          <HistoryList />
         </ScrollArea>
       </div>
 
