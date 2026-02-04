@@ -14,9 +14,9 @@ export default function Home() {
       <BackgroundExplosions />
       
       {/* 3D Cube Title Area */}
-      <div className="z-10 mb-16 mt-8 scale-[0.6] sm:scale-[0.8] md:scale-100">
+      {/* <div className="z-10 mb-16 mt-8 scale-[0.6] sm:scale-[0.8] md:scale-100">
         <ThreeDCubeTitle />
-      </div>
+      </div> */}
       
       {/* Slogan and Action Area */}
       <div className="z-10 max-w-4xl space-y-8 px-4 text-center duration-1000 animate-in fade-in slide-in-from-bottom-8 fill-mode-backwards">
