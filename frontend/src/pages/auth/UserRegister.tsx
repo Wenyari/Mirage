@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import Turnstile from '@/components/auth/Turnstile';
+import GeetestCaptcha from '@/components/auth/GeetestCaptcha';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { USER_NAVIGATION } from '@/config/user-navigation';
-import { authService } from '@/services/auth';
+import { authService, GeetestParams } from '@/services/auth';
 
 export default function UserRegister() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ export default function UserRegister() {
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState('');
+  const [geetestParams, setGeetestParams] = useState<GeetestParams | null>(null);
   const [registerCountdown, setRegisterCountdown] = useState(0);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function UserRegister() {
       return;
     }
 
-    if (!turnstileToken) {
+    if (!geetestParams) {
       toast.error('请完成人机验证');
       return;
     }
@@ -54,7 +54,10 @@ export default function UserRegister() {
 
     try {
       setIsSendingCode(true);
-      await authService.sendCode({ email, cf_token: turnstileToken });
+      await authService.sendCode({
+        email,
+        ...geetestParams
+      });
       toast.success('验证码已发送，请查收邮箱');
 
       // 开始倒计时
@@ -70,7 +73,7 @@ export default function UserRegister() {
       }, 1000);
     } catch (error: any) {
       toast.error(error.data.msg || '发送验证码失败');
-      setTurnstileToken('');
+      setGeetestParams(null); // 重置验证码
     } finally {
       setIsSendingCode(false);
     }
@@ -139,20 +142,17 @@ export default function UserRegister() {
                   variant="secondary"
                   className="w-28 px-0 font-medium"
                   onClick={handleSendCode}
-                  disabled={isSendingCode || countdown > 0 || !turnstileToken}
+                  disabled={isSendingCode || countdown > 0 || !geetestParams}
                 >
                   {countdown > 0 ? `${countdown}s` : (isSendingCode ? '发送中' : '获取验证码')}
                 </Button>
               </div>
 
-              {/* Turnstile 放置在邮箱输入框下方，作为一个验证步骤 */}
+              {/* Geetest 放置在邮箱输入框下方，作为一个验证步骤 */}
               <div className="flex justify-center py-2">
-                <Turnstile
-                  siteKey="0x4AAAAAACLyBsB9XmANf9ns"
-                  theme="light"
-                  onVerify={(token) => setTurnstileToken(token)}
-                  onExpire={() => setTurnstileToken('')}
-                  onError={() => setTurnstileToken('')}
+                <GeetestCaptcha
+                  onVerify={(params) => setGeetestParams(params)}
+                  onError={() => setGeetestParams(null)}
                 />
               </div>
             </div>

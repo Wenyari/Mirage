@@ -5,7 +5,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.utils.auth import jwt_and_redis_required
-from app.utils.turnstile import verify_turnstile
+from app.utils.geetest import verify_geetest
 # avoid name collision with route function 'send_verify_code'
 from app.services import send_verify_code as send_verify_code_service, register_user, login_user
 from app.services.auth_service import get_online_users_count, get_user_level_stats
@@ -18,24 +18,34 @@ def send_verify_code():
     """
     发送邮箱验证码
     POST /api/auth/code
-    Body: {"email": "user@example.com", "cf_token": "TURNSTILE_TOKEN_STRING"}
+    Body: {
+        "email": "user@example.com", 
+        "lot_number": "...", 
+        "captcha_output": "...", 
+        "pass_token": "...", 
+        "gen_time": "..."
+    }
     """
     try:
         data = request.get_json(silent=True) or {}
         # 支持 JSON body 或 query string 两种方式传参
         email = data.get('email') or request.args.get('email')
-        cf_token = data.get('cf_token') or request.args.get('cf_token')
+        
+        # Geetest 参数
+        lot_number = data.get('lot_number') or request.args.get('lot_number')
+        captcha_output = data.get('captcha_output') or request.args.get('captcha_output')
+        pass_token = data.get('pass_token') or request.args.get('pass_token')
+        gen_time = data.get('gen_time') or request.args.get('gen_time')
 
         if not email:
             return jsonify({"code": 400, "msg": "Email is required", "data": None}), 400
 
-        if not cf_token:
-            return jsonify({"code": 400, "msg": "Captcha token is required", "data": None}), 400
+        if not all([lot_number, captcha_output, pass_token, gen_time]):
+            return jsonify({"code": 400, "msg": "Captcha parameters are incomplete", "data": None}), 400
 
-        # 验证 Cloudflare Turnstile Token
-        user_ip = request.remote_addr
-        if not verify_turnstile(cf_token, user_ip):
-            current_app.logger.warning(f"Turnstile verification failed for {email} from IP {user_ip}")
+        # 验证 Geetest Token
+        if not verify_geetest(lot_number, captcha_output, pass_token, gen_time):
+            current_app.logger.warning(f"Geetest verification failed for {email}")
             return jsonify({"code": 400, "msg": "Captcha verification failed", "data": None}), 400
 
         try:
@@ -107,7 +117,14 @@ def login():
     """
     用户登录
     POST /api/auth/login
-    Body: {"email": "...", "password": "...", "cf_token": "TURNSTILE_TOKEN_STRING"}
+    Body: {
+        "email": "...", 
+        "password": "...", 
+        "lot_number": "...", 
+        "captcha_output": "...", 
+        "pass_token": "...", 
+        "gen_time": "..."
+    }
     """
     try:
         # 支持JSON body和URL参数两种方式
@@ -118,18 +135,22 @@ def login():
 
         email = data.get('email')
         password = data.get('password')
-        cf_token = data.get('cf_token')
+        
+        # Geetest 参数
+        lot_number = data.get('lot_number')
+        captcha_output = data.get('captcha_output')
+        pass_token = data.get('pass_token')
+        gen_time = data.get('gen_time')
 
         if not all([email, password]):
             return jsonify({"code": 400, "msg": "Email and password are required", "data": None}), 400
 
-        if not cf_token:
-            return jsonify({"code": 400, "msg": "Captcha token is required", "data": None}), 400
+        if not all([lot_number, captcha_output, pass_token, gen_time]):
+            return jsonify({"code": 400, "msg": "Captcha parameters are incomplete", "data": None}), 400
 
-        # 验证 Cloudflare Turnstile Token
-        user_ip = request.remote_addr
-        if not verify_turnstile(cf_token, user_ip):
-            current_app.logger.warning(f"Turnstile verification failed for login attempt from IP {user_ip}")
+        # 验证 Geetest Token
+        if not verify_geetest(lot_number, captcha_output, pass_token, gen_time):
+            current_app.logger.warning(f"Geetest verification failed for login attempt {email}")
             return jsonify({"code": 400, "msg": "Captcha verification failed", "data": None}), 400
 
         # 使用服务层登录逻辑（验证数据库并生成 token）

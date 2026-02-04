@@ -3,9 +3,16 @@ import { AuthUser } from '@/store/authStore';
 import { ApiResponse } from '@/types/api';
 
 // Request Types
-export interface SendCodeRequest {
+export interface GeetestParams {
+  lot_number: string;
+  captcha_output: string;
+  pass_token: string;
+  gen_time: string;
+}
+
+export interface SendCodeRequest extends Partial<GeetestParams> {
   email: string;
-  cf_token: string;
+  // cf_token: string; // Removed
 }
 
 export interface RegisterRequest {
@@ -14,10 +21,10 @@ export interface RegisterRequest {
   password: string;
 }
 
-export interface LoginRequest {
+export interface LoginRequest extends Partial<GeetestParams> {
   email: string;
   password: string;
-  cf_token: string;
+  // cf_token: string; // Removed
 }
 
 // Response Types
