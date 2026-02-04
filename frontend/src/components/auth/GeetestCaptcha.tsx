@@ -27,6 +27,7 @@ const GeetestCaptcha = ({ onVerify, onError }: GeetestCaptchaProps) => {
 
     // 加载 gt4.js 脚本
     useEffect(() => {
+        // @ts-ignore
         if (window.initGeetest) {
             setIsScriptLoaded(true);
             return;
@@ -74,9 +75,11 @@ const GeetestCaptcha = ({ onVerify, onError }: GeetestCaptchaProps) => {
 
             if (!initFn) {
                 // 调试日志：打印所有相关全局变量，仅在第一次失败时打印
+                // @ts-ignore
                 if (!window['__logged_geetest_debug']) {
                     const keys = Object.keys(window).filter(k => k.toLowerCase().includes('geetest'));
                     console.log('[Geetest] Debug - Available keys:', keys);
+                    // @ts-ignore
                     window['__logged_geetest_debug'] = true;
                 }
                 return false;
@@ -151,7 +154,7 @@ const GeetestCaptcha = ({ onVerify, onError }: GeetestCaptchaProps) => {
         };
     }, [isScriptLoaded, onVerify, onError]);
 
-    return <div ref={containerRef} className="w-full min-h-[44px]" />;
+    return <div ref={containerRef} className="min-h-[44px] w-full" />;
 };
 
 export default GeetestCaptcha;
