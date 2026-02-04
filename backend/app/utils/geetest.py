@@ -53,25 +53,30 @@ def verify_geetest(lot_number: str, captcha_output: str, pass_token: str, gen_ti
         "captcha_output": captcha_output,
         "pass_token": pass_token,
         "gen_time": gen_time,
-        "sign_token": sign_token
+        "sign_token": sign_token,
+        "captcha_id": captcha_id  # 必需参数
     }
 
     # 4. 发送验证请求
     try:
+        current_app.logger.info(f"Sending Geetest validation request. lot_number: {lot_number}, captcha_id_configured: {bool(captcha_id)}, captcha_key_configured: {bool(captcha_key)}")
+        
         response = requests.post(api_server, params=query, timeout=5)
         
         if response.status_code != 200:
-            current_app.logger.error(f"Geetest API error: {response.status_code}")
+            current_app.logger.error(f"Geetest API error: {response.status_code} - {response.text}")
             return False
 
         result = response.json()
+        current_app.logger.info(f"Geetest API response: {result}")
         
         # result: {"result": "success", "reason": "", "captcha_args": {...}}
         if result.get('result') == 'success':
             current_app.logger.info(f"Geetest verification passed for lot_number: {lot_number}")
             return True
         else:
-            current_app.logger.warning(f"Geetest verification failed: {result.get('reason')} (lot: {lot_number})")
+            reason = result.get('reason')
+            current_app.logger.warning(f"Geetest verification failed: {reason} (lot: {lot_number}). Full response: {result}")
             return False
 
     except Exception as e:
