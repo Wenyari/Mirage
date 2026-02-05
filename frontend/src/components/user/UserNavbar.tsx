@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import Logo from '@/assets/logo.svg';
 import qqJpg from '@/assets/qq.jpg';
 import wechatJpg from '@/assets/wechat.jpg';
+import deadfishJpg from '@/assets/deadfish.jpg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -496,19 +497,27 @@ export function UserNavbar() {
         {/* This is just a placeholder if we wanted floating, but user asked for "left of announcement icon" in navbar. */}
       </div>
 
+
       {/* QR Code Dialog */}
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>联系我们</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-8 py-4">
+          <div className="grid grid-cols-3 gap-8 py-4">
             <div className="flex flex-col items-center justify-center">
               <div className="mb-2 rounded-lg border bg-white p-2">
                 <img src={wechatJpg} alt="WeChat Support" className="h-auto w-full max-w-[250px] object-contain" />
               </div>
               <p className="font-medium">客服微信</p>
               <p className="text-sm text-muted-foreground">扫码添加客服微信</p>
+            </div>
+            <div className="flex flex-col items-center justify-center">
+              <div className="mb-2 rounded-lg border bg-white p-2">
+                <img src={deadfishJpg} alt="Merchant Code" className="h-auto w-full max-w-[250px] object-contain" />
+              </div>
+              <p className="font-medium">商户码 (咸鱼)</p>
+              <p className="text-sm text-muted-foreground">扫码了解详情</p>
             </div>
             <div className="flex flex-col items-center justify-center">
               <div className="mb-2 rounded-lg border bg-white p-2">

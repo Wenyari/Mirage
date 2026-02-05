@@ -21,6 +21,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { CURRENT_USER_QUERY_KEY } from '@/hooks/useCurrentUser';
 import wechatJpg from '@/assets/wechat.jpg';
+import deadfishJpg from '@/assets/deadfish.jpg';
 
 export default function Credits() {
   const queryClient = useQueryClient();
@@ -240,15 +241,27 @@ export default function Credits() {
               </DialogContent>
             </Dialog>
 
+
             {/* 扫码支付弹窗 */}
             <Dialog open={paymentQROpen} onOpenChange={setPaymentQROpen}>
-              <DialogContent className="sm:max-w-lg">
+              <DialogContent className="sm:max-w-3xl">
                 <DialogTitle className="hidden">扫码支付</DialogTitle>
-                <DialogDescription className="text-center text-lg font-medium">
-                  请添加客服微信完成支付
+                <DialogDescription className="text-center text-lg font-medium mb-4">
+                  请添加客服微信或扫描商户码完成支付
                 </DialogDescription>
-                <div className="flex justify-center py-4">
-                  <img src={wechatJpg} alt="WeChat Pay" className="h-auto w-full max-w-[400px] object-contain" />
+                <div className="grid grid-cols-2 gap-8 py-4">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="mb-2 rounded-lg border bg-white p-2">
+                      <img src={wechatJpg} alt="WeChat Pay" className="h-auto w-full max-w-[300px] object-contain" />
+                    </div>
+                    <p className="font-medium">客服微信</p>
+                  </div>
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="mb-2 rounded-lg border bg-white p-2">
+                      <img src={deadfishJpg} alt="Merchant Code" className="h-auto w-full max-w-[300px] object-contain" />
+                    </div>
+                    <p className="font-medium">商户码 (咸鱼)</p>
+                  </div>
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
