@@ -1,8 +1,9 @@
 import { Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
-import { useEffect, useMemo,useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Card } from '@/components/ui/card';
 import api from '@/lib/api';
+import { LEVEL_COLORS } from '@/types/user';
 
 const CATEGORY_ORDER = ['text', 'image', 'video', 'other'];
 const CATEGORY_LABEL: Record<string, string> = {
@@ -16,7 +17,7 @@ function detectCategoryFromTags(tags: string[] = []): string {
   if (!tags || tags.length === 0) return 'other';
   const lower = tags.map((t) => t.toLowerCase());
   if (lower.includes('text') || lower.includes('chat')) return 'text';
-  if (lower.includes('image') ||  lower.includes('img')) return 'image';
+  if (lower.includes('image') || lower.includes('img')) return 'image';
   if (lower.includes('video')) return 'video';
   return 'other';
 }
@@ -65,6 +66,19 @@ export default function ModelPlaza() {
     return map;
   }, [models]);
 
+  const getMinTier = (tiers: string[] = []): number | null => {
+    if (!tiers || tiers.length === 0) return null;
+    let min = 999;
+    for (const t of tiers) {
+      // Extract number from "T1", "T2" etc.
+      const n = parseInt(t.replace(/\D/g, ''), 10);
+      if (!isNaN(n) && n < min) {
+        min = n;
+      }
+    }
+    return min === 999 ? null : min;
+  };
+
   return (
     <div className="p-6">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -73,81 +87,96 @@ export default function ModelPlaza() {
           <div className="text-sm text-muted-foreground">{models.length} 个模型</div>
         </div>
 
-      <div>
-        {isLoading ? (
-          <div className="text-muted-foreground">加载中...</div>
-        ) : (
-          <>
-            {CATEGORY_ORDER.map((cat) => {
-              const list = grouped[cat] || [];
-              if (list.length === 0) return null;
-              return (
-                <section key={cat} className="mb-8">
-                  <div className="mb-4 flex items-center justify-between">
-                    <h2 className="flex items-center gap-2 text-lg font-medium">
-                      {cat === 'image' ? (
-                        <ImageIcon className="size-4 text-muted-foreground" />
-                      ) : cat === 'video' ? (
-                        <VideoIcon className="size-4 text-muted-foreground" />
-                      ) : (
-                        <span className="text-muted-foreground">▢</span>
-                      )}
-                      {CATEGORY_LABEL[cat]}
-                    </h2>
-                    <div className="text-sm text-muted-foreground">{list.length} 个</div>
-                  </div>
+        <div>
+          {isLoading ? (
+            <div className="text-muted-foreground">加载中...</div>
+          ) : (
+            <>
+              {CATEGORY_ORDER.map((cat) => {
+                const list = grouped[cat] || [];
+                if (list.length === 0) return null;
+                return (
+                  <section key={cat} className="mb-8">
+                    <div className="mb-4 flex items-center justify-between">
+                      <h2 className="flex items-center gap-2 text-lg font-medium">
+                        {cat === 'image' ? (
+                          <ImageIcon className="size-4 text-muted-foreground" />
+                        ) : cat === 'video' ? (
+                          <VideoIcon className="size-4 text-muted-foreground" />
+                        ) : (
+                          <span className="text-muted-foreground">▢</span>
+                        )}
+                        {CATEGORY_LABEL[cat]}
+                      </h2>
+                      <div className="text-sm text-muted-foreground">{list.length} 个</div>
+                    </div>
 
-                  <div className="grid grid-cols-1 justify-center gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {list.map((item: any) => {
-                      const m = item.model;
-                      const cfg = item.config;
-                      // small secondary lines
-                      const line1 = cfg?.cost_per_call ? `价格：${cfg.cost_per_call} 积分` : '';
-                      const line2 = m.description || '';
-                      return (
-                        <Card
-                          key={m.key}
-                          className="flex h-28 w-full max-w-[520px] items-center gap-4 overflow-hidden rounded-xl border p-4 transition hover:shadow-md"
-                          onClick={() => (window.location.href = `/models/${m.key}`)}
-                        >
-                          <div className={`flex size-14 shrink-0 items-center justify-center rounded-md text-white ${(m.icon_url || assetMap[m.key]) ? '' : ''}`} style={{ background: (m.icon_url || assetMap[m.key]) ? 'transparent' : (m.color || '#eef2ff') }}>
-                            { (m.icon_url || assetMap[m.key]) ? (
-                              <img src={m.icon_url || assetMap[m.key]} alt={m.name} className="size-10 object-contain" />
-                            ) : (
-                              <span className="font-semibold">{(m.name || '').charAt(0).toUpperCase()}</span>
-                            )}
-                          </div>
+                    <div className="grid grid-cols-1 justify-center gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                      {list.map((item: any) => {
+                        const m = item.model;
+                        const cfg = item.config;
+                        // small secondary lines
+                        const line1 = cfg?.cost_per_call ? `价格：${cfg.cost_per_call} 积分` : '';
+                        const line2 = m.description || '';
 
-                          <div className="min-w-0 flex-1">
-                            <div className="truncate font-semibold">{m.name}</div>
-                            <div className="mt-1 truncate text-sm text-muted-foreground">{line1}</div>
-                            {line2 && (
-                              <div
-                                className="mt-1 text-sm text-muted-foreground"
-                                style={{
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                {line2}
+                        const minTier = getMinTier(cfg?.allowed_tiers);
+
+                        const tierBadge = minTier ? (
+                          <span className={`inline-flex shrink-0 items-center rounded-sm px-1.5 py-0.5 text-[10px] font-medium ${minTier === 1 ? 'bg-gray-100 text-gray-800' :
+                              minTier === 2 ? 'bg-blue-100 text-blue-800' :
+                                minTier === 3 ? 'bg-green-100 text-green-800' :
+                                  minTier === 4 ? 'bg-orange-100 text-orange-800' :
+                                    'bg-purple-100 text-purple-800'
+                            }`}>
+                            T{minTier}
+                          </span>
+                        ) : null;
+
+                        return (
+                          <Card
+                            key={m.key}
+                            className="flex h-28 w-full max-w-[520px] items-center gap-4 overflow-hidden rounded-xl border p-4 transition hover:shadow-md"
+                            onClick={() => (window.location.href = `/models/${m.key}`)}
+                          >
+                            <div className={`flex size-14 shrink-0 items-center justify-center rounded-md text-white ${(m.icon_url || assetMap[m.key]) ? '' : ''}`} style={{ background: (m.icon_url || assetMap[m.key]) ? 'transparent' : (m.color || '#eef2ff') }}>
+                              {(m.icon_url || assetMap[m.key]) ? (
+                                <img src={m.icon_url || assetMap[m.key]} alt={m.name} className="size-10 object-contain" />
+                              ) : (
+                                <span className="font-semibold">{(m.name || '').charAt(0).toUpperCase()}</span>
+                              )}
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <div className="truncate font-semibold flex-1">{m.name}</div>
+                                {tierBadge}
                               </div>
-                            )}
-                          </div>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </section>
-              );
-            })}
-          </>
-        )}
-      </div>
+                              <div className="mt-1 truncate text-sm text-muted-foreground">{line1}</div>
+                              {line2 && (
+                                <div
+                                  className="mt-1 text-sm text-muted-foreground"
+                                  style={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                  }}
+                                >
+                                  {line2}
+                                </div>
+                              )}
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-
-
