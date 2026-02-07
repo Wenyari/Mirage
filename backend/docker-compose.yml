@@ -24,21 +24,25 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis 缓存/队列
   redis:
-    image: redis:7-alpine
-    container_name: sora_redis
-    restart: always
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      image: redis:7-alpine
+      container_name: sora_redis
+      restart: always
+      # 🔴 修改点 1：只绑定到 127.0.0.1，或者直接删掉 ports 这几行
+      # 如果你不需要在电脑上用 GUI 工具连服务器 Redis，直接删掉 ports 下面两行最安全！
+      # 如果你需要连，必须写成 "127.0.0.1:6379:6379"
+      ports:
+        - "127.0.0.1:6379:6379"
+      volumes:
+        - redis_data:/data
+      # 🔴 修改点 2：设置密码 (假设密码为 sora_redis_secure_pass)
+      command: redis-server --appendonly yes --requirepass sora_redis_secure_pass
+      healthcheck:
+        # 🔴 修改点 3：健康检查也要带密码
+        test: ["CMD", "redis-cli", "-a", "sora_redis_secure_pass", "ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
 
   # Flask API 服务
   api:
@@ -52,7 +56,7 @@ services:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:sora_redis_secure_pass@redis:6379/0
     env_file:
       - .env
     depends_on:
@@ -79,7 +83,7 @@ services:
     environment:
       - FLASK_ENV=production
       - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:sora_redis_secure_pass@redis:6379/0
     env_file:
       - .env
     depends_on:
@@ -99,7 +103,7 @@ services:
     environment:
       - FLASK_ENV=production
       - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:sora_redis_secure_pass@redis:6379/0
     env_file:
       - .env
     depends_on:
