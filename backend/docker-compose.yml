@@ -50,8 +50,7 @@ services:
       --requirepass ${REDIS_PASSWORD}
       --rename-command FLUSHALL "" 
       --rename-command FLUSHDB "" 
-      --rename-command CONFIG "" 
-      --rename-command KEYS ""
+      --rename-command CONFIG ""
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
