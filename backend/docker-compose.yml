@@ -14,9 +14,9 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    # 🔒 安全修改：彻底删除 ports 映射
-    # ports:
-    #   - "3306:3306" 
+    # 🔒 安全修改：仅允许服务器本机(127.0.0.1)连接
+    ports:
+      - "127.0.0.1:3306:3306" 
     volumes:
       - mysql_data:/var/lib/mysql
     # 优化字符集配置
@@ -70,6 +70,9 @@ services:
     # 加载 .env 文件中的变量
     env_file:
       - .env
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
     depends_on:
       mysql:
         condition: service_healthy
@@ -93,6 +96,9 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
     depends_on:
       mysql:
         condition: service_healthy
@@ -111,6 +117,9 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
     depends_on:
       mysql:
         condition: service_healthy
