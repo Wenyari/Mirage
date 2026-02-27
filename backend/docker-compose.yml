@@ -1,71 +1,82 @@
 version: '3.8'
 
 services:
+  # ==========================================
   # MySQL 数据库
+  # 安全策略：不暴露端口到宿主机，仅允许容器间通信
+  # ==========================================
   mysql:
     image: mysql:8.0
     container_name: sora_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
-      MYSQL_DATABASE: sora_platform
-      MYSQL_USER: sora_user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sora_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    # 🔒 安全修改：仅允许服务器本机(127.0.0.1)连接
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306" 
     volumes:
       - mysql_data:/var/lib/mysql
-      # 注意：不使用 init.sql，改为在 API 容器启动后执行 init_db.py
-      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    # 优化字符集配置
+    command: 
+      - --character-set-server=utf8mb4 
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # ==========================================
+  # Redis 缓存/队列
+  # 安全策略：绑定到 127.0.0.1，设置强密码，禁用危险命令
+  # ==========================================
   redis:
-      image: redis:7-alpine
-      container_name: sora_redis
-      restart: always
-      # 🔴 修改点 1：只绑定到 127.0.0.1，或者直接删掉 ports 这几行
-      # 如果你不需要在电脑上用 GUI 工具连服务器 Redis，直接删掉 ports 下面两行最安全！
-      # 如果你需要连，必须写成 "127.0.0.1:6379:6379"
-      ports:
-        - "127.0.0.1:6379:6379"
-      volumes:
-        - redis_data:/data
-      # 🔴 修改点 2：设置密码 (假设密码为 sora_redis_secure_pass)
-      command: redis-server --appendonly yes --requirepass sora_redis_secure_pass
-      healthcheck:
-        # 🔴 修改点 3：健康检查也要带密码
-        test: ["CMD", "redis-cli", "-a", "sora_redis_secure_pass", "ping"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
+    image: redis:7-alpine
+    container_name: sora_redis
+    restart: always
+    # 🔒 安全修改：仅允许服务器本机(127.0.0.1)连接，禁止公网IP访问
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    # 🔒 安全修改：设置密码 + 禁用危险命令 + 开启持久化
+    command: >
+      redis-server 
+      --appendonly yes 
+      --requirepass ${REDIS_PASSWORD}
+      --rename-command FLUSHALL "" 
+      --rename-command FLUSHDB "" 
+      --rename-command CONFIG ""
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # ==========================================
   # Flask API 服务
+  # ==========================================
   api:
     build: .
     container_name: sora_api
     restart: always
     ports:
       - "5000:5000"
-    environment:
-      # 🔴 修改1：把 production 改为 development，开启 Flask 调试模式
-      - FLASK_ENV=development
-      - FLASK_DEBUG=1
-      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
-      - REDIS_URL=redis://:sora_redis_secure_pass@redis:6379/0
+    # 加载 .env 文件中的变量
     env_file:
       - .env
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
-    # 🔴 修改2：在 gunicorn 命令中加入 --reload
-    # 建议开发环境把 workers (-w) 减少到 1 或 2，避免日志太乱
     command: gunicorn --reload -w 2 -b 0.0.0.0:5000 run:app
     volumes:
       - .:/app
@@ -75,17 +86,18 @@ services:
       timeout: 10s
       retries: 3
 
+  # ==========================================
   # Gevent 异步任务 Worker
+  # ==========================================
   worker:
     build: .
     container_name: sora_worker
     restart: always
-    environment:
-      - FLASK_ENV=production
-      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
-      - REDIS_URL=redis://:sora_redis_secure_pass@redis:6379/0
     env_file:
       - .env
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
     depends_on:
       mysql:
         condition: service_healthy
@@ -95,17 +107,18 @@ services:
     volumes:
       - .:/app
 
+  # ==========================================
   # 定时任务调度器
+  # ==========================================
   scheduler:
     build: .
     container_name: sora_scheduler
     restart: always
-    environment:
-      - FLASK_ENV=production
-      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
-      - REDIS_URL=redis://:sora_redis_secure_pass@redis:6379/0
     env_file:
       - .env
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
     depends_on:
       mysql:
         condition: service_healthy
@@ -115,18 +128,22 @@ services:
     volumes:
       - .:/app
 
-  # phpMyAdmin - MySQL 数据库管理工具 (类似 XAMPP 体验)
+  # ==========================================
+  # phpMyAdmin 管理工具
+  # 安全策略：只允许通过 localhost 访问，防止后台暴力破解
+  # ==========================================
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: sora_phpmyadmin
     restart: always
+    # 🔒 安全修改：绑定 127.0.0.1，必须配合 SSH 隧道使用
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      PMA_USER: sora_user
-      PMA_PASSWORD: ${MYSQL_PASSWORD:-sora_password}
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
       UPLOAD_LIMIT: 50M
       MEMORY_LIMIT: 256M
       MAX_EXECUTION_TIME: 300

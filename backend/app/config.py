@@ -4,6 +4,7 @@ Flask Configuration
 """
 import os
 from datetime import timedelta
+from urllib.parse import quote_plus
 from dotenv import load_dotenv
 
 # 加载 .env 文件
@@ -19,8 +20,18 @@ class Config:
     DEBUG = os.getenv('FLASK_ENV') == 'development'
 
     # 数据库配置 (MySQL)
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI',
-                                        'mysql+pymysql://root:admin@localhost:3306/sora_platform?charset=utf8mb4')
+    MYSQL_HOST = os.getenv('MYSQL_HOST', 'localhost')
+    MYSQL_PORT = int(os.getenv('MYSQL_PORT', 3306))
+    MYSQL_USER = os.getenv('MYSQL_USER', 'root')
+    MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', 'admin')
+    MYSQL_DATABASE = os.getenv('MYSQL_DATABASE', 'sora_platform')
+    
+    # 自动处理密码中的特殊字符
+    if MYSQL_PASSWORD:
+        MYSQL_PASSWORD = quote_plus(MYSQL_PASSWORD)
+        
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4"
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = DEBUG  # 开发环境打印 SQL 语句
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -37,7 +48,15 @@ class Config:
     JWT_HEADER_TYPE = 'Bearer'
 
     # Redis 配置
-    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+    REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+    REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', '')
+    
+    if REDIS_PASSWORD:
+        REDIS_PASSWORD = quote_plus(REDIS_PASSWORD)
+        REDIS_URL = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0"
+    else:
+        REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 
     # 邮件配置 (SMTP)
     MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')

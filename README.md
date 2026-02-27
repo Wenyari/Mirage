@@ -181,3 +181,9 @@ sudo systemctl reload nginx
 
 1. 应该能看到前端页面。
 2. 前端发起的 `/api` 请求应该能成功返回数据。
+
+
+### 数据库迁移
+backend\migrations\add_activity_point_grants.py
+backend\migrations\add_consecutive_days_to_users.py
+
