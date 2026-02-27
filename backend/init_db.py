@@ -34,9 +34,10 @@ def init_database():
     - checkin_configs: 签到配置表
     """
     with app.app_context():
-        print("Dropping existing database tables...")
-        db.drop_all()
-        print("✓ Existing tables dropped")
+        # 已注释 db.drop_all() 以避免意外清空数据库
+        # print("Dropping existing database tables...")
+        # db.drop_all()
+        # print("✓ Existing tables dropped")
 
         print("Creating database tables...")
         db.create_all()

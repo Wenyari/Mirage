@@ -257,7 +257,7 @@ def process_task(payload):
 
         logger.info(f"Submitting task payload: {submit_payload}")
         print(submit_url, headers, submit_payload)
-        resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=300)
+        resp = requests.post(submit_url, headers=headers, json=submit_payload, timeout=600)
         print(resp)
         # 错误处理
         if resp.status_code in [401, 403]:
@@ -317,7 +317,7 @@ def process_task(payload):
 
                 # 查询状态
                 logger.debug(f"Polling status for task {task_id}")
-                check = requests.get(status_url, headers=headers, timeout=300)
+                check = requests.get(status_url, headers=headers, timeout=600)
 
                 if check.status_code >= 400:
                     logger.error(f"Status check error {check.status_code}: {check.text}")

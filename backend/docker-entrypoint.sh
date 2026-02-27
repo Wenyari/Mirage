@@ -70,7 +70,9 @@ else:
     print('no')
 " 2>/dev/null || echo "no")
 
-if [ "$TABLES_EXIST" = "no" ]; then
+if [ "$SKIP_INIT_DB" = "true" ]; then
+    echo "✓ Skipping database initialization (SKIP_INIT_DB=true is set)"
+elif [ "$TABLES_EXIST" = "no" ]; then
     echo "Database is empty, initializing..."
     python init_db.py
     echo "✓ Database initialized successfully"
