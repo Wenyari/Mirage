@@ -1,0 +1,165 @@
+{
+  "12": {
+    "inputs": {
+      "prompt_template": "CRITICAL INSTRUCTION: The first image URL is strictly for the overall composition (split into top and bottom panels), lighting, and romantic mood reference. The second image URL is the EXACT target product. You MUST replicate the earring shown in the second image with 100% anatomical accuracy and zero deviation in structure or texture.\n\nEARRING EXACT DETAILS: The target earring features \n\n{{analysis}}\n\n.\n\nSCENE SETUP: A vertical commercial jewelry promotional image split into two horizontal panels.\n\n[Top panel]: Close-up profile shot of an elegant woman's ear wearing the exact earring described above. Her hand gently holds another identical earring nearby. Fair glowing skin, natural sophisticated makeup, hair elegantly tied back in a soft loose updo. Warm morning sunlight filtering through, dreamy glow and soft flares, blurred background.\n\n[Bottom panel]: Macro still-life photography of the exact same earrings resting gracefully on [替换区：由我根据新样品气质微调的底垫材质，默认保留图1的：soft textured cream-colored linen fabric]. Warm side sunlight, distinct yet soft shadows.\n\n[Overall Style]: Photorealistic, ultra-detailed commercial jewelry photography, macro lens, true-to-life product accuracy, [替换区：由我根据新样品补充的专属氛围词，如 romantic / luxurious / minimalist], 4k resolution, --ar 3:4 --sref [固定：图1_参考图链接.jpg] --iw 2.0 --v 6.0",
+      "model_response": [
+        "32",
+        3
+      ]
+    },
+    "class_type": "GoGen_Prompt_Assembler",
+    "_meta": {
+      "title": "🧩 GoGen 提示词组装器"
+    }
+  },
+  "13": {
+    "inputs": {
+      "text": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "GoGen_Text_Output",
+    "_meta": {
+      "title": "🖨️ GoGen 文本输出"
+    }
+  },
+  "24": {
+    "inputs": {
+      "url": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "GoGen_Load_Image_URL",
+    "_meta": {
+      "title": "🌐 GoGen URL 加载图像"
+    }
+  },
+  "27": {
+    "inputs": {
+      "value": "https://pub-826107e0701d495a8c5318616ce8ac43.r2.dev/uploads/user_1/2026/03/05/63c42b95-20260305112404_9258_51.jpg"
+    },
+    "class_type": "PrimitiveString",
+    "_meta": {
+      "title": "字符串"
+    }
+  },
+  "29": {
+    "inputs": {
+      "image": "微信图片_20260305112512_9262_51.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "32": {
+    "inputs": {
+      "api_base": [
+        "35",
+        0
+      ],
+      "api_key": [
+        "36",
+        0
+      ],
+      "prompt": [
+        "34",
+        0
+      ],
+      "model": "gpt-5.2",
+      "image_url": "",
+      "temperature": 0.7,
+      "max_tokens": 4096,
+      "top_p": 1,
+      "frequency_penalty": 0,
+      "presence_penalty": 0,
+      "seed": 1083991592,
+      "image_download_timeout": 600,
+      "images": [
+        "24",
+        0
+      ]
+    },
+    "class_type": "GoGen_ChatGPT_Api",
+    "_meta": {
+      "title": "💬 GoGen ChatGPT API (无状态版)"
+    }
+  },
+  "34": {
+    "inputs": {
+      "value": "Role: 你是一位资深的珠宝设计专家与专业摄影师。\n\nTask: 请对上传图片中的耳环进行全方位的视觉分析，并输出一份极其详尽的描述文档。这份描述将用于辅助后续的 AI 绘图，请确保词汇精准、专业且无遗漏。最终输出要求：仅输出报告内容，其余文字不生成\n\n分析维度：\n主体结构与造型 (Structure & Shape):\n耳环的整体轮廓（如：耳钉、耳坠、耳环圈、流苏式、几何型等）。\n各组件的连接方式（如：硬链接、细链连接、铰链等）。\n对称性描述。\n材质与表面处理 (Materials & Finish):\n金属部分：颜色（18K金、冷银、玫瑰金）、质感（抛光镜面、拉丝磨砂、锤纹面、复古做旧）。\n镶嵌物：宝石种类（珍珠、钻石、珐琅、亚克力）、切工、透明度、光泽感。\n核心细节与纹理 (Core Details & Patterns):微观纹路（如：丝状刻痕、浮雕图案、镂空花纹）。\n镶嵌工艺（如：爪镶、包镶、密镶）。\n边缘处理（如：圆润倒角、锋利边线）。\n光影效果 (Lighting & Physics):宝石的折射表现（如：火彩、柔光、虹彩）。\n\n回复要求：\n最终回复请给出英文，禁止使用中文及其他语言。"
+    },
+    "class_type": "PrimitiveStringMultiline",
+    "_meta": {
+      "title": "字符串（多行）"
+    }
+  },
+  "35": {
+    "inputs": {
+      "value": "https://api.bltcy.ai"
+    },
+    "class_type": "PrimitiveString",
+    "_meta": {
+      "title": "字符串"
+    }
+  },
+  "36": {
+    "inputs": {
+      "value": "***REMOVED***"
+    },
+    "class_type": "PrimitiveString",
+    "_meta": {
+      "title": "字符串"
+    }
+  },
+  "38": {
+    "inputs": {
+      "api_base": [
+        "35",
+        0
+      ],
+      "api_key": [
+        "36",
+        0
+      ],
+      "prompt": [
+        "13",
+        0
+      ],
+      "mode": "img2img",
+      "model": "nano-banana-2",
+      "aspect_ratio": "2:3",
+      "image_size": "2K",
+      "response_format": "url",
+      "seed": 317097358,
+      "image1": [
+        "29",
+        0
+      ],
+      "image2": [
+        "24",
+        0
+      ]
+    },
+    "class_type": "GoGen_Nano_Banana2_Edit",
+    "_meta": {
+      "title": "🍌 GoGen Nano Banana 2 (无状态进阶版)"
+    }
+  },
+  "40": {
+    "inputs": {
+      "preview": "https://webstatic.aiproxy.vip/output/20260305/f4bb30e7-7ead-4522-b0fb-be940139eec8.jpg",
+      "previewMode": null,
+      "source": [
+        "38",
+        2
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "预览任意"
+    }
+  }
+}

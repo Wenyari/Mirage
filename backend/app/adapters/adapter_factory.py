@@ -13,16 +13,24 @@ from .default_adapter import DefaultAdapter
 logger = logging.getLogger(__name__)
 
 
-def get_adapter(api_base: str) -> ApiAdapter:
+def get_adapter(api_base: str, model: str = None) -> ApiAdapter:
     """
-    根据 API Base URL 返回对应的适配器
+    根据 API Base URL 和模型名称返回对应的适配器
 
     Args:
         api_base: API 基础 URL (如 "https://ai.t8star.cn/v2/videos/generations")
+        model: 模型名称 (如 "workflow-earing-ad")
 
     Returns:
         ApiAdapter: 对应的适配器实例
     """
+    
+    # 检查是否为特定的工作流模型
+    if model == 'workflow-earing-ad':
+        from .workflow_earing_ad_adapter import WorkflowEaringAdAdapter
+        logger.info(f"Using WorkflowEaringAdAdapter for model: {model}, API base: {api_base}")
+        return WorkflowEaringAdAdapter(api_base)
+
     # 规范化 URL
     api_base_lower = api_base.lower()
 
