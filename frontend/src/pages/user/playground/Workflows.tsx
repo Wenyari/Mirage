@@ -425,8 +425,8 @@ export default function Workflows() {
 
   return (
     <div className="flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100vh-3.5rem)] md:flex-row overflow-hidden relative">
-      {/* Mobile History Sheet Button (Only visible on mobile) */}
-      <div className="md:hidden absolute top-4 right-4 z-40">
+      {/* Mobile/iPad History Sheet Button (visible on small screens) */}
+      <div className="lg:hidden absolute top-4 right-4 z-40">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="sm" className="gap-2 bg-background/80 backdrop-blur-sm shadow-sm">
@@ -459,11 +459,11 @@ export default function Workflows() {
         </Sheet>
       </div>
 
-      {/* 历史记录侧边栏 - Desktop Only */}
+      {/* 历史记录侧边栏 - Desktop Only (lg and above) */}
       <div
         className={cn(
-          "hidden md:flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
-          isHistoryOpen ? "w-[300px]" : "w-0 opacity-0 overflow-hidden"
+          "hidden lg:flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
+          isHistoryOpen ? "w-[280px] xl:w-[300px]" : "w-0 opacity-0 overflow-hidden"
         )}
       >
         <div className="flex flex-col border-b">
@@ -497,7 +497,7 @@ export default function Workflows() {
 
       {/* 展开历史记录按钮 (当侧边栏关闭时显示) - Desktop Only */}
       {!isHistoryOpen && (
-        <div className="absolute left-4 top-20 z-10 hidden md:block">
+        <div className="absolute left-4 top-20 z-10 hidden lg:block">
           <Button
             variant="outline"
             size="icon"
@@ -511,16 +511,16 @@ export default function Workflows() {
 
       {/* 主内容区域 */}
       <div className={cn(
-        "flex flex-1 flex-col md:flex-row gap-6 overflow-y-auto md:overflow-hidden p-4 md:p-6",
-        !isHistoryOpen && "md:pl-16"
+        "flex flex-1 flex-col md:flex-row lg:flex-row gap-4 md:gap-6 overflow-y-auto md:overflow-hidden p-4 md:p-6",
+        !isHistoryOpen && "lg:pl-16"
       )}>
-        {/* 中间配置区 */}
-        <div className="flex w-full md:w-[400px] shrink-0 flex-col gap-6">
+        {/* 中间配置区 - iPad/桌面适配 */}
+        <div className="flex w-full md:w-[340px] lg:w-[360px] xl:w-[400px] shrink-0 flex-col gap-4 md:gap-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">图片处理工作流</h2>
           </div>
 
-          <div className="flex-1 space-y-4 overflow-visible md:overflow-y-auto pb-6 pl-1 pr-1 md:pr-4">
+          <div className="flex-1 space-y-3 md:space-y-4 overflow-visible md:overflow-y-auto pb-4 md:pb-6 pl-1 pr-1 md:pr-2 lg:pr-4">
             <div className="space-y-2">
               <Label>模型</Label>
               <Select value={model} onValueChange={setModel} disabled={isLoadingModels}>
@@ -589,8 +589,8 @@ export default function Workflows() {
           </div>
         </div>
 
-        {/* 右侧预览区 */}
-        <div className="flex w-full md:min-w-[480px] flex-1 flex-col items-start overflow-visible md:overflow-y-auto rounded-xl border border-dashed bg-background p-4 md:p-6 min-h-[300px]">
+        {/* 右侧预览区 - iPad/桌面适配 */}
+        <div className="flex w-full md:min-w-[400px] lg:min-w-[480px] flex-1 flex-col items-start overflow-visible md:overflow-y-auto rounded-xl border border-dashed bg-background p-4 md:p-6 min-h-[300px]">
           <div className="mx-auto w-full max-w-3xl space-y-6">
             {!taskStatus ? (
               <div className="flex h-[60vh] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/40 bg-transparent py-12">
