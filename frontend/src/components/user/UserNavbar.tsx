@@ -130,12 +130,6 @@ export function UserNavbar() {
                     >
                       {USER_NAVIGATION.EXPLORE.children.AGENTS.label}
                     </Link>
-                    <Link
-                      to={USER_NAVIGATION.EXPLORE.children.WORKFLOWS.path}
-                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
-                    >
-                      {USER_NAVIGATION.EXPLORE.children.WORKFLOWS.label}
-                    </Link>
 
                     <div className="pt-2 pb-1 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       {USER_NAVIGATION.PLAYGROUND.label}
@@ -151,6 +145,12 @@ export function UserNavbar() {
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
                     >
                       {USER_NAVIGATION.PLAYGROUND.children.IMAGE_GENERATION.label}
+                    </Link>
+                    <Link
+                      to={USER_NAVIGATION.PLAYGROUND.children.WORKFLOWS.path}
+                      className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {USER_NAVIGATION.PLAYGROUND.children.WORKFLOWS.label}
                     </Link>
 
                     <div className="pt-2 pb-1 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -241,12 +241,6 @@ export function UserNavbar() {
                   >
                     {USER_NAVIGATION.EXPLORE.children.AGENTS.label}
                   </Link>
-                  <Link
-                    to={USER_NAVIGATION.EXPLORE.children.WORKFLOWS.path}
-                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                  >
-                    {USER_NAVIGATION.EXPLORE.children.WORKFLOWS.label}
-                  </Link>
                 </div>
               </HoverCardContent>
             </HoverCard>
@@ -279,6 +273,12 @@ export function UserNavbar() {
                     className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                   >
                     {USER_NAVIGATION.PLAYGROUND.children.IMAGE_GENERATION.label}
+                  </Link>
+                  <Link
+                    to={USER_NAVIGATION.PLAYGROUND.children.WORKFLOWS.path}
+                    className="block px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {USER_NAVIGATION.PLAYGROUND.children.WORKFLOWS.label}
                   </Link>
                 </div>
               </HoverCardContent>

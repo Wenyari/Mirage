@@ -19,10 +19,6 @@ export const USER_NAVIGATION = {
         label: '智能体',
         path: '/explore/agents',
       },
-      WORKFLOWS: {
-        label: '工作流',
-        path: '/explore/workflows',
-      },
     },
   },
   PLAYGROUND: {
@@ -40,6 +36,10 @@ export const USER_NAVIGATION = {
       IMAGE_GENERATION: {
         label: '生成图片',
         path: '/playground/image',
+      },
+      WORKFLOWS: {
+        label: '工作流',
+        path: '/playground/workflows',
       },
     },
   },

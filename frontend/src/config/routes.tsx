@@ -18,7 +18,7 @@ import UserLogin from '@/pages/auth/UserLogin';
 import UserRegister from '@/pages/auth/UserRegister';
 import Agents from '@/pages/user/explore/Agents';
 import Prompts from '@/pages/user/explore/Prompts';
-import Workflows from '@/pages/user/explore/Workflows';
+import Workflows from '@/pages/user/playground/Workflows';
 import Home from '@/pages/user/Home';
 import ModelSquare from '@/pages/user/ModelSquare';
 import Community from '@/pages/user/more/Community';
@@ -132,10 +132,6 @@ export const router = createBrowserRouter([
             path: 'agents',
             element: <Agents />,
           },
-          {
-            path: 'workflows',
-            element: <Workflows />,
-          },
         ],
       },
       {
@@ -156,6 +152,10 @@ export const router = createBrowserRouter([
           {
             path: 'image',
             element: <ImageGeneration />,
+          },
+          {
+            path: 'workflows',
+            element: <Workflows />,
           },
         ],
       },
