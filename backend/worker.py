@@ -16,6 +16,9 @@ import json
 import time
 import logging
 import requests
+import itertools
+import logging
+import requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from sqlalchemy import text
@@ -36,6 +39,14 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
+
+# ComfyUI 集群轮询配置 (使用 Docker extra_hosts 中配置的 host.docker.internal 访问宿主机端口)
+COMFYUI_HOSTS = [
+    "http://host.docker.internal:8188",
+    "http://host.docker.internal:8189",
+    "http://host.docker.internal:8190"
+]
+comfyui_node_iterator = itertools.cycle(COMFYUI_HOSTS)
 
 
 def get_redis():
@@ -202,9 +213,10 @@ def process_task(payload):
     submit_endpoint = payload['api_base']  # 完整的提交端点地址
     api_key = payload['api_key']
     params = payload.get('params', {})
+    model_key = payload.get('model')
 
     # 【关键】根据 API Base 创建对应的适配器
-    adapter = get_adapter(submit_endpoint)
+    adapter = get_adapter(submit_endpoint, model=model_key)
 
     logger.info(f"Processing task {task_id} with key {key_id}")
 
@@ -244,7 +256,14 @@ def process_task(payload):
         headers = {"Authorization": f"Bearer {api_key}"}
 
         # 处理特殊情况：查询路径与提交路径不同
-        if '|' in submit_endpoint:
+        if model_key and model_key.startswith('workflow-'):
+            # 对于 ComfyUI 工作流模型，使用轮询获取下一个可用的节点
+            target_host = next(comfyui_node_iterator)
+            submit_url = f"{target_host}/prompt"
+            status_base = target_host
+            headers = {} # 本地 ComfyUI 不需要 Token
+            logger.info(f"Routed ComfyUI task {task_id} to node {target_host}")
+        elif '|' in submit_endpoint:
             submit_url, status_base = submit_endpoint.split('|')
         else:
             submit_url = submit_endpoint
@@ -549,10 +568,16 @@ def resume_task(task_id):
             
     # ------ 准备就绪，开始轮询 ------
     try:
-        adapter = get_adapter(api_base)
+        adapter = get_adapter(api_base, model=model_key)
         
         # 处理特殊情况：查询路径与提交路径不同
-        if '|' in api_base:
+        if model_key and model_key.startswith('workflow-'):
+            # 对于 ComfyUI 工作流模型，使用轮询获取下一个可用的节点
+            target_host = next(comfyui_node_iterator)
+            status_base = target_host
+            headers = {} # 本地 ComfyUI 不需要 Token
+            logger.info(f"Resumed ComfyUI task {task_id} on node {target_host}")
+        elif '|' in api_base:
             _, status_base = api_base.split('|')
         else:
             status_base = api_base

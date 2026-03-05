@@ -92,6 +92,8 @@ services:
   worker:
     build: .
     container_name: sora_worker
+    extra_hosts:
+      - "host.docker.internal:10.1.64.2"
     restart: always
     env_file:
       - .env
