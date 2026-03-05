@@ -43,7 +43,13 @@ class LconaiImageGenerationAdapter(ApiAdapter):
         elif model_pre == 'nano-banana':
             model_pre = 'gemini-2.5-flash-image'
         elif model_pre == 'nano-banana-2':
-            model_pre = 'gemini-3-pro-image-preview'
+            image_size_str = params.get('image_size', '1K')
+            if image_size_str == '1K':
+                model_pre = 'gemini-3-pro-image-preview'
+            elif image_size_str == '2K':
+                model_pre = 'gemini-3-pro-image-preview-2k'
+            elif image_size_str == '4K':
+                model_pre = 'gemini-3-pro-image-preview-4k'
             
         payload = {
             "model": model_pre,
@@ -73,7 +79,7 @@ class LconaiImageGenerationAdapter(ApiAdapter):
             if aspect_ratio in size_map:
                 payload['size'] = size_map[aspect_ratio]
                 
-        elif model_pre == 'gemini-3-pro-image-preview':
+        elif model_pre == 'gemini-3-pro-image-preview' or model_pre == 'gemini-3-pro-image-preview-2k' or model_pre == 'gemini-3-pro-image-preview-4k':
             # nano-banana-2 (gemini-3-pro-image-preview) mapping
             image_size_str = params.get('image_size', '1K')
             
