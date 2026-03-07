@@ -4,10 +4,10 @@ import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import deadfishJpg from '@/assets/deadfish.jpg';
 import Logo from '@/assets/logo.svg';
 import qqJpg from '@/assets/qq.jpg';
 import wechatJpg from '@/assets/wechat.jpg';
-import deadfishJpg from '@/assets/deadfish.jpg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,6 +21,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AnnouncementNotifier } from '@/components/user/AnnouncementNotifier';
 import { USER_NAVIGATION } from '@/config/user-navigation';
@@ -45,6 +50,7 @@ export function UserNavbar() {
   const [playgroundOpen, setPlaygroundOpen] = React.useState(false);
   const [moreOpen, setMoreOpen] = React.useState(false);
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [announcements, setAnnouncements] = React.useState<Announcement[]>([]);
 
   // 获取公告列表
@@ -92,7 +98,7 @@ export function UserNavbar() {
 
         {/* Mobile Menu Trigger & Logo */}
         <div className="flex items-center md:hidden mr-2">
-          <Sheet>
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Menu className="size-6" />
@@ -110,7 +116,7 @@ export function UserNavbar() {
                     <Link
                       to={USER_NAVIGATION.MODEL_SQUARE.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
-                      onClick={() => { }}
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.MODEL_SQUARE.label}
                     </Link>
@@ -121,12 +127,14 @@ export function UserNavbar() {
                     <Link
                       to={USER_NAVIGATION.EXPLORE.children.PROMPTS.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.EXPLORE.children.PROMPTS.label}
                     </Link>
                     <Link
                       to={USER_NAVIGATION.EXPLORE.children.AGENTS.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.EXPLORE.children.AGENTS.label}
                     </Link>
@@ -137,18 +145,21 @@ export function UserNavbar() {
                     <Link
                       to={USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.PLAYGROUND.children.VIDEO_GENERATION.label}
                     </Link>
                     <Link
                       to={USER_NAVIGATION.PLAYGROUND.children.IMAGE_GENERATION.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.PLAYGROUND.children.IMAGE_GENERATION.label}
                     </Link>
                     <Link
                       to={USER_NAVIGATION.PLAYGROUND.children.WORKFLOWS.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.PLAYGROUND.children.WORKFLOWS.label}
                     </Link>
@@ -159,24 +170,28 @@ export function UserNavbar() {
                     <Link
                       to={USER_NAVIGATION.MORE.children.UPDATES.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.MORE.children.UPDATES.label}
                     </Link>
                     <Link
                       to={USER_NAVIGATION.MORE.children.EVENTS.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.MORE.children.EVENTS.label}
                     </Link>
                     <Link
                       to={USER_NAVIGATION.MORE.children.COMMUNITY.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.MORE.children.COMMUNITY.label}
                     </Link>
                     <Link
                       to={USER_NAVIGATION.SETTINGS.children.CREDITS.path}
                       className="flex items-center px-4 py-3 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground mt-2"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {USER_NAVIGATION.CREDIT.label}
                     </Link>
@@ -186,7 +201,7 @@ export function UserNavbar() {
                   <Button
                     variant="outline"
                     className="w-full justify-start"
-                    onClick={() => setQrDialogOpen(true)}
+                    onClick={() => { setMobileMenuOpen(false); setQrDialogOpen(true); }}
                   >
                     <QrCode className="mr-2 size-4" />
                     联系我们
@@ -361,16 +376,16 @@ export function UserNavbar() {
             </Link>
 
             {isAuthenticated ? (
-              <HoverCard>
-                <HoverCardTrigger asChild>
+              <Popover>
+                <PopoverTrigger asChild>
                   <Button variant="ghost" className="relative size-8 rounded-full">
                     <Avatar className="size-8">
                       <AvatarImage src={displayUser?.avatar} alt={displayUser?.name || displayUser?.email} />
                       <AvatarFallback>{(displayUser?.name || displayUser?.email || 'U').charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-80" align="end">
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
                   <div className="flex flex-col space-y-4">
                     {/* User Info Header */}
                     <div className="flex items-center gap-4">
@@ -469,8 +484,8 @@ export function UserNavbar() {
                       </Button>
                     </div>
                   </div>
-                </HoverCardContent>
-              </HoverCard>
+                </PopoverContent>
+              </Popover>
             ) : (
               <>
                 <Link to={USER_NAVIGATION.AUTH.LOGIN.path}>
