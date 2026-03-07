@@ -58,7 +58,7 @@ export default function Workflows() {
         // 筛选包含 'image' 和 'generation' 标签的模型
         const modelsData = allModels.filter((m: ModelOption) =>
           m.tags &&
-          m.tags.includes('image') &&
+          m.tags.includes('workflow') &&
           m.tags.includes('generation')
         );
 
