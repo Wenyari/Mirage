@@ -34,6 +34,14 @@ def get_adapter(api_base: str, model: str = None) -> ApiAdapter:
     # 规范化 URL
     api_base_lower = api_base.lower()
 
+    # LnAPI 适配器
+    if 'lnapi.com' in api_base_lower:
+        # 检查是否为 LnAPI 的视频生成模型 (通过模型前缀区分)
+        if model and (model.startswith('veo') or model.startswith('grok') or model.startswith('sora')):
+            from .lnapi_video_adapter import LnapiVideoGenerationAdapter
+            logger.info(f"Using LnapiVideoGenerationAdapter for model: {model}, API base: {api_base}")
+            return LnapiVideoGenerationAdapter(api_base)
+
     # LconAI 适配器
     if 'n.lconai.com' in api_base_lower or 'lconai.com' in api_base_lower:
         if '/v1/images/generations' in api_base_lower:

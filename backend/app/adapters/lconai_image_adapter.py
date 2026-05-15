@@ -40,6 +40,10 @@ class LconaiImageGenerationAdapter(ApiAdapter):
         model_pre = task_payload.get('model', 'gpt-image-1.5')
         if model_pre == 'gpt-4o-image':
             model_pre = 'gpt-image-1.5'
+        elif model_pre == 'gpt-image-2':
+            model_pre = 'gpt-image-2'
+        elif model_pre == 'gpt-image2-pro':
+            model_pre = 'gpt-image2-pro'
         elif model_pre == 'nano-banana':
             model_pre = 'gemini-2.5-flash-image'
         elif model_pre == 'nano-banana-2':
@@ -98,6 +102,32 @@ class LconaiImageGenerationAdapter(ApiAdapter):
                 '9:16': {'1K': '768x1376', '2K': '1536x2752', '4K': '3072x5504'},
                 '16:9': {'1K': '1376x768', '2K': '2752x1536', '4K': '5504x3072'},
                 '21:9': {'1K': '1584x672', '2K': '3168x1344', '4K': '6336x2688'}
+            }
+            if aspect_ratio in size_map and image_size_str in size_map[aspect_ratio]:
+                payload['size'] = size_map[aspect_ratio][image_size_str]
+                
+        elif model_pre == 'gpt-image-2' or model_pre == 'gpt-image2-pro':
+            # gpt-image-2 和 gpt-image2-pro 的尺寸映射
+            image_size_str = params.get('image_size', '1K')
+            
+            # gpt-image-2 仅支持 1K 分辨率
+            if model_pre == 'gpt-image-2':
+                image_size_str = '1K'
+                
+            size_map = {
+                '1:1': {'1K': '1024x1024', '2K': '2048x2048', '4K': '2880x2880'},
+                '4:5': {'1K': '1024x1280', '2K': '1536x1920', '4K': '2304x2880'},
+                '5:4': {'1K': '1280x1024', '2K': '1920x1536', '4K': '2880x2304'},
+                '3:4': {'1K': '960x1280', '2K': '1536x2048', '4K': '2160x2880'},
+                '4:3': {'1K': '1280x960', '2K': '2048x1536', '4K': '2880x2160'},
+                '2:3': {'1K': '1024x1536', '2K': '1280x1920', '4K': '1920x2880'},
+                '3:2': {'1K': '1536x1024', '2K': '1920x1280', '4K': '2880x1920'},
+                '9:16': {'1K': '720x1280', '2K': '1152x2048', '4K': '2160x3840'},
+                '16:9': {'1K': '1280x720', '2K': '2048x1152', '4K': '3840x2160'},
+                '1:2': {'1K': '768x1536', '2K': '1024x2048', '4K': '1920x3840'},
+                '2:1': {'1K': '1536x768', '2K': '2048x1024', '4K': '3840x1920'},
+                '9:21': {'1K': '720x1680', '2K': '1008x2352', '4K': '1632x3808'},
+                '21:9': {'1K': '1680x720', '2K': '2352x1008', '4K': '3808x1632'}
             }
             if aspect_ratio in size_map and image_size_str in size_map[aspect_ratio]:
                 payload['size'] = size_map[aspect_ratio][image_size_str]

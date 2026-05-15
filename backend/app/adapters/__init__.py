@@ -4,6 +4,7 @@ from .t8star_video_adapter import T8StarVideoGenerationAdapter
 from .t8star_image_adapter import T8StarImageGenerationAdapter
 from .t8star_image_edit_adapter import T8StarImageEditAdapter
 from .lconai_image_adapter import LconaiImageGenerationAdapter
+from .lnapi_video_adapter import LnapiVideoGenerationAdapter
 from .default_adapter import DefaultAdapter
 from .adapter_factory import get_adapter
 
@@ -16,6 +17,7 @@ __all__ = [
     'T8StarImageGenerationAdapter',
     'T8StarImageEditAdapter',
     'LconaiImageGenerationAdapter',
+    'LnapiVideoGenerationAdapter',
     'DefaultAdapter',
     'get_adapter',
     # 向后兼容
