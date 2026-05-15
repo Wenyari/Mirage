@@ -46,7 +46,12 @@ def get_adapter(api_base: str, model: str = None) -> ApiAdapter:
     if 'n.lconai.com' in api_base_lower or 'lconai.com' in api_base_lower:
         if '/v1/images/generations' in api_base_lower:
             logger.info(f"Using LconaiImageGenerationAdapter for API base: {api_base}")
+            from .lconai_image_adapter import LconaiImageGenerationAdapter
             return LconaiImageGenerationAdapter(api_base)
+        elif '/v1/videos' in api_base_lower:
+            logger.info(f"Using LconaiVideoGenerationAdapter for API base: {api_base}")
+            from .lconai_video_adapter import LconaiVideoGenerationAdapter
+            return LconaiVideoGenerationAdapter(api_base)
 
     # T8Star 适配器 - 使用精确路径匹配
     if 'ai.t8star.cn' in api_base_lower or 't8star.cn' in api_base_lower or 'api.bltcy.ai' in api_base_lower or 'bltcy.ai' in api_base_lower:
