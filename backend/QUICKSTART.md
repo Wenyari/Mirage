@@ -53,11 +53,11 @@ curl http://localhost:5000/health
 curl http://localhost:5000/api/users/membership/plans
 ```
 
-默认管理员账号:
-- 邮箱: `admin@example.com`
-- 密码: `admin123`
+管理员账号:
+- 邮箱: 取自 `.env` 的 `ADMIN_EMAIL`
+- 密码: 取自 `.env` 的 `ADMIN_PASSWORD`
 
-⚠️ **请在首次登录后立即修改密码！**
+⚠️ **项目不含硬编码默认口令。未设置 `ADMIN_PASSWORD` 时 `init_db.py` 会直接中止初始化。**
 
 ---
 

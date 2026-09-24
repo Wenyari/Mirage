@@ -1,0 +1,86 @@
+# Nginx reference configuration for Mirage
+#
+# Serves the built frontend (SPA) and reverse-proxies /api to the backend
+# container. Copy to /etc/nginx/sites-available/mirage and replace every
+# placeholder below before use.
+#
+#   your-domain.com            -> your real domain
+#   /etc/nginx/cert/...        -> your certificate paths
+#   /var/www/mirage/frontend   -> where you uploaded frontend/dist
+#
+# The set_real_ip_from block is only needed when you sit behind Cloudflare.
+
+# 1. Force HTTP -> HTTPS
+server {
+    listen 80;
+    server_name your-domain.com www.your-domain.com;
+    return 301 https://$host$request_uri;
+}
+
+# 2. HTTPS
+server {
+    listen 443 ssl;
+    server_name your-domain.com www.your-domain.com;
+
+    ssl_certificate     /etc/nginx/cert/your-domain.com.pem;
+    ssl_certificate_key /etc/nginx/cert/your-domain.com.key;
+
+    # Generation requests may carry reference images
+    client_max_body_size 20M;
+
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    # Frontend: static SPA build output
+    location / {
+        root /var/www/mirage/frontend;
+        index index.html;
+        # Let client-side routing handle unknown paths instead of 404
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Backend: reverse proxy to the API container
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000;
+
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # --- Cloudflare only: restore the visitor's real IP ---
+    # Without this the backend sees Cloudflare edge IPs, which breaks
+    # CAPTCHA verification and any per-IP logic. Keep the list current:
+    # https://www.cloudflare.com/ips/
+
+    # IPv4
+    set_real_ip_from 173.245.48.0/20;
+    set_real_ip_from 103.21.244.0/22;
+    set_real_ip_from 103.22.200.0/22;
+    set_real_ip_from 103.31.4.0/22;
+    set_real_ip_from 141.101.64.0/18;
+    set_real_ip_from 108.162.192.0/18;
+    set_real_ip_from 190.93.240.0/20;
+    set_real_ip_from 188.114.96.0/20;
+    set_real_ip_from 197.234.240.0/22;
+    set_real_ip_from 198.41.128.0/17;
+    set_real_ip_from 162.158.0.0/15;
+    set_real_ip_from 104.16.0.0/13;
+    set_real_ip_from 104.24.0.0/14;
+    set_real_ip_from 172.64.0.0/13;
+    set_real_ip_from 131.0.72.0/22;
+
+    # IPv6
+    set_real_ip_from 2400:cb00::/32;
+    set_real_ip_from 2606:4700::/32;
+    set_real_ip_from 2803:f800::/32;
+    set_real_ip_from 2405:b500::/32;
+    set_real_ip_from 2405:8100::/32;
+    set_real_ip_from 2a06:98c0::/29;
+    set_real_ip_from 2c0f:f248::/32;
+
+    real_ip_header CF-Connecting-IP;
+}

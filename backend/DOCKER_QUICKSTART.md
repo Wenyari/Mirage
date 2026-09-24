@@ -83,7 +83,7 @@ docker-compose up -d --build
 
 # 进入容器调试
 docker-compose exec api bash
-docker-compose exec mysql mysql -u sora_user -psora_password sora_platform
+docker-compose exec mysql mysql -u sora_user -p"$MYSQL_PASSWORD" sora_platform
 ```
 
 ## 测试 API

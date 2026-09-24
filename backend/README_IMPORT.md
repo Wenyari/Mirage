@@ -74,7 +74,7 @@ curl http://localhost:5000/api/admin/ai-media-assets?page=1&page_size=10
 
 ### 3. 使用MySQL命令
 ```bash
-docker-compose exec mysql mysql -u sora_user -psora_password -e "SELECT COUNT(*) FROM sora_platform.ai_media_assets;"
+docker-compose exec mysql mysql -u sora_user -p"$MYSQL_PASSWORD" -e "SELECT COUNT(*) FROM sora_platform.ai_media_assets;"
 ```
 
 ## 常见问题
@@ -85,7 +85,7 @@ docker-compose exec mysql mysql -u sora_user -psora_password -e "SELECT COUNT(*)
 ### Q: 如何重新导入所有数据?
 **A:** 先清空表,再重新导入:
 ```bash
-docker-compose exec mysql mysql -u sora_user -psora_password -e "TRUNCATE TABLE sora_platform.ai_media_assets;"
+docker-compose exec mysql mysql -u sora_user -p"$MYSQL_PASSWORD" -e "TRUNCATE TABLE sora_platform.ai_media_assets;"
 docker-compose exec api python scripts/import_ai_media_assets.py
 ```
 

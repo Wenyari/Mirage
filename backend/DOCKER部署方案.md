@@ -129,17 +129,17 @@ services:
     container_name: mirage_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: sora_platform
       MYSQL_USER: sora_user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sora_password}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"  # 开发环境映射端口，方便 Navicat 连接
     volumes:
       - mysql_data:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -171,7 +171,7 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=production
-      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
+      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD}@mysql:3306/sora_platform?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
     env_file:
       - .env
@@ -196,7 +196,7 @@ services:
     restart: always
     environment:
       - FLASK_ENV=production
-      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
+      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD}@mysql:3306/sora_platform?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
     env_file:
       - .env
@@ -216,7 +216,7 @@ services:
     restart: always
     environment:
       - FLASK_ENV=production
-      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD:-sora_password}@mysql:3306/sora_platform?charset=utf8mb4
+      - DATABASE_URI=mysql+pymysql://sora_user:${MYSQL_PASSWORD}@mysql:3306/sora_platform?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
     env_file:
       - .env
@@ -273,7 +273,7 @@ SQLALCHEMY_DATABASE_URI = os.getenv(
 | 环境 | DATABASE_URI 环境变量 | 实际连接 | 说明 |
 |------|----------------------|---------|------|
 | 本地开发 | 未设置 | `root:admin@localhost:3306` | 连接本机 MySQL |
-| Docker | `sora_user:sora_password@mysql:3306` | `sora_user:sora_password@mysql:3306` | 连接 Docker 容器 |
+| Docker | `sora_user:$MYSQL_PASSWORD@mysql:3306` | `sora_user:$MYSQL_PASSWORD@mysql:3306` | 连接 Docker 容器 |
 
 **为什么不会冲突？**
 
@@ -283,7 +283,7 @@ SQLALCHEMY_DATABASE_URI = os.getenv(
 
 2. **不同的用户凭证：**
    - 本地：`root / admin`（你本地 MySQL 的现有用户）
-   - Docker：`sora_user / sora_password`（Docker 启动时自动创建）
+   - Docker：`sora_user / $MYSQL_PASSWORD`（Docker 启动时自动创建）
 
 3. **环境隔离：**
    - 本地开发不启动 Docker → 使用默认配置
@@ -324,8 +324,8 @@ SECRET_KEY=your-super-secret-key-change-me
 JWT_SECRET_KEY=your-jwt-secret-key-change-me
 
 # 数据库配置 (Docker Compose 会覆盖)
-MYSQL_ROOT_PASSWORD=root_password
-MYSQL_PASSWORD=sora_password
+MYSQL_ROOT_PASSWORD=your-mysql-root-password
+MYSQL_PASSWORD=your-mysql-password
 
 # 第三方 API
 OPENAI_API_KEY=sk-xxxxx
@@ -426,11 +426,11 @@ docker-compose logs -f scheduler
 # 测试 API
 curl http://localhost:5000/health
 
-# 进入 MySQL 数据库（会提示输入密码: sora_password）
+# 进入 MySQL 数据库（会提示输入密码取自 .env 的 MYSQL_PASSWORD）
 docker-compose exec mysql mysql -u sora_user -p sora_platform
 
 # 或者直接指定密码（开发环境快捷方式，注意 -p 和密码之间无空格）
-docker-compose exec mysql mysql -u sora_user -psora_password sora_platform
+docker-compose exec mysql mysql -u sora_user -p"$MYSQL_PASSWORD" sora_platform
 
 # 测试 Redis
 docker-compose exec redis redis-cli ping
@@ -466,7 +466,7 @@ docker-compose up -d --build  # 重新启动，自动初始化
 **⚠️ 重新初始化警告：**
 - `init_db.py` 会执行 `db.drop_all()` 删除所有表和数据
 - 生产环境请谨慎使用！
-- 建议先备份数据：`docker-compose exec mysql mysqldump -u root -proot_password sora_platform > backup.sql`
+- 建议先备份数据：`docker-compose exec mysql mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" sora_platform > backup.sql`
 
 ---
 
@@ -595,11 +595,11 @@ docker-compose logs --since 24h > logs_24h.txt
 ### 7.2 数据备份
 
 ```bash
-# 备份 MySQL 数据库（会提示输入密码: root_password）
+# 备份 MySQL 数据库（会提示输入密码取自 .env 的 MYSQL_ROOT_PASSWORD）
 docker-compose exec mysql mysqldump -u root -p sora_platform > backup_$(date +%Y%m%d).sql
 
 # 或者直接指定密码
-docker-compose exec mysql mysqldump -u root -proot_password sora_platform > backup_$(date +%Y%m%d).sql
+docker-compose exec mysql mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" sora_platform > backup_$(date +%Y%m%d).sql
 
 # 备份 Redis 数据
 docker-compose exec redis redis-cli SAVE
@@ -651,11 +651,11 @@ docker-compose exec api gunicorn -w 8 -b 0.0.0.0:5000 run:app
 # 检查 MySQL 健康状态
 docker-compose exec mysql mysqladmin ping
 
-# 查看连接数（会提示输入密码: root_password）
+# 查看连接数（会提示输入密码取自 .env 的 MYSQL_ROOT_PASSWORD）
 docker-compose exec mysql mysql -u root -p -e "SHOW PROCESSLIST;"
 
 # 或者直接指定密码
-docker-compose exec mysql mysql -u root -proot_password -e "SHOW PROCESSLIST;"
+docker-compose exec mysql mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "SHOW PROCESSLIST;"
 ```
 
 ---
@@ -708,7 +708,7 @@ command: redis-server --appendonly yes --save 60 1000
 1. 将 SQL 语句转换为 Python 代码，添加到 `init_db.py` 中
 2. 或者在 API 容器启动后手动执行：
    ```bash
-   docker-compose exec mysql mysql -u sora_user -psora_password sora_platform < your_custom.sql
+   docker-compose exec mysql mysql -u sora_user -p"$MYSQL_PASSWORD" sora_platform < your_custom.sql
    ```
 
 ### Q7: 如何查看数据库初始化日志？
