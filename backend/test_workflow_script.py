@@ -20,7 +20,7 @@ def submit_task():
         "model": "workflow-earing-ad",
         "prompt": "Test Product Info", 
         "input_file_url": [
-            "https://pub-826107e0701d495a8c5318616ce8ac43.r2.dev/uploads/user_1/2026/03/05/63c42b95-20260305112404_9258_51.jpg"
+            "https://your-public-bucket-domain/example-input.jpg"
         ],
         "params": {}
     }

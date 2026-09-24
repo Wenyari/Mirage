@@ -16,9 +16,7 @@ interface GeetestCaptchaProps {
     onError?: (error: any) => void;
 }
 
-// 这里的 ID 应该从环境变量获取，暂时硬编码或者通过 props 传入
-// 为了方便，建议使用环境变量 VITE_GEETEST_ID
-const CAPTCHA_ID = '***REMOVED***';
+const CAPTCHA_ID = import.meta.env.VITE_GEETEST_ID;
 
 const GeetestCaptcha = ({ onVerify, onError }: GeetestCaptchaProps) => {
     const containerRef = useRef<HTMLDivElement>(null);

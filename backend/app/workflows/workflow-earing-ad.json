@@ -38,7 +38,7 @@
   },
   "27": {
     "inputs": {
-      "value": "https://pub-826107e0701d495a8c5318616ce8ac43.r2.dev/uploads/user_1/2026/03/05/63c42b95-20260305112404_9258_51.jpg"
+      "value": "https://your-public-bucket-domain/example-input.jpg"
     },
     "class_type": "PrimitiveString",
     "_meta": {
@@ -107,7 +107,7 @@
   },
   "36": {
     "inputs": {
-      "value": "***REMOVED***"
+      "value": "sk-placeholder-injected-at-runtime"
     },
     "class_type": "PrimitiveString",
     "_meta": {

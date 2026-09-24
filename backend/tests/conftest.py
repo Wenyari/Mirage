@@ -181,7 +181,7 @@ def admin_user(db_session):
     """
     创建管理员用户 - 用于业务逻辑测试
     """
-    password_hash = bcrypt.hashpw('***REMOVED***'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    password_hash = bcrypt.hashpw('admin-test-password'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     user = User(
         email='admin@example.com',

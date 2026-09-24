@@ -7,6 +7,8 @@
 - Task 表新增 progress 字段（任务进度 0-100）
 - Task 表 status 新增 cancelled 状态（已取消）
 """
+import os
+
 from app import create_app
 from app.extensions import db
 from app.models import User, MembershipConfig, Model, ModelConfig, ApiKey, ApiKeyModel, Task
@@ -318,10 +320,13 @@ def init_api_keys():
         print("  ⚠️  Please replace these with your actual API keys!")
         print("  Note: api_base is the default base URL, each model can have its own endpoint")
 
+        upstream_key = os.environ.get('OPENAI_API_KEY', 'sk-your-upstream-api-key')
+        upstream_base = os.environ.get('SORA_API_BASE_URL', 'https://your-upstream-provider.com')
+
         keys = [
             {
-                "api_base": "https://ai.t8star.cn",  # 默认基础地址
-                "key_secret": "***REMOVED***",
+                "api_base": upstream_base,  # 默认基础地址
+                "key_secret": upstream_key,
                 "max_concurrency": 4,
                 "status": 1,
                 "weight": 10,
@@ -435,8 +440,14 @@ def init_checkin_configs():
         print("✓ Checkin configurations initialized")
 
 
-def create_admin_user(email='admin@example.com', password='***REMOVED***'):
-    """创建管理员账号"""
+def create_admin_user(email=None, password=None):
+    """创建管理员账号，凭据取自环境变量 ADMIN_EMAIL / ADMIN_PASSWORD"""
+    email = email or os.environ.get('ADMIN_EMAIL', 'admin@example.com')
+    password = password or os.environ.get('ADMIN_PASSWORD')
+
+    if not password:
+        raise RuntimeError('ADMIN_PASSWORD is not set. Configure it in .env before initializing.')
+
     with app.app_context():
         print(f"Creating admin user: {email}")
 
@@ -465,10 +476,12 @@ def create_admin_user(email='admin@example.com', password='***REMOVED***'):
         db.session.commit()
 
         # 创建测试普通用户
-        password_hash = bcrypt.hashpw('***REMOVED***'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        demo_email = os.environ.get('DEMO_USER_EMAIL', 'demo@example.com')
+        demo_password = os.environ.get('DEMO_USER_PASSWORD', password)
+        password_hash = bcrypt.hashpw(demo_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         normal = User(
-            email="demo@example.com",
+            email=demo_email,
             password_hash=password_hash,
             recharge_balance=10000.00,
             activity_balance=0.00,
@@ -477,12 +490,12 @@ def create_admin_user(email='admin@example.com', password='***REMOVED***'):
             status=1
         )
 
-        db.session.add(normal)  
+        db.session.add(normal)
         db.session.commit()
 
         print(f"✓ Admin user created")
         print(f"  Email: {email}")
-        print(f"  Password: {password}")
+        print(f"  Password: (from ADMIN_PASSWORD)")
         print(f"  ⚠️  Please change the password after first login!")
 
 

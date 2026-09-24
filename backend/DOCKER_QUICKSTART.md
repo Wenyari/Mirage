@@ -30,13 +30,17 @@ docker-compose logs api
 
 ## 默认账号
 
+初始化脚本会根据 `.env` 中的配置创建账号，**不存在硬编码的默认密码**：
+
 **管理员账号：**
-- 邮箱：`admin@example.com`
-- 密码：`***REMOVED***`
+- 邮箱：`ADMIN_EMAIL`
+- 密码：`ADMIN_PASSWORD`（未设置时 `init_db.py` 会直接报错退出）
 
 **测试用户：**
-- 邮箱：`demo@example.com`
-- 密码：`***REMOVED***`
+- 邮箱：`DEMO_USER_EMAIL`（默认 `demo@example.com`）
+- 密码：`DEMO_USER_PASSWORD`（未设置时复用 `ADMIN_PASSWORD`）
+
+> ⚠️ 首次登录后请立即在后台修改密码。
 
 ## 重要提示
 
@@ -91,7 +95,7 @@ curl http://localhost:5000/health
 # 登录测试
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"***REMOVED***"}'
+  -d '{"email":"admin@example.com","password":"your-admin-password"}'
 ```
 
 ## 详细文档

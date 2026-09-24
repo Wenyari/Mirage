@@ -12,10 +12,10 @@ from botocore.config import Config
 from datetime import datetime
 
 # ================= 配置区域 =================
-# 1. 填入你的变量
-MY_ACCOUNT_ID = "***REMOVED***"       # 对应 R2_ACCOUNT_ID
-MY_ACCESS_KEY = "***REMOVED***"    # 对应 R2_ACCESS_KEY_ID
-MY_SECRET_KEY = "***REMOVED***"# 对应 R2_SECRET_ACCESS_KEY
+# 1. 从环境变量读取 R2 凭据，勿硬编码
+MY_ACCOUNT_ID = os.environ["R2_ACCOUNT_ID"]
+MY_ACCESS_KEY = os.environ["R2_ACCESS_KEY_ID"]
+MY_SECRET_KEY = os.environ["R2_SECRET_ACCESS_KEY"]
 
 # Cloudflare R2 S3 客户端配置
 R2_CONFIG = {
@@ -27,11 +27,11 @@ R2_CONFIG = {
 }
 
 # 2. 桶名称
-BUCKET_NAME = "assets"  # 对应你的 R2_BUCKET_NAME
+BUCKET_NAME = os.environ.get("R2_BUCKET_NAME", "assets")
 
 # 3. 公网访问域名
 # 注意：去掉末尾的斜杠，方便后面代码拼接
-PUBLIC_DOMAIN = "https://pub-826107e0701d495a8c5318616ce8ac43.r2.dev"
+PUBLIC_DOMAIN = os.environ["R2_PUBLIC_URL"].rstrip("/")
 
 # 爬虫设置
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"

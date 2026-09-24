@@ -386,8 +386,8 @@ docker-compose up -d --build
 - 创建所有数据库表（users, tasks, models, api_keys 等）
 - 插入会员等级配置（T1-T5）
 - 插入模型配置（sora-2, nano-banana）
-- 创建管理员账号（admin@example.com / ***REMOVED***）
-- 创建测试用户（demo@example.com / ***REMOVED***）
+- 创建管理员账号（取自 ADMIN_EMAIL / ADMIN_PASSWORD）
+- 创建测试用户（取自 DEMO_USER_EMAIL / DEMO_USER_PASSWORD）
 - 插入示例 API 密钥
 
 **查看初始化日志：**

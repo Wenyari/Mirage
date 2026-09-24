@@ -1,1 +1,9 @@
-.vscode
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Environment Variables（.env.example 除外）
+.env
+.env.*
+!.env.example

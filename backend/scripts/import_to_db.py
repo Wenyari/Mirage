@@ -5,11 +5,11 @@ import os
 # ================= 配置区域 =================
 # 对应 docker-compose.yml 中的环境变量
 DB_CONFIG = {
-    'host': '127.0.0.1',      # 连接宿主机映射的端口
-    'port': 3306,             # 对应 ports: - "3306:3306"
-    'user': 'sora_user',      # 对应 MYSQL_USER
-    'password': 'sora_password', # 对应 MYSQL_PASSWORD (如果.env没改的话)
-    'db': 'sora_platform',    # 对应 MYSQL_DATABASE
+    'host': os.environ.get('MYSQL_HOST', '127.0.0.1'),  # 连接宿主机映射的端口
+    'port': int(os.environ.get('MYSQL_PORT', 3306)),    # 对应 ports: - "3306:3306"
+    'user': os.environ.get('MYSQL_USER', 'mirage_user'),
+    'password': os.environ['MYSQL_PASSWORD'],
+    'db': os.environ.get('MYSQL_DATABASE', 'mirage'),
     'charset': 'utf8mb4',
     'cursorclass': pymysql.cursors.DictCursor
 }
